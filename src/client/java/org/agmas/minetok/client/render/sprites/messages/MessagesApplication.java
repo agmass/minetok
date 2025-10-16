@@ -50,8 +50,10 @@ public class MessagesApplication extends ExitButtonSprite implements NetworkSpri
     public void render(GuiGraphics graphics, PhoneTapInformation mouse, float renderDelta) {
         if (messagingContainerSprite == null || messagingContainerSprite.transition < 1) {
             if (messagingContainerSprite != null) {
-                if (messagingContainerSprite.closing && messagingContainerSprite.transition <= 0) {
-                    messagingContainerSprite = null;
+                if (mouse.isClient) {
+                    if (messagingContainerSprite.closing && messagingContainerSprite.transition <= 0) {
+                        messagingContainerSprite = null;
+                    }
                 }
             }
             exitBarCapture(mouse);
@@ -233,12 +235,32 @@ public class MessagesApplication extends ExitButtonSprite implements NetworkSpri
     @Override
     public void sync(CompoundTag phoneData) {
         if (messagingContainerSprite != null) {
-            messagingContainerSprite.sync(phoneData);
+            if (!phoneData.contains("msgscreen")) {
+                messagingContainerSprite = null;
+            } else {
+                messagingContainerSprite.sync(NBTHelper.getCompoundOrEmpty(phoneData, "msgscreen"));
+            }
         } else {
             if (phoneData.contains("msgscreen")) {
-                UUID uuid = UUID.fromString()
-                GameProfile profile = new GameProfile(uuid, "Player" + uuid.hashCode());
-                messagingContainerSprite = new MessagingContainerSprite(new PlayerInfo(profile,false));
+                UUID uuid = UUID.fromString(NBTHelper.getStringOr(NBTHelper.getCompound(phoneData, "msgscreen"), "other", Minecraft.getInstance().player.getStringUUID()));
+                if (FabricLoader.getInstance().isDevelopmentEnvironment()) {
+                    GameProfile profile = new GameProfile(uuid, "Player" + uuid.hashCode());
+                    messagingContainerSprite = new MessagingContainerSprite(new PlayerInfo(profile,false));
+                } else {
+                    //? if >1.21.1
+                    Optional<GameProfile> profile = Minecraft.getInstance().services().profileResolver().fetchById(uuid);
+                    //? if <=1.21.1 {
+                    /*Optional<GameProfile> profile;
+                    ProfileResult result = Minecraft.getInstance().getMinecraftSessionService().fetchProfile(uuid,false);
+                    if (result != null) {
+                        profile = Optional.of(result.profile());
+                    } else {
+                        profile = Optional.empty();
+                    }
+                    *///? }
+                    if (profile.isPresent())
+                        messagingContainerSprite = new MessagingContainerSprite(new PlayerInfo(profile.get(),false));
+                }
             }
             textField.setValue(NBTHelper.getStringOr(phoneData, "search", ""));
             scrollBarSprite.sync(NBTHelper.getCompoundOrEmpty(phoneData, "scroll"));

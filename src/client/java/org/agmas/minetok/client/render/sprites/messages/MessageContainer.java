@@ -3,9 +3,11 @@ package org.agmas.minetok.client.render.sprites.messages;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.MultiLineTextWidget;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import org.agmas.minetok.api.PhoneTapInformation;
 import org.agmas.minetok.client.api.MTGraphics;
+import org.agmas.minetok.client.api.NetworkSprite;
 import org.agmas.minetok.client.api.Sprite;
 import org.agmas.minetok.network.NetMessage;
 
@@ -14,7 +16,7 @@ import java.sql.Date;
 import java.time.Instant;
 import java.time.temporal.ChronoField;
 
-public class MessageContainer extends Sprite {
+public class MessageContainer extends Sprite implements NetworkSprite {
 
 
     MultiLineTextWidget messageWidget;
@@ -55,5 +57,19 @@ public class MessageContainer extends Sprite {
 
         graphics.pose().popMatrix();
         super.render(graphics, mouse, renderDelta);
+    }
+
+    @Override
+    public CompoundTag createTag() {
+        CompoundTag tag = new CompoundTag();
+        tag.putBoolean("recieving", message.receiving());
+        tag.putLong("timestamp", message.timestamp());
+        tag.putString("body", message.message().tryCollapseToString());
+        return tag;
+    }
+
+    @Override
+    public void sync(CompoundTag phoneData) {
+        // Handled by parent ... relax... I'll handle it... -supertf
     }
 }

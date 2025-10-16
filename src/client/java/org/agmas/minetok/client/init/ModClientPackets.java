@@ -4,6 +4,7 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.loader.impl.util.log.Log;
 import net.fabricmc.loader.impl.util.log.LogCategory;
 import net.minecraft.client.Minecraft;
+import org.agmas.minetok.Minetok;
 import org.agmas.minetok.client.MinetokClient;
 import org.agmas.minetok.client.render.sprites.NotificationSprite;
 import org.agmas.minetok.client.render.sprites.messages.MessageContainer;
@@ -36,6 +37,7 @@ public class ModClientPackets {
                         app.messagingContainerSprite.messages.reversed().addAll(packet.messages());
                     }
                 }
+                MinetokClient.phone.setDirty();
             }
         });
     }

@@ -86,6 +86,7 @@ public class HomeScreenSprite extends Sprite {
             if (closing && openingAppAnimation <= 0) {
                 focusedSprite = null;
                 closing = false;
+                MinetokClient.phone.setDirty();
             }
         } else if (focusedSprite != null) {
             focusedSprite.render(graphics,mouse,renderDelta);

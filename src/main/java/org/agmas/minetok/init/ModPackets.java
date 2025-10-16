@@ -2,6 +2,8 @@ package org.agmas.minetok.init;
 
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.fabricmc.fabric.impl.attachment.AttachmentTargetImpl;
+import net.fabricmc.fabric.impl.attachment.sync.AttachmentChange;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.impl.util.log.Log;
 import net.fabricmc.loader.impl.util.log.LogCategory;
@@ -47,15 +49,28 @@ public class ModPackets {
                 .register(ServerboundRingtoneSetPacket.TYPE, ServerboundRingtoneSetPacket.CODEC);
 
         ServerPlayNetworking.registerGlobalReceiver(ServerboundPhoneStatePacket.TYPE, (payload, context)->{
+            CompoundTag updateTag = new CompoundTag();
             if (payload.phoneTag().contains("x")) {
                 CompoundTag currentTag = context.player().getAttachedOrElse(ModAttachments.PHONE_STATE, new CompoundTag());
                 currentTag.remove("mouse");
                 currentTag.put("mouse", payload.phoneTag());
-                context.player().setAttached(ModAttachments.PHONE_STATE, currentTag);
+                updateTag = currentTag;
             } else {
-                Log.info(LogCategory.GENERAL, payload.phoneTag().toString());
-                context.player().setAttached(ModAttachments.PHONE_STATE, payload.phoneTag());
+                updateTag= payload.phoneTag();
             }
+            context.player().setAttached(ModAttachments.PHONE_STATE, updateTag);
+            //? if >1.19
+            AttachmentTargetImpl attachmentTarget = ((AttachmentTargetImpl) context.player());
+
+            //? if >=26.2 {
+            /*attachmentTarget.fabric_syncChange(ModAttachments.PHONE_STATE, new AttachmentChange(attachmentTarget.fabric_getSyncTargetInfo(), ModAttachments.PHONE_STATE, updateTag));
+            *///? } else if =26.1 {
+            /*attachmentTarget.fabric_syncChange(ModAttachments.PHONE_STATE, AttachmentChange.create(attachmentTarget.fabric_getSyncTargetInfo(), ModAttachments.PHONE_STATE, updateTag, attachmentTarget.fabric_getRegistryAccess()));
+             *///? } else if =1.21.11 {
+            attachmentTarget.fabric_syncChange(ModAttachments.PHONE_STATE, AttachmentChange.create(attachmentTarget.fabric_getSyncTargetInfo(), ModAttachments.PHONE_STATE, updateTag, attachmentTarget.fabric_getDynamicRegistryManager()));
+             //? } else if >1.21.1 {
+            /*attachmentTarget.fabric_syncChange(ModAttachments.PHONE_STATE, new AttachmentSyncPayloadS2C(List.of(AttachmentChange.create(attachmentTarget.fabric_getSyncTargetInfo(), ModAttachments.PHONE_STATE, updateTag, attachmentTarget.fabric_getDynamicRegistryManager()))));
+             *///? }
         });
 
         ServerPlayNetworking.registerGlobalReceiver(ServerboundRingtoneSetPacket.TYPE, (payload, context)->{

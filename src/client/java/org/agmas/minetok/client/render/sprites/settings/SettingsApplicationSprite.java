@@ -25,6 +25,7 @@ public class SettingsApplicationSprite extends ExitButtonSprite implements Netwo
     SoundOverlayOptionSprite ringtone = new SoundOverlayOptionSprite(Component.translatable("config.minetok.ringtone"), PhoneConfig.INSTANCE.ringtone);
     YTDLPOptionSprite ytdlp = new YTDLPOptionSprite(Component.translatable("config.minetok.install_ytdlp"));
     DebugModeSprite debug = new DebugModeSprite(Component.translatable("config.minetok.debug_mode"));
+    FakeNetPhoneSprite fakenetphone = new FakeNetPhoneSprite(Component.translatable("config.minetok.fakenetphone"));
 
     ArrayList<Sprite> options  = new ArrayList<>();
 
@@ -39,6 +40,9 @@ public class SettingsApplicationSprite extends ExitButtonSprite implements Netwo
 
     @Override
     public void render(GuiGraphics graphics, PhoneTapInformation mouse, float renderDelta) {
+        if (DebugModeSprite.ticked) {
+            if (!options.contains(fakenetphone)) options.add(fakenetphone);
+        }
         exitBarCapture(mouse);
 
         MTGraphics.blitSprite(graphics, Identifier.withDefaultNamespace("textures/block/white_concrete_powder.png"), -8,-8,0,0, Phone.SCREEN_WIDTH+16, Phone.SCREEN_HEIGHT+16,128,128);
@@ -84,6 +88,6 @@ public class SettingsApplicationSprite extends ExitButtonSprite implements Netwo
     public void sync(CompoundTag phoneData) {
         muteRingtones.ticked = NBTHelper.getBooleanOr(phoneData, "mute_ringtones", false);
         muteOtherPhones.ticked = NBTHelper.getBooleanOr(phoneData, "mute_other_phones", false);
-        disableRingingIndicator.ticked = NBTHelper.getBooleanOr(phoneData, "mute_other_phones", false);
+        disableRingingIndicator.ticked = NBTHelper.getBooleanOr(phoneData, "disable_ringing_indicator", false);
     }
 }

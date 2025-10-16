@@ -48,6 +48,7 @@ import org.agmas.minetok.client.init.MinetokOverlays;
 import org.agmas.minetok.client.init.ModClientPackets;
 import org.agmas.minetok.client.render.Phone;
 import org.agmas.minetok.client.render.PhoneTextureRenderer;
+import org.agmas.minetok.client.render.sprites.settings.FakeNetPhoneSprite;
 import org.agmas.minetok.client.sound.RingtoneSoundInstance;
 import org.agmas.minetok.client.util.MinetokClientRegistries;
 import org.agmas.minetok.client.util.OtherPlayerPhone;
@@ -217,9 +218,11 @@ public class MinetokClient implements ClientModInitializer {
 
 
 			for (OtherPlayerPhone value : playerPhoneHashMap.values()) {
-				if (value.phone.player.getUUID().equals(MinetokClient.phone.player.getUUID())) continue;
+				if (!FakeNetPhoneSprite.ticked)
+					if (value.phone.player.getUUID().equals(MinetokClient.phone.player.getUUID())) continue;
 				currentlyRendering_phone = value.phone;
 
+				value.phone.mouse.isClient = false;
 				//? if <=1.21.1
 				//value.renderer.render(value.phone);
 				//? if >1.21.1 && <26.1

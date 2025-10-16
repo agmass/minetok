@@ -15,6 +15,7 @@ import org.agmas.minetok.Minetok;
 import org.agmas.minetok.api.PhoneTapInformation;
 import org.agmas.minetok.client.MinetokClient;
 import org.agmas.minetok.client.animation.EasingHelper;
+import org.agmas.minetok.client.animation.NBTHelper;
 import org.agmas.minetok.client.api.MTGraphics;
 import org.agmas.minetok.client.api.NetworkSprite;
 import org.agmas.minetok.client.render.Phone;
@@ -44,6 +45,7 @@ public class MessagingContainerSprite extends ExitButtonSprite implements Networ
     float forceScrollTime = 0;
     EditBox chatbox = new EditBox(Minecraft.getInstance().font, 0,0,120,10, Component.empty());
     public PlayerInfo other;
+    public ArrayList<MessageContainer> renderedMessages = new ArrayList<>();
     public MessagingContainerSprite(PlayerInfo other) {
         closeBehaviour = CloseBehaviour.HANDLED;
         chatbox.setMaxLength(6400);
@@ -98,12 +100,17 @@ public class MessagingContainerSprite extends ExitButtonSprite implements Networ
         graphics.pose().pushMatrix();
         forceScrollTime -= renderDelta;
         forceScrollTime = Mth.clamp(forceScrollTime,0,1);
+        renderedMessages.clear();
         MTGraphics.translate(graphics, 0, scroll + Mth.lerp(EasingHelper.outCirc(forceScrollTime), 0, forceScroll));
         for (MessageContainer message : messageSprites) {
             y -= message.getHeight();
             message.x = message.message.receiving() ? 16 : (Phone.SCREEN_WIDTH - message.getWidth()) - 16;
             message.y = y;
-            message.render(graphics,mouse,renderDelta);
+            float finalY = scroll + Mth.lerp(EasingHelper.outCirc(forceScrollTime),0,forceScroll) + y;
+            if (finalY + message.getWidth() > 0 && finalY < Phone.SCREEN_HEIGHT-150) {
+                message.render(graphics,mouse,renderDelta);
+                renderedMessages.add(message);
+            }
             y -= messageSpacing;
         }
         if ((scroll + 500) > Math.abs(y) && !requesting) {
@@ -191,11 +198,33 @@ public class MessagingContainerSprite extends ExitButtonSprite implements Networ
     public CompoundTag createTag() {
         CompoundTag tag = new CompoundTag();
         tag.putString("other", other.getProfile().id().toString());
+        tag.putString("typing", chatbox.getValue());
+        tag.putBoolean("closing", closing);
+        CompoundTag visibleMessages = new CompoundTag();
+        int i = 0;
+        for (MessageContainer renderedMessage : renderedMessages) {
+            visibleMessages.put(i+"", renderedMessage.createTag());
+            i++;
+        }
+        tag.put("messages", visibleMessages);
         return tag;
     }
+    public boolean messagesDirty = false;
 
     @Override
     public void sync(CompoundTag phoneData) {
-
+        closing = NBTHelper.getBooleanOr(phoneData, "closing",false);
+        chatbox.setValue(NBTHelper.getStringOr(phoneData, "typing", ""));
+        ArrayList<NetMessage> networkedMessages = new ArrayList<>();
+        for (int i = 0; i < NBTHelper.getCompoundOrEmpty(phoneData, "messages").keySet().size(); i++) {
+            networkedMessages.add(new NetMessage(false,0,Component.literal("Uh oh")));
+        }
+        for (String s : NBTHelper.getCompoundOrEmpty(phoneData, "messages").keySet()) {
+            CompoundTag msgN = NBTHelper.getCompoundOrEmpty(NBTHelper.getCompoundOrEmpty(phoneData, "messages"), s);
+            networkedMessages.set(Integer.parseInt(s), new NetMessage(msgN.getBooleanOr("recieving", false), msgN.getLongOr("timestamp", 0), Component.literal(msgN.getStringOr("body", ""))));
+        }
+        messages = networkedMessages.reversed();
+        if (!messages.equals(networkedMessages))
+            messagesDirty = true;
     }
 }

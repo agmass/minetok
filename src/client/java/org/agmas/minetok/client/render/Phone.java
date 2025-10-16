@@ -5,6 +5,7 @@ package org.agmas.minetok.client.render;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.MultiLineTextWidget;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 //? if >1.21.1 {
 import net.minecraft.client.renderer.RenderPipelines;
@@ -17,7 +18,10 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtUtils;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import org.agmas.minetok.Minetok;
@@ -32,6 +36,7 @@ import org.agmas.minetok.client.init.MinetokOverlays;
 import org.agmas.minetok.client.render.sprites.HomeScreenSprite;
 import org.agmas.minetok.client.render.sprites.calls.CallingSprite;
 import org.agmas.minetok.client.render.sprites.settings.DebugModeSprite;
+import org.agmas.minetok.client.render.sprites.settings.FakeNetPhoneSprite;
 import org.agmas.minetok.client.util.MinetokClientRegistries;
 import org.agmas.minetok.client.vlcj.YTDLPDownloader;
 import org.agmas.minetok.init.ModAttachments;
@@ -67,6 +72,7 @@ public class Phone {
         setDirty();
         topSprite.overlays.add(overlay);
     }
+    MultiLineTextWidget debugWidget = new MultiLineTextWidget(Component.empty(), Minecraft.getInstance().font);
 
     public void render(GuiGraphics graphics) {
         if (this == MinetokClient.phone)
@@ -86,8 +92,11 @@ public class Phone {
         boolean debug = DebugModeSprite.ticked;
         if (debug) {
             graphics.pose().pushMatrix();
+            MTGraphics.scale(graphics,0.7f);
             MTGraphics.translate(graphics, (-mouse.x) + (Phone.SCREEN_WIDTH/2f), (-mouse.y) + (Phone.SCREEN_HEIGHT/2f));
+
         }
+
 
         topSprite.render(graphics,mouse, Minecraft.getInstance().getDeltaTracker().getRealtimeDeltaTicks());
 
@@ -98,6 +107,10 @@ public class Phone {
                 CROSSHAIR_SPRITE, (int)mouse.x, (int)mouse.y, 80, 80);
 
         if (debug) {
+            MTGraphics.translate(graphics,Phone.SCREEN_WIDTH+40,0);
+            debugWidget.setMessage(Component.literal(NbtUtils.prettyPrint(createTag())));
+            MTGraphics.scale(graphics,4);
+            debugWidget.render(graphics,0,0,0);
             graphics.pose().popMatrix();
         }
 
@@ -172,15 +185,18 @@ public class Phone {
         poseStack.pushPose();
         poseStack.translate(-3.95f,-6.5f,-12.88f);
         poseStack.scale(0.85f,0.85f,0.85f);
-        createPlane(submitNodeCollector,poseStack);
+
+
+        createPlane(submitNodeCollector,poseStack,getTextureForPlayer(player));
+
 
         poseStack.popPose();
     }
 
     int fullbright = 15728880;
     //? if >1.21.1 {
-    public void createPlane(SubmitNodeCollector submitNodeCollector, PoseStack stack) {
-        submitNodeCollector.submitCustomGeometry(stack, MinetokClient.getPhoneRenderType(MTID.of("phone_texture")), ((pose, vertexConsumer) -> {
+    public void createPlane(SubmitNodeCollector submitNodeCollector, PoseStack stack, MTID id) {
+        submitNodeCollector.submitCustomGeometry(stack, MinetokClient.getPhoneRenderType(id), ((pose, vertexConsumer) -> {
             vertexConsumer.addVertex(pose, 0,0,0).setUv(0,0).setLight(fullbright).setNormal(1,1,1).setUv2(0,0).setColor(-1);
             vertexConsumer.addVertex(pose, 9,0,0).setUv(1,0).setLight(fullbright).setNormal(1,1,1).setUv2(0,0).setColor(-1);
             vertexConsumer.addVertex(pose, 9,16,0).setUv(1,1).setLight(fullbright).setNormal(1,1,1).setUv2(0,0).setColor(-1);
@@ -188,8 +204,8 @@ public class Phone {
         }));
     }
     //? } else {
-    /*public void createPlane(MultiBufferSource submitNodeCollector, PoseStack stack) {
-        VertexConsumer consumer = submitNodeCollector.getBuffer(MinetokClient.getPhoneRenderType(MTID.of("phone_texture")));
+    /*public void createPlane(MultiBufferSource submitNodeCollector, PoseStack stack, MTID id) {
+        VertexConsumer consumer = submitNodeCollector.getBuffer(MinetokClient.getPhoneRenderType(id));
         consumer.addVertex(stack.last(), 0,0,0).setUv(0,0).setLight(fullbright).setNormal(1,1,1).setUv2(0,0).setColor(-1);
         consumer.addVertex(stack.last(), 9,0,0).setUv(1,0).setLight(fullbright).setNormal(1,1,1).setUv2(0,0).setColor(-1);
         consumer.addVertex(stack.last(), 9,16,0).setUv(1,1).setLight(fullbright).setNormal(1,1,1).setUv2(0,0).setColor(-1);
@@ -316,6 +332,11 @@ public class Phone {
                 }
 
             }
+        } else {
+            if (topSprite.focusedSprite != null && topSprite.focusedSprite.application != null && !topSprite.closing) {
+                topSprite.closing = true;
+                topSprite.openingAppAnimation = 1;
+            }
         }
         MinetokClient.currentlyRendering_phone = null;
 
@@ -338,7 +359,7 @@ public class Phone {
     }
 
     public static MTID getTextureForPlayer(Player p) {
-        if (p != Minecraft.getInstance().player) {
+        if (p != Minecraft.getInstance().player || FakeNetPhoneSprite.ticked) {
             return MinetokClient.playerPhoneHashMap.containsKey(p.getUUID()) ? MinetokClient.playerPhoneHashMap.get(p.getUUID()).textureIdentifier : MinetokClient.missingId;
         } else {
             return MTID.of("phone_texture");

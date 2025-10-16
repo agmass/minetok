@@ -44,6 +44,7 @@ public class ExitButtonSprite extends Sprite {
                 pressedExit = false;
                 MinetokClient.phone.topSprite.overlays.removeLast();
                 mouse.justReleased = false;
+                MinetokClient.phone.setDirty();
             } else if (closeBehaviour.equals(CloseBehaviour.CLOSE_APP)) {
                 pressedExit = false;
                 MinetokClient.phone.topSprite.closing = true;
