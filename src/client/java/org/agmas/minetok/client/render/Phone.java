@@ -24,6 +24,7 @@ import org.agmas.minetok.client.render.sprites.HomeScreenSprite;
 import org.agmas.minetok.client.render.sprites.calls.CallingSprite;
 import org.agmas.minetok.client.render.sprites.minetok.TikTokApplication;
 import org.agmas.minetok.client.util.MinetokClientRegistries;
+import org.agmas.minetok.client.vlcj.YTDLPDownloader;
 import org.agmas.minetok.init.ModAttachments;
 import org.agmas.minetok.porting.MTIdentifier;
 import org.jetbrains.annotations.Nullable;
@@ -38,6 +39,7 @@ public class Phone {
     public boolean captured = false;
     public HomeScreenSprite topSprite = new HomeScreenSprite();
     public boolean networkDirty = false;
+    public YTDLPDownloader downloader;
 
     public PhoneTapInformation mouse;
     public Player player;
@@ -48,6 +50,7 @@ public class Phone {
     public Phone(Player player) {
         this.player = player;
         mouse = new PhoneTapInformation(player.isLocalPlayer());
+        downloader = new YTDLPDownloader(player.getStringUUID());
     }
 
     public void addNetOverlay(Application overlayType, Sprite overlay) {

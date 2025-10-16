@@ -72,7 +72,7 @@ public class MinetokClient implements ClientModInitializer {
 	@Override
 	public void onInitializeClient() {
 
-		YTDLPDownloader.clearYTDLPFolder();
+		//YTDLPDownloader.clearYTDLPFolder();
 
 		MinetokClientRegistries.init();
 		MinetokApplications.init();
@@ -96,6 +96,8 @@ public class MinetokClient implements ClientModInitializer {
 
 		ClientTickEvents.END_LEVEL_TICK.register((l)->{
 			if (phone != null) {
+				phone.mouse.prevX = phone.mouse.x;
+				phone.mouse.prevY = phone.mouse.y;
 				if (phone.networkDirty) {
 					ClientPlayNetworking.send(new ServerboundPhoneStatePacket(phone.createTag()));
 					phone.networkDirty = false;
@@ -132,6 +134,7 @@ public class MinetokClient implements ClientModInitializer {
 		});
 
         LevelRenderEvents.END_MAIN.register((wrc)->{
+			YTDLPDownloader.logYtDLP();
 			if (Minecraft.getInstance().player != null) {
 				if (!Minecraft.getInstance().player.isUsingItem()) {
 					phone.selectedElement = null;
@@ -164,7 +167,7 @@ public class MinetokClient implements ClientModInitializer {
 
 
 			for (OtherPlayerPhone value : playerPhoneHashMap.values()) {
-				if (value.phone.player.equals(Minecraft.getInstance().player)) return;
+				if (value.phone.player.getUUID().equals(MinetokClient.phone.player.getUUID())) return;
 				currentlyRendering_phone = value.phone;
 
 				//? if <=26.1

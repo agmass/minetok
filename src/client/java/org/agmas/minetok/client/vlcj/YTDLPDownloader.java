@@ -17,8 +17,13 @@ import java.util.Objects;
 
 public class YTDLPDownloader {
     public static boolean isYTDLPDownloaded = false;
+    public String prefix = "";
 
     // https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp
+
+    public YTDLPDownloader(String prefix) {
+        this.prefix = prefix;
+    }
 
     public static String getReleaseName() {
         if (System.getProperty("os.name").toLowerCase().contains("win")) {
@@ -32,17 +37,31 @@ public class YTDLPDownloader {
 
     static ArrayList<Process> installingProcess = new ArrayList<>();
 
+    public static void logYtDLP() {
+        new Thread(()->{
+            for (Process process : installingProcess) {
+                    try {
+                        String s = new String(process.getInputStream().readAllBytes());
+                        if (!s.isEmpty())
+                            Log.info(LogCategory.GENERAL, "[YT-DLP] " + s);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+            }
+        }).start();
+    }
+
     public static boolean checkYtDLP() {
         File ytDlpFile = new File("ytdlp/yt-dlp");
         isYTDLPDownloaded = ytDlpFile.exists();
         return isYTDLPDownloaded;
     }
 
-    public static Process downloadVideo(String url, String filename, String args) {
+    public Process downloadVideo(String url, String filename, String args) {
         try {
             return Runtime.getRuntime().exec(
                     System.getProperty("os.name").toLowerCase().contains("win") ? "" :  "./" + // windows is  so weird and quirky and not like the other kids haha
-                    "yt-dlp " + url + " -o " + filename + " " + args, new String[0], new File("ytdlp"));
+                    "yt-dlp " + url + " -o " + prefix + "/" + filename + " " + args, new String[0], new File("ytdlp"));
         } catch (IOException e) {
             e.printStackTrace();
             return null;
@@ -54,40 +73,48 @@ public class YTDLPDownloader {
         return !installingProcess.isEmpty();
     }
 
-    public static boolean hasNextReel() {
-        File reel1 = new File("ytdlp/nextReel.mp4");
+    public File metadataAndComments() {
+        return new File("ytdlp/" + prefix + "/reel1.mp4.info.json");
+    }
+
+    public boolean hasNextReel() {
+        File reel1 = new File("ytdlp/" + prefix + "/nextReel.mp4");
         return reel1.exists();
     }
 
-    public static boolean hasPlayableReel() {
-        File reel1 = new File("ytdlp/reel1.mp4");
+    public boolean hasPlayableReel() {
+        File reel1 = new File("ytdlp/" + prefix + "/reel1.mp4");
         return reel1.exists();
     }
 
-    public static File currentThumbnail() {
-        return new File("ytdlp/reel1.png");
+    public File currentThumbnail() {
+        return new File("ytdlp/" + prefix + "/reel1.mp4.png");
     }
 
-    public static File nextThumbnail() {
-        return new File("ytdlp/nextReel.png");
+    public File nextThumbnail() {
+        return new File("ytdlp/" + prefix + "/nextReel.mp4.png");
     }
-    public static void cycleReel() {
-        File reel1 = new File("ytdlp/reel1.mp4");
-        File reel1Thumbnail = new File("ytdlp/reel1.png");
-        File nextReel = new File("ytdlp/nextReel.mp4");
-        File nextReelThumbnail = new File("ytdlp/nextReel.png");
+    public void cycleReel() {
+        File reel1 = new File("ytdlp/" + prefix + "/reel1.mp4");
+        File reel1Thumbnail = new File("ytdlp/"  + prefix + "/reel1.mp4.png");
+        File reel1Info = new File("ytdlp/"  + prefix + "/reel1.mp4.info.json");
+        File nextReel = new File("ytdlp/" + prefix + "/nextReel.mp4");
+        File nextReelThumbnail = new File("ytdlp/" + prefix + "/nextReel.mp4.png");
+        File nextReelInfo = new File("ytdlp/" + prefix + "/nextReel.mp4.info.json");
         if (reel1.exists()) {
             reel1.delete();
             reel1Thumbnail.delete();
+            reel1Info.delete();
         }
 
         if (nextReel.exists()) {
             nextReel.renameTo(reel1);
             nextReelThumbnail.renameTo(reel1Thumbnail);
+            nextReelInfo.renameTo(reel1Info);
         }
     }
-    public static boolean nextReel(String url) {
-        Process p = downloadVideo(url, "nextReel.mp4"," --remux-video mp4 --write-thumbnail --convert-thumbnails png"); // Force MP4, png thumbnail
+    public boolean nextReel(String url, boolean isCurrent) {
+        Process p = downloadVideo(url, isCurrent ? "reel1.mp4" : "nextReel.mp4"," --remux-video mp4 --write-thumbnail --convert-thumbnails png --write-comments"); // Force MP4, png thumbnail, write comments/info
         if (p != null) installingProcess.add(p);
         return p != null;
     }

@@ -178,7 +178,7 @@ public class VLCJHandler extends AbstractTexture {
                 new RenderCallback() {
                     @Override
                     public void display(MediaPlayer mediaPlayer, ByteBuffer[] nativeBuffers, BufferFormat bufferFormat, int displayWidth, int displayHeight) {
-                        if (!textureDirty) { // """vsync"""
+                        if (!textureDirty && !textureLocked) { // """vsync"""
                             textureDirty = true;
                             int[] rgbArray = new int[sourceWidth * sourceHeight];
                             nativeBuffers[0].asIntBuffer().get(rgbArray);

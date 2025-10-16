@@ -19,10 +19,10 @@
   "phone.install_success": "Installed yt-dlp!",
   "phone.installing": "Installing..",
   "phone.media_not_found": "%s not found",
+  "phone.minetok.followers": " (%s followers)",
   "phone.notification": "Notification",
   "phone.notification.waiting_for_server": "Waiting for Server...",
   "phone.ringtone": "%s's phone is ringing",
   "phone.tap_continue": "Tap Anywhere to Continue",
-  "phone.vulkan_warning": "Using Vulkan for Video Rendering is still experimental. Artifacts may occur.",
-  "phone.youtube_error": "Youtube links don't work. Sorry. ;_C"
+  "phone.vulkan_warning": "Using Vulkan for Video Rendering is still experimental. Artifacts may occur."
 }
