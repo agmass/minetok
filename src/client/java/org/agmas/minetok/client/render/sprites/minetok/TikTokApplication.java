@@ -6,8 +6,6 @@ import com.google.gson.JsonParser;
 import com.mojang.blaze3d.platform.NativeImage;
 
 //? if >1.21.1 {
-import com.mojang.blaze3d.textures.GpuTexture;
-import com.mojang.blaze3d.textures.GpuTextureView;
 //? }
 import net.fabricmc.loader.impl.util.log.Log;
 import net.fabricmc.loader.impl.util.log.LogCategory;
@@ -23,7 +21,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import org.agmas.minetok.api.PhoneTapInformation;
 import org.agmas.minetok.client.MinetokClient;
-import org.agmas.minetok.client.animation.MTGraphics;
+import org.agmas.minetok.client.api.MTGraphics;
 import org.agmas.minetok.client.animation.NBTHelper;
 import org.agmas.minetok.client.api.NetworkSprite;
 import org.agmas.minetok.client.api.Sprite;

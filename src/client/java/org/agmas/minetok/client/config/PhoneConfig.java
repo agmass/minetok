@@ -13,6 +13,7 @@ import org.agmas.minetok.Minetok;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.util.ArrayList;
 
 public class PhoneConfig {
     public static PhoneConfig INSTANCE = new PhoneConfig();

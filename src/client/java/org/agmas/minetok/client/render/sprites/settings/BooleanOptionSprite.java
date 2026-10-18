@@ -3,9 +3,8 @@ package org.agmas.minetok.client.render.sprites.settings;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
 import org.agmas.minetok.api.PhoneTapInformation;
-import org.agmas.minetok.client.animation.MTGraphics;
+import org.agmas.minetok.client.api.MTGraphics;
 import org.agmas.minetok.client.api.Sprite;
 import org.agmas.minetok.porting.MTID;
 

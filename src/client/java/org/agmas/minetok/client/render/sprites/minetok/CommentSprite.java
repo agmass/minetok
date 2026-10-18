@@ -1,15 +1,10 @@
 package org.agmas.minetok.client.render.sprites.minetok;
 
 import com.mojang.authlib.GameProfile;
-import com.mojang.blaze3d.platform.NativeImage;
-import net.fabricmc.loader.impl.util.log.Log;
-import net.fabricmc.loader.impl.util.log.LogCategory;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.MultiLineTextWidget;
 import net.minecraft.client.gui.components.PlayerFaceRenderer;
 import net.minecraft.client.multiplayer.PlayerInfo;
-import net.minecraft.client.renderer.texture.DynamicTexture;
 //? if >1.21.1
 import net.minecraft.world.entity.player.PlayerSkin;
 //? if <=1.21.1
@@ -17,14 +12,12 @@ import net.minecraft.world.entity.player.PlayerSkin;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import org.agmas.minetok.api.PhoneTapInformation;
-import org.agmas.minetok.client.animation.MTGraphics;
+import org.agmas.minetok.client.api.MTGraphics;
 import org.agmas.minetok.client.api.Sprite;
 import org.agmas.minetok.client.render.Phone;
 import org.agmas.minetok.client.util.ForcedWidthTextWidget;
 
-import javax.imageio.ImageIO;
 import java.awt.*;
-import java.net.URL;
 import java.util.UUID;
 
 public class CommentSprite extends Sprite {

@@ -1,14 +1,11 @@
 package org.agmas.minetok.client.render.sprites;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.renderer.CubeMap;
-import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.Mth;
 import org.agmas.minetok.client.MinetokClient;
 import org.agmas.minetok.client.animation.EasingHelper;
-import org.agmas.minetok.client.animation.MTGraphics;
+import org.agmas.minetok.client.api.MTGraphics;
 import org.agmas.minetok.client.api.Application;
 import org.agmas.minetok.api.PhoneTapInformation;
 import org.agmas.minetok.client.api.Sprite;
@@ -17,6 +14,7 @@ import org.agmas.minetok.client.util.MinetokClientRegistries;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public class HomeScreenSprite extends Sprite {
@@ -36,7 +34,19 @@ public class HomeScreenSprite extends Sprite {
 
     public void refreshApps() {
         gridApps.clear();
-        for (Map.Entry<ResourceKey<Application>, Application> entry : MinetokClientRegistries.APPLICATIONS.entrySet()) {
+
+        // minecraft doesn't sort registries so we do it ourselves! this is to keep from networked phones look like their opening the wrong app on differing clients
+        List<Map.Entry<ResourceKey<Application>, Application>> sortedList = new ArrayList<>();
+
+        for (Map.Entry<ResourceKey<Application>, Application> resourceKeyApplicationEntry : MinetokClientRegistries.APPLICATIONS.entrySet()) {
+            int i = 0;
+            while (sortedList.size() > i && sortedList.get(i).getKey().hashCode() > resourceKeyApplicationEntry.getKey().hashCode()) {
+                i++;
+            }
+            sortedList.add(resourceKeyApplicationEntry);
+        }
+
+        for (Map.Entry<ResourceKey<Application>, Application> entry : sortedList) {
             if (entry.getValue().allowedToBeShown()) {
                 gridApps.add(new ApplicationGridIcon(entry.getKey().identifier(), entry.getValue()));
             }
@@ -101,13 +111,15 @@ public class HomeScreenSprite extends Sprite {
 
     float prePressedCurrentPage = 0;
     float currentPage = 0;
+    int maxPage = 0;
 
     public void renderApplicationGrid(GuiGraphics graphicsExtractor, PhoneTapInformation mouse, float renderDelta) {
         if (mouse.tapping) {
             currentPage = prePressedCurrentPage - ((mouse.x - mouse.tappedX)/600f);
         } else {
             currentPage = (float) Mth.lerp(0.33f, currentPage,
-                    currentPage < 0 ? 0 : Math.round(currentPage)
+                    currentPage < 0 ? 0 :
+                            currentPage > maxPage ? maxPage : Math.round(currentPage)
             );
             prePressedCurrentPage = currentPage;
         }
@@ -138,10 +150,7 @@ public class HomeScreenSprite extends Sprite {
                 }
             }
         }
-
-        if (currentPage > page) {
-            currentPage = page;
-        }
+        maxPage = page;
     }
 
 }

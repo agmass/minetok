@@ -1,16 +1,13 @@
 package org.agmas.minetok.client.render.sprites;
 
-import net.fabricmc.loader.impl.util.log.Log;
-import net.fabricmc.loader.impl.util.log.LogCategory;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import org.agmas.minetok.client.MinetokClient;
-import org.agmas.minetok.client.animation.MTGraphics;
+import org.agmas.minetok.client.api.MTGraphics;
 import org.agmas.minetok.client.api.Application;
 import org.agmas.minetok.api.PhoneTapInformation;
-import org.agmas.minetok.client.api.ApplicationSprite;
 import org.agmas.minetok.client.api.Sprite;
 
 import java.awt.*;
@@ -31,10 +28,8 @@ public class ApplicationGridIcon extends Sprite {
 
         boolean selected = false;
 
-        if (mouse.x+40 > x && mouse.y+40 > y) {
-            if (mouse.x+40 < x+128 && mouse.y+40 < y+128) {
-                selected = true;
-            }
+        if (MTGraphics.hoveringButton(mouse,x,y,128,128)) {
+            selected = true;
         }
 
         graphics.pose().pushMatrix();

@@ -11,7 +11,7 @@ import net.minecraft.client.gui.components.PlayerFaceRenderer;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import org.agmas.minetok.api.PhoneTapInformation;
-import org.agmas.minetok.client.animation.MTGraphics;
+import org.agmas.minetok.client.api.MTGraphics;
 import org.agmas.minetok.client.animation.NBTHelper;
 import org.agmas.minetok.client.api.NetworkSprite;
 import org.agmas.minetok.client.api.Sprite;
@@ -68,32 +68,29 @@ public class CallingSprite extends Sprite implements NetworkSprite {
 
         if (receiving) {
             MTGraphics.blit(graphics, HANG_UP.id, marginX, Phone.SCREEN_HEIGHT - marginY, (marginX + size), Phone.SCREEN_HEIGHT - (marginY - size), 0, 1, 0, 1);
-            if (mouse.x > marginX && mouse.x < (marginX + size)) {
-                if (mouse.y > Phone.SCREEN_HEIGHT - marginY && mouse.y < Phone.SCREEN_HEIGHT - (marginY - size)) {
-                    graphics.fill(marginX, Phone.SCREEN_HEIGHT - marginY, marginX + size, Phone.SCREEN_HEIGHT - (marginY - size), new Color(100, 100, 100, 100).getRGB());
-                    if (mouse.justTapped) {
-                        ClientPlayNetworking.send(new ServerboundCallResponsePacket(false));
-                    }
+
+            if (MTGraphics.hoveringButton(mouse,marginX,marginY,size,size)) {
+                graphics.fill(marginX, Phone.SCREEN_HEIGHT - marginY, marginX + size, Phone.SCREEN_HEIGHT - (marginY - size), new Color(100, 100, 100, 100).getRGB());
+                if (mouse.justTapped) {
+                    ClientPlayNetworking.send(new ServerboundCallResponsePacket(false));
                 }
             }
 
             MTGraphics.blit(graphics, PICK_UP.id, Phone.SCREEN_WIDTH - (marginX + size), Phone.SCREEN_HEIGHT - marginY, Phone.SCREEN_WIDTH - marginX, Phone.SCREEN_HEIGHT - (marginY - size), 0, 1, 0, 1);
-            if (mouse.x > Phone.SCREEN_WIDTH - (marginX + size) && mouse.x < Phone.SCREEN_WIDTH - marginX) {
-                if (mouse.y > Phone.SCREEN_HEIGHT - marginY && mouse.y < Phone.SCREEN_HEIGHT - (marginY - size)) {
-                    graphics.fill(Phone.SCREEN_WIDTH - (marginX + size), Phone.SCREEN_HEIGHT - marginY, Phone.SCREEN_WIDTH - marginX, Phone.SCREEN_HEIGHT - (marginY - size), new Color(100, 100, 100, 100).getRGB());
-                    if (mouse.justTapped) {
-                        ClientPlayNetworking.send(new ServerboundCallResponsePacket(true));
-                    }
+
+            if (MTGraphics.hoveringButton(mouse,Phone.SCREEN_WIDTH - (marginX + size),Phone.SCREEN_HEIGHT - marginY,size,size)) {
+                graphics.fill(Phone.SCREEN_WIDTH - (marginX + size), Phone.SCREEN_HEIGHT - marginY, Phone.SCREEN_WIDTH - marginX, Phone.SCREEN_HEIGHT - (marginY - size), new Color(100, 100, 100, 100).getRGB());
+                if (mouse.justTapped) {
+                    ClientPlayNetworking.send(new ServerboundCallResponsePacket(true));
                 }
             }
         } else {
             MTGraphics.blit(graphics, HANG_UP.id, (Phone.SCREEN_WIDTH/2) - (size/2), Phone.SCREEN_HEIGHT - marginY, (Phone.SCREEN_WIDTH/2) + (size/2), Phone.SCREEN_HEIGHT - (marginY - size), 0, 1, 0, 1);
-            if (mouse.x > (Phone.SCREEN_WIDTH/2f) - (size/2f) && mouse.x < (Phone.SCREEN_WIDTH/2f) + (size/2f)) {
-                if (mouse.y > Phone.SCREEN_HEIGHT - marginY && mouse.y < Phone.SCREEN_HEIGHT - (marginY - size)) {
-                    graphics.fill((Phone.SCREEN_WIDTH/2) - (size/2), Phone.SCREEN_HEIGHT - marginY, (Phone.SCREEN_WIDTH/2) + (size/2), Phone.SCREEN_HEIGHT - (marginY - size), new Color(100, 100, 100, 100).getRGB());
-                    if (mouse.justTapped) {
-                        ClientPlayNetworking.send(new ServerboundCallResponsePacket(false));
-                    }
+
+            if (MTGraphics.hoveringButton(mouse, (Phone.SCREEN_WIDTH/2) - (size/2),Phone.SCREEN_HEIGHT - marginY,size,size)) {
+               graphics.fill((Phone.SCREEN_WIDTH/2) - (size/2), Phone.SCREEN_HEIGHT - marginY, (Phone.SCREEN_WIDTH/2) + (size/2), Phone.SCREEN_HEIGHT - (marginY - size), new Color(100, 100, 100, 100).getRGB());
+                if (mouse.justTapped) {
+                    ClientPlayNetworking.send(new ServerboundCallResponsePacket(false));
                 }
             }
         }

@@ -9,7 +9,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
 import org.agmas.minetok.api.PhoneTapInformation;
 import org.agmas.minetok.client.animation.EasingHelper;
-import org.agmas.minetok.client.animation.MTGraphics;
+import org.agmas.minetok.client.api.MTGraphics;
 import org.agmas.minetok.client.animation.NBTHelper;
 import org.agmas.minetok.client.api.NetworkSprite;
 import org.agmas.minetok.client.api.Sprite;
@@ -70,10 +70,10 @@ public class NotificationSprite extends Sprite implements NetworkSprite {
         int padding = 32;
         int topBarHeight = 48;
 
-        int height = topBarHeight + padding + (messageWidget.getHeight()*4);
+        int height = topBarHeight + padding + ((messageWidget.getHeight()/9)*32);
         int width = padding + 400;
 
-        graphics.fill((Phone.SCREEN_WIDTH - width)/2, Phone.SCREEN_HEIGHT/2 - height/2, (Phone.SCREEN_WIDTH + width)/2, (Phone.SCREEN_HEIGHT/2 + height) - topBarHeight, bgColor.getRGB());
+        graphics.fill((Phone.SCREEN_WIDTH - width)/2, Phone.SCREEN_HEIGHT/2 - height/2, (Phone.SCREEN_WIDTH + width)/2, (Phone.SCREEN_HEIGHT/2 + (height/2)) + topBarHeight, bgColor.getRGB());
         graphics.fill((Phone.SCREEN_WIDTH - width)/2, Phone.SCREEN_HEIGHT/2 - height/2, (Phone.SCREEN_WIDTH + width)/2, (Phone.SCREEN_HEIGHT/2 - height/2) + topBarHeight, topBarColor.getRGB());
 
         Component topBarText = isError ? error : notification;
@@ -88,7 +88,7 @@ public class NotificationSprite extends Sprite implements NetworkSprite {
 
         graphics.pose().pushMatrix();
         MTGraphics.translate(graphics, Phone.SCREEN_WIDTH/2f - width/2f, Phone.SCREEN_HEIGHT/2f - height/2f);
-        MTGraphics.translate(graphics, padding/2f,height/2f);
+        MTGraphics.translate(graphics, padding/2f,(topBarHeight+4) + 16);
         MTGraphics.scale(graphics, 4);
         messageWidget.setCentered(true);
         messageWidget.setMaxWidth(100);
@@ -104,7 +104,7 @@ public class NotificationSprite extends Sprite implements NetworkSprite {
 
         if (canBeQuit && mouse.isClient) {
             graphics.pose().pushMatrix();
-            MTGraphics.translate(graphics, Phone.SCREEN_WIDTH / 2f, Phone.SCREEN_HEIGHT / 2f + 200);
+            MTGraphics.translate(graphics, Phone.SCREEN_WIDTH / 2f, Phone.SCREEN_HEIGHT / 2f + (height/2f) + 24);
             MTGraphics.translate(graphics, -(Minecraft.getInstance().font.width(tap_continue) * 3) / 2f, 0f);
             MTGraphics.scale(graphics, 3);
             graphics.drawString(Minecraft.getInstance().font, tap_continue, 0, 0, -1);

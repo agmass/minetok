@@ -11,11 +11,14 @@ import net.fabricmc.fabric.api.client.rendering.v1.RenderStateDataKey;
 import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderEvents;
 //? <=1.21.1
 //import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.minecraft.client.player.AbstractClientPlayer;
 //? if >=1.21.11 {
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.rendertype.RenderSetup;
 import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.server.IntegratedServer;
+import net.minecraft.server.dedicated.DedicatedServer;
 import net.minecraft.util.Util;
 //? } else {
 /*import net.minecraft.client.renderer.RenderStateShard;
@@ -34,6 +37,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.level.storage.LevelResource;
+import org.agmas.minetok.Minetok;
 import org.agmas.minetok.api.PhoneTapInformation;
 import org.agmas.minetok.client.config.PhoneConfig;
 import org.agmas.minetok.client.init.MinetokApplications;
@@ -47,11 +52,14 @@ import org.agmas.minetok.client.util.OtherPlayerPhone;
 import org.agmas.minetok.client.vlcj.YTDLPDownloader;
 import org.agmas.minetok.init.ModAttachments;
 import org.agmas.minetok.item.PhoneItem;
+import org.agmas.minetok.messages.MessagesHandler;
+import org.agmas.minetok.network.NetMessage;
 import org.agmas.minetok.network.ServerboundPhoneStatePacket;
 import org.agmas.minetok.network.ServerboundRingtoneSetPacket;
 import org.agmas.minetok.porting.MTID;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
@@ -65,6 +73,7 @@ public class MinetokClient implements ClientModInitializer {
 	public static RenderStateDataKey<MTID> phoneTextureID = RenderStateDataKey.create(()->"phoneTextureID");
 	public static RenderStateDataKey<PhoneTapInformation> headMouseInfoID = RenderStateDataKey.create(()->"headMouseInfoID");
 	private static final Function<Identifier, RenderType> PHONE_RENDER_TYPE = Util.memoize((texture) -> RenderType.create("phone_render_type", RenderSetup.builder(RenderPipelines.SOLID_BLOCK).useLightmap().withTexture("Sampler0", texture).affectsCrumbling().setOutline(RenderSetup.OutlineProperty.AFFECTS_OUTLINE).createRenderSetup()));
+
 
 	public static final RenderType getPhoneRenderType(MTID resourceLocation) {
 		return PHONE_RENDER_TYPE.apply(resourceLocation.id);
@@ -111,6 +120,9 @@ public class MinetokClient implements ClientModInitializer {
 
 		ClientTickEvents.END_WORLD_TICK.register((l)->{
 			if (phone != null) {
+				if (phone.player != Minecraft.getInstance().player) {
+					phone.player = Minecraft.getInstance().player;
+				}
 				phone.mouse.prevX = phone.mouse.x;
 				phone.mouse.prevY = phone.mouse.y;
 				if (phone.networkDirty) {

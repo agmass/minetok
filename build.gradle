@@ -79,6 +79,8 @@ stonecutter {
 		replace 'ClientTickEvents.END_WORLD_TICK', 'ClientTickEvents.END_LEVEL_TICK'
 		replace 'world.WorldRenderEvents', 'level.LevelRenderEvents'
 		replace 'WorldRenderEvents', 'LevelRenderEvents'
+		replace 'PayloadTypeRegistry.playS2C()', 'PayloadTypeRegistry.clientboundPlay()'
+		replace 'PayloadTypeRegistry.playC2S()', 'PayloadTypeRegistry.serverboundPlay()'
 	}
 	replacements.string(stonecutter.current.parsed >= '26.3') {
 		replace 'com.mojang.blaze3d.textures', 'com.mojang.renderpearl.api.textures'

@@ -4,7 +4,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import org.agmas.minetok.api.PhoneTapInformation;
-import org.agmas.minetok.client.animation.MTGraphics;
+import org.agmas.minetok.client.api.MTGraphics;
 import org.agmas.minetok.client.api.Sprite;
 import org.agmas.minetok.client.vlcj.YTDLPDownloader;
 import org.agmas.minetok.porting.MTID;

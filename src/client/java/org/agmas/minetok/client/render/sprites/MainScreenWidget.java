@@ -2,7 +2,7 @@ package org.agmas.minetok.client.render.sprites;
 
 import net.minecraft.client.gui.GuiGraphics;
 import org.agmas.minetok.api.PhoneTapInformation;
-import org.agmas.minetok.client.animation.MTGraphics;
+import org.agmas.minetok.client.api.MTGraphics;
 import org.agmas.minetok.client.api.Sprite;
 
 public class MainScreenWidget extends Sprite {

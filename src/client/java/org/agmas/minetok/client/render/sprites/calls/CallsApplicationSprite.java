@@ -7,17 +7,15 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.*;
 import net.minecraft.client.multiplayer.PlayerInfo;
 //? if >1.21.1
-import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import org.agmas.minetok.client.MinetokClient;
 import org.agmas.minetok.api.PhoneTapInformation;
-import org.agmas.minetok.client.animation.MTGraphics;
+import org.agmas.minetok.client.api.MTGraphics;
 import org.agmas.minetok.client.animation.NBTHelper;
 import org.agmas.minetok.client.api.NetworkSprite;
-import org.agmas.minetok.client.config.PhoneConfig;
 import org.agmas.minetok.client.init.MinetokOverlays;
 import org.agmas.minetok.client.render.Phone;
 import org.agmas.minetok.client.render.sprites.ExitButtonSprite;
@@ -36,8 +34,7 @@ public class CallsApplicationSprite extends ExitButtonSprite implements NetworkS
     public void render(GuiGraphics graphics, PhoneTapInformation mouse, float renderDelta) {
         exitBarCapture(mouse);
 
-        MTGraphics.blit(graphics, Identifier.withDefaultNamespace("textures/block/white_concrete.png"),0,0, Phone.SCREEN_WIDTH+16, Phone.SCREEN_HEIGHT+16,0f,0f,6f,6f);
-
+        MTGraphics.blitSprite(graphics, Identifier.withDefaultNamespace("textures/block/white_concrete.png"), -8,-8,0,0, Phone.SCREEN_WIDTH+16, Phone.SCREEN_HEIGHT+16,128,128);
         if (FabricLoader.getInstance().isModLoaded("voicechat_api")) {
 
             scrollBarSprite.render(graphics, mouse, renderDelta);
@@ -95,7 +92,7 @@ public class CallsApplicationSprite extends ExitButtonSprite implements NetworkS
             //textField.extractRenderState(graphics, (int) mouse.x, (int) mouse.y,renderDelta);
             //? if <=1.21.11
              textField.render(graphics, (int) mouse.x, (int) mouse.y,renderDelta);
-            if (mouse.x+40 > 80 && mouse.y+40 > 70 && mouse.x+40 < 680 && mouse.y+40 < 140) {
+            if (MTGraphics.hoveringButton(mouse,80,70,600,70)) {
                 if (mouse.justTapped) {
                     MinetokClient.phone.selectedElement = textField;
                 }

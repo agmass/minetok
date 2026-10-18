@@ -20,6 +20,8 @@
   "phone.install_success": "Installed yt-dlp!",
   "phone.installing": "Installing..",
   "phone.media_not_found": "%s not found",
+  "phone.messages.new_chat": "Click the + button to create a new chat.",
+  "phone.messages.privacy": "Messages on this app are *NOT PRIVATE*!! Server Administrators can view and edit your messages in plain text. Do not share personal information.",
   "phone.minetok.followers": " (%s followers)",
   "phone.notification": "Notification",
   "phone.notification.waiting_for_server": "Waiting for Server...",

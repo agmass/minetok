@@ -4,9 +4,7 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.client.resources.sounds.AbstractSoundInstance;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
-import net.minecraft.client.resources.sounds.SoundInstance;
 import net.minecraft.client.sounds.WeighedSoundEvents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
@@ -20,7 +18,7 @@ import net.minecraft.util.Mth;
 import org.agmas.minetok.api.PhoneTapInformation;
 import org.agmas.minetok.client.MinetokClient;
 import org.agmas.minetok.client.animation.EasingHelper;
-import org.agmas.minetok.client.animation.MTGraphics;
+import org.agmas.minetok.client.api.MTGraphics;
 import org.agmas.minetok.client.animation.NBTHelper;
 import org.agmas.minetok.client.api.NetworkSprite;
 import org.agmas.minetok.client.api.Sprite;
@@ -28,16 +26,11 @@ import org.agmas.minetok.client.config.PhoneConfig;
 import org.agmas.minetok.client.render.Phone;
 import org.agmas.minetok.client.render.sprites.ExitButtonSprite;
 import org.agmas.minetok.client.render.sprites.ScrollBarSprite;
-import org.agmas.minetok.network.ServerboundCallPacket;
 import org.agmas.minetok.network.ServerboundRingtoneSetPacket;
 
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 public class SoundSelectorOverlay extends Sprite implements NetworkSprite {
     public final int WIDTH = 660;
@@ -46,7 +39,7 @@ public class SoundSelectorOverlay extends Sprite implements NetworkSprite {
     public float time = 0;
     ScrollBarSprite scrollBarSprite = new ScrollBarSprite(0, 0, 32, HEIGHT-62, 100);
     ExitButtonSprite exitBar = new ExitButtonSprite();
-    EditBox textField = new EditBox(Minecraft.getInstance().font, 0,0,76,10, Component.literal("ringtone"));
+    EditBox textField = new EditBox(Minecraft.getInstance().font, 0,0,100,10, Component.literal("ringtone"));
     public Identifier chosenIdentifier = null;
 
     public SoundSelectorOverlay() {
@@ -54,7 +47,7 @@ public class SoundSelectorOverlay extends Sprite implements NetworkSprite {
         y = (int) (Phone.SCREEN_HEIGHT/2f - HEIGHT/2f);
         exitBar.padded = false;
         exitBar.width = WIDTH;
-        exitBar.closesOverlay = true;
+        exitBar.closeBehaviour = ExitButtonSprite.CloseBehaviour.CLOSE_OVERLAY;
 
         scrollBarSprite.y = y+56;
         scrollBarSprite.x = (x+WIDTH)-48;
@@ -156,7 +149,7 @@ public class SoundSelectorOverlay extends Sprite implements NetworkSprite {
         textField.setEditable(true);
 
         graphics.pose().pushMatrix();
-        MTGraphics.translate(graphics, x+59,y);
+        MTGraphics.translate(graphics, x+84,y+1);
         MTGraphics.scale(graphics, 5);
 
         //? if >1.21.11

@@ -1,11 +1,11 @@
-package org.agmas.minetok.client.animation;
+package org.agmas.minetok.client.api;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.*;
+import com.mojang.blaze3d.pipeline.RenderPipeline;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.renderer.GameRenderer;
+//? if >1.21.1
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.resources.Identifier;
-import org.joml.Matrix4f;
+import org.agmas.minetok.api.PhoneTapInformation;
 
 /*
     Helper class cuz versions have weird GuiGraphics changes.
@@ -42,7 +42,14 @@ public class MTGraphics {
         //? if <=1.21.1
         //graphics.pose().translate(0,0,-1f);
     }
-
+    public static void blitSprite(GuiGraphics graphics, final Identifier texture, final int x, final int y, final float u, final float v, final int width, final int height, final int textureWidth, final int textureHeight) {
+        //? if >1.21.1 {
+        graphics.blit(RenderPipelines.GUI_TEXTURED,texture,x,y,u,v,width,height,textureWidth,textureHeight);
+        //? }
+        //? if <=1.21.1 {
+        /*graphics.blit(identifier,spriteWidth,spriteHeight,textureX,textureY,x,y,width,height);
+        *///? }
+    }
 
     public static void blit(GuiGraphics graphics, Identifier identifier, final int x0, final int y0, final int x1, final int y1, final float u0, final float u1, final float v0, final float v1) {
         //? if >1.21.1 {
@@ -59,5 +66,14 @@ public class MTGraphics {
         bufferBuilder.addVertex(matrix4f, x1, y0, 0).setUv(u1, v0);
         BufferUploader.drawWithShader(bufferBuilder.buildOrThrow());
         *///? }
+    }
+
+    public static boolean hoveringButton(PhoneTapInformation mouse, int x, int y, int width, int height) {
+        if (mouse.x+40 > x && mouse.y+40 > y) {
+            if (mouse.x + 40 < x + width && mouse.y + 40 < y + height) {
+                return true;
+            }
+        }
+        return false;
     }
 }

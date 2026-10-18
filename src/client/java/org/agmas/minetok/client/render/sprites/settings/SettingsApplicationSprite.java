@@ -2,22 +2,17 @@ package org.agmas.minetok.client.render.sprites.settings;
 
 import net.minecraft.client.gui.GuiGraphics;
 //? if >1.21.1
-import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
-import net.minecraft.sounds.SoundEvents;
-import org.agmas.minetok.Minetok;
 import org.agmas.minetok.api.PhoneTapInformation;
-import org.agmas.minetok.client.MinetokClient;
-import org.agmas.minetok.client.animation.MTGraphics;
+import org.agmas.minetok.client.api.MTGraphics;
 import org.agmas.minetok.client.animation.NBTHelper;
 import org.agmas.minetok.client.api.NetworkSprite;
 import org.agmas.minetok.client.api.Sprite;
 import org.agmas.minetok.client.config.PhoneConfig;
 import org.agmas.minetok.client.render.Phone;
 import org.agmas.minetok.client.render.sprites.ExitButtonSprite;
-import org.agmas.minetok.client.vlcj.YTDLPDownloader;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -45,7 +40,7 @@ public class SettingsApplicationSprite extends ExitButtonSprite implements Netwo
     public void render(GuiGraphics graphics, PhoneTapInformation mouse, float renderDelta) {
         exitBarCapture(mouse);
 
-        MTGraphics.blit(graphics, Identifier.withDefaultNamespace("textures/block/white_concrete_powder.png"),0,0, Phone.SCREEN_WIDTH+16, Phone.SCREEN_HEIGHT+16,0f,0f,1f,1f);
+        MTGraphics.blitSprite(graphics, Identifier.withDefaultNamespace("textures/block/white_concrete_powder.png"), -8,-8,0,0, Phone.SCREEN_WIDTH+16, Phone.SCREEN_HEIGHT+16,128,128);
 
         graphics.pose().pushMatrix();
         int cy = 160;

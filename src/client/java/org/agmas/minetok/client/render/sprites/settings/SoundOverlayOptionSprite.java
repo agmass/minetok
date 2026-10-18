@@ -6,7 +6,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import org.agmas.minetok.api.PhoneTapInformation;
 import org.agmas.minetok.client.MinetokClient;
-import org.agmas.minetok.client.animation.MTGraphics;
+import org.agmas.minetok.client.api.MTGraphics;
 import org.agmas.minetok.client.api.Sprite;
 import org.agmas.minetok.client.init.MinetokOverlays;
 import org.agmas.minetok.client.render.sprites.selectionOverlays.SoundSelectorOverlay;
