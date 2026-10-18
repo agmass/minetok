@@ -1,0 +1,22 @@
+{
+  "required": true,
+  "package": "org.agmas.minetok.client.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "CaptureKeyboardMixin",
+    "ColorTextureMixin",
+    "DontStopBelievinMixin",
+    "GuiRendererMixin",
+    "PhoneInWorldMixin",
+    "PhoneNoCrosshairMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "overwrites": {
+    "requireAnnotations": true
+  },
+  "mixins": [
+    "CaptureMouseMixin"
+  ]
+}

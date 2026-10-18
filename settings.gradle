@@ -1,0 +1,36 @@
+pluginManagement {
+	repositories {
+		maven {
+			name = 'Fabric'
+			url = 'https://maven.fabricmc.net/'
+		}
+		mavenLocal()
+		mavenCentral()
+		gradlePluginPortal()
+		maven {
+			url = "https://maven.kikugie.dev/releases"
+			name = "KikuGie Releases"
+		}
+		maven {
+			url = "https://maven.kikugie.dev/snapshots"
+			name = "KikuGie Snapshots"
+		}
+	}
+}
+
+plugins {
+	id("dev.kikugie.stonecutter").version "0.9.6"
+
+	id("dev.kikugie.loom-back-compat") version "0.4"
+}
+
+stonecutter {
+	centralScript = "build.gradle"
+	create(rootProject) {
+
+		versions("1.21.11","26.1", "26.2", "26.3")
+		vcsVersion = "26.1"
+	}
+}
+// Should match your modid
+rootProject.name = 'minetok'
