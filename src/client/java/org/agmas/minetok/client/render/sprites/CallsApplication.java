@@ -55,8 +55,6 @@ public class CallsApplication extends ExitButtonSprite {
             marginY = (int) Mth.lerp(scroll, 180, scrollableArea);
 
             for (PlayerInfo listedOnlinePlayer : Minecraft.getInstance().getConnection().getListedOnlinePlayers()) {
-                Log.info(LogCategory.GENERAL, listedOnlinePlayer.getProfile().name());
-                Log.info(LogCategory.GENERAL, textField.getValue());
                 if (!textField.getValue().isEmpty() && !listedOnlinePlayer.getProfile().name().toLowerCase().contains(textField.getValue().toLowerCase())) continue;
                 boolean selected = false;
                 if (mouse.x+40 > marginX && mouse.x+40 < Phone.SCREEN_WIDTH-34) {

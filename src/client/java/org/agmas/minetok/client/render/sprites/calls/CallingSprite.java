@@ -2,7 +2,10 @@ package org.agmas.minetok.client.render.sprites.calls;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+
+//? if >=26.1 {
 import net.minecraft.client.renderer.state.gui.PanoramaRenderState;
+//? }
 import org.agmas.minetok.client.MinetokClient;
 import org.agmas.minetok.client.api.PhoneTapInformation;
 import org.agmas.minetok.client.api.Sprite;
