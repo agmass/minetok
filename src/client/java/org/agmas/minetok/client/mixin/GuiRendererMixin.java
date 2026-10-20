@@ -6,7 +6,7 @@ import net.minecraft.client.gui.render.GuiRenderer;
 //? if >=26.1
 import net.minecraft.client.renderer.Projection;
 //? if <26.3
-//import com.mojang.blaze3d.buffers.GpuBufferSlice;
+import com.mojang.blaze3d.buffers.GpuBufferSlice;
 import net.minecraft.client.renderer.ProjectionMatrixBuffer;
 import org.agmas.minetok.client.render.PhoneTextureRenderer;
 import org.spongepowered.asm.mixin.Mixin;

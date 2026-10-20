@@ -6,7 +6,7 @@ import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 //? if >=26.2
-import net.minecraft.client.gui.Hud;
+//import net.minecraft.client.gui.Hud;
 import net.minecraft.world.entity.player.Player;
 import org.agmas.minetok.init.ModItems;
 import org.agmas.minetok.item.PhoneItem;
@@ -15,9 +15,9 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
 //? if >=26.2
-@Mixin(Hud.class)
+//@Mixin(Hud.class)
 //? if <26.2
-//@Mixin(Gui.class)
+@Mixin(Gui.class)
 public abstract class PhoneNoCrosshairMixin {
 
     @Shadow

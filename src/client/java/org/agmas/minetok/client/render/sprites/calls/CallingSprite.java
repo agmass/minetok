@@ -11,7 +11,18 @@ import org.agmas.minetok.client.api.PhoneTapInformation;
 import org.agmas.minetok.client.api.Sprite;
 import org.agmas.minetok.client.render.Phone;
 
+import java.util.UUID;
+
 public class CallingSprite extends Sprite {
+
+    public boolean receiving;
+    public UUID otherPlayer;
+
+    public  CallingSprite(boolean receiving, UUID otherPlayer) {
+        this.receiving = receiving;
+        this.otherPlayer = otherPlayer;
+    }
+
     @Override
     public void render(GuiGraphicsExtractor graphics, PhoneTapInformation mouse, float renderDelta) {
         super.render(graphics, mouse, renderDelta);

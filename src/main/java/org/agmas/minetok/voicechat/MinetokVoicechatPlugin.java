@@ -1,8 +1,12 @@
 package org.agmas.minetok.voicechat;
 
-import de.maxhenkel.voicechat.api.Player;
-import de.maxhenkel.voicechat.api.VoicechatApi;
-import de.maxhenkel.voicechat.api.VoicechatPlugin;
+import de.maxhenkel.voicechat.api.*;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
+import org.agmas.minetok.attachments.RingingAttachment;
+import org.agmas.minetok.init.ModAttachments;
+
+import java.util.UUID;
 
 public class MinetokVoicechatPlugin implements VoicechatPlugin {
     @Override
@@ -18,6 +22,32 @@ public class MinetokVoicechatPlugin implements VoicechatPlugin {
         MinetokVoicechatPlugin.api = api;
     }
 
-    public static void ringPlayer(Player sender, Player reciever) {}
+    public static void ringPlayer(ServerPlayer sender, ServerPlayer reciever) {
+        VoicechatServerApi serverApi = (VoicechatServerApi) api;
+        VoicechatConnection connection = serverApi.getConnectionOf(api.fromServerPlayer(sender));
+
+        connection.setGroup(null);
+        Group group = serverApi.groupBuilder()
+                .setHidden(true)
+                .setPersistent(false)
+                .setName(sender.getScoreboardName() +"'s call")
+                .setType(Group.Type.OPEN)
+                .build();
+
+        connection.setGroup(group);
+
+        RingingAttachment ringingAttachment = new RingingAttachment();
+        ringingAttachment.recieving = true;
+        ringingAttachment.callingId = sender.getUUID();
+        reciever.setAttached(ModAttachments.RINGING_ATTACHMENT_TYPE, ringingAttachment);
+
+        RingingAttachment sendingAttachment = new RingingAttachment();
+        sendingAttachment.recieving = false;
+        sendingAttachment.callingId = reciever.getUUID();
+        sender.setAttached(ModAttachments.RINGING_ATTACHMENT_TYPE, sendingAttachment);
+
+        ModAttachments.forceSyncRingingAttachment(sender, sendingAttachment);
+        ModAttachments.forceSyncRingingAttachment(reciever, ringingAttachment);
+    }
 
 }

@@ -8,12 +8,12 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.player.AbstractClientPlayer;
-import net.minecraft.client.renderer.FirstPersonHandsAndItemsRenderer;
+import net.minecraft.client.renderer.ItemInHandRenderer;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 //? if >=26.3 {
-import net.minecraft.client.renderer.state.level.FirstPersonHandsAndItemsRenderState;
+/*import net.minecraft.client.renderer.state.level.FirstPersonHandsAndItemsRenderState;
 import net.minecraft.client.renderer.state.level.PlayerRenderState;
-//? }
+*///? }
 import net.minecraft.client.renderer.item.ItemModelResolver;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.util.EasingType;
@@ -30,26 +30,26 @@ import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
-@Mixin(FirstPersonHandsAndItemsRenderer.class)
+@Mixin(ItemInHandRenderer.class)
 public abstract class PhoneInWorldMixin {
 
 
     //? if <26.3 {
-    /*@Shadow
+    @Shadow
     protected abstract void renderPlayerArm(PoseStack poseStack, SubmitNodeCollector submitNodeCollector, int i, float f, float g, HumanoidArm humanoidArm);
     @Shadow
     @Final
     private ItemModelResolver itemModelResolver;
-    *///? } else {
-    @Shadow
+    //? } else {
+    /*@Shadow
     protected abstract void renderPlayerArm(PoseStack poseStack, SubmitNodeCollector submitNodeCollector, int lightCoords, float inverseArmHeight, float attackValue, HumanoidArm arm, PlayerRenderState playerState);
-    //? }
+    *///? }
 
     //? if <26.3 {
-    /*//? if <26.2
-    //@WrapMethod(method = "renderArmWithItem")
+    //? if <26.2
+    @WrapMethod(method = "renderArmWithItem")
     //? if >=26.2
-    @WrapMethod(method = "submitArmWithItem")
+    //@WrapMethod(method = "submitArmWithItem")
     public void disableWhenWatchingCams(AbstractClientPlayer abstractClientPlayer, float f, float g, InteractionHand interactionHand, float h, ItemStack itemStack, float i, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, int j, Operation<Void> original) {
         if (abstractClientPlayer.isUsingItem() && abstractClientPlayer.getActiveItem().getItem() instanceof PhoneItem && abstractClientPlayer.getUsedItemHand().equals(interactionHand)) {
             poseStack.pushPose();
@@ -71,8 +71,8 @@ public abstract class PhoneInWorldMixin {
         }
         original.call(abstractClientPlayer,f,g,interactionHand,h,itemStack,i,poseStack,submitNodeCollector,j);
     }
-     *///? } else if >=26.3 {
-    @WrapMethod(method = "submitArmWithItem")
+     //? } else if >=26.3 {
+    /*@WrapMethod(method = "submitArmWithItem")
     public void disableWhenWatchingCams(PlayerRenderState playerState, FirstPersonHandsAndItemsRenderState state, float partialTicks, float xRot, InteractionHand hand, float attack, ItemStack itemStack, float inverseArmHeight, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, int lightCoords, Operation<Void> original) {
         if (playerState.avatarRenderState.isUsingItem && playerState.avatarRenderState.getUseItemStackForArm(playerState.avatarRenderState.useItemHand.asArm(playerState.avatarRenderState.mainArm)).getItem() instanceof PhoneItem && hand.equals(playerState.avatarRenderState.useItemHand)) {
             poseStack.pushPose();
@@ -91,5 +91,5 @@ public abstract class PhoneInWorldMixin {
         }
         original.call(playerState, state, partialTicks, xRot, hand, attack, itemStack, inverseArmHeight, poseStack, submitNodeCollector, lightCoords);
     }
-    //? }
+    *///? }
 }

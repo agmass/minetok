@@ -35,6 +35,8 @@ public class HomeScreenSprite extends Sprite {
 
     public ArrayList<ApplicationGridIcon> gridApps = new ArrayList<>();
 
+    public ArrayList<Sprite> overlays = new ArrayList<>();
+
     public HomeScreenSprite() {
         refreshApps();
     }
@@ -49,8 +51,12 @@ public class HomeScreenSprite extends Sprite {
     }
 
     @Override
-    public void render(GuiGraphicsExtractor graphics, PhoneTapInformation mouse, float renderDelta) {
-        super.render(graphics, mouse, renderDelta);
+    public void render(GuiGraphicsExtractor graphics, PhoneTapInformation originalMouse, float renderDelta) {
+        super.render(graphics, originalMouse, renderDelta);
+        PhoneTapInformation mouse = originalMouse;
+        if (!overlays.isEmpty()) {
+            mouse = new PhoneTapInformation();
+        }
         if (mouse.justTapped) {
             MinetokClient.phone.selectedElement = null;
         }
@@ -99,6 +105,10 @@ public class HomeScreenSprite extends Sprite {
             focusedSprite.render(graphics,mouse,renderDelta);
         }
 
+        ArrayList<Sprite> unmodifiedOverlays = (ArrayList<Sprite>) overlays.clone();
+        for (Sprite overlay : unmodifiedOverlays) {
+            overlay.render(graphics,originalMouse,renderDelta);
+        }
     }
 
     float prePressedCurrentPage = 0;
@@ -126,7 +136,6 @@ public class HomeScreenSprite extends Sprite {
         int currentY = marginY;
 
         for (ApplicationGridIcon applicationGridIcon : gridApps) {
-
             applicationGridIcon.x = (int) (currentX + (720 * (page - currentPage)));
             applicationGridIcon.y = currentY;
             applicationGridIcon.render(graphicsExtractor, mouse, renderDelta,this);
@@ -146,4 +155,5 @@ public class HomeScreenSprite extends Sprite {
             currentPage = page;
         }
     }
+
 }

@@ -14,6 +14,7 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.SwingAnimation;
@@ -22,6 +23,9 @@ import net.minecraft.world.phys.Vec3;
 import org.agmas.minetok.client.MinetokClient;
 import org.agmas.minetok.client.api.PhoneTapInformation;
 import org.agmas.minetok.client.render.sprites.HomeScreenSprite;
+import org.agmas.minetok.client.render.sprites.calls.CallingSprite;
+import org.agmas.minetok.init.ModAttachments;
+import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
 
@@ -35,16 +39,25 @@ public class Phone {
     public HomeScreenSprite topSprite = new HomeScreenSprite();
 
     public PhoneTapInformation mouse = new PhoneTapInformation();
+    public Player player;
+    @Nullable CallingSprite callingSprite = null;
 
     private static final Identifier CROSSHAIR_SPRITE = Identifier.withDefaultNamespace("hud/crosshair");
+
+    public Phone(Player player) {
+        this.player = player;
+    }
 
     public void render(GuiGraphicsExtractor graphics) {
         handleMouseInput();
 
+        if (player.hasAttached(ModAttachments.RINGING_ATTACHMENT_TYPE)) {
+
+        }
+
         topSprite.render(graphics,mouse, Minecraft.getInstance().getDeltaTracker().getRealtimeDeltaTicks());
 
         graphics.blitSprite(RenderPipelines.CROSSHAIR, CROSSHAIR_SPRITE, (int)mouse.x, (int)mouse.y, 80, 80);
-
     }
 
     public void handleMouseInput() {
@@ -62,9 +75,9 @@ public class Phone {
             mouse.justTapped = !mouse.tapping;
             captured = true;
             if (!mouse.tapping) {
-                Minecraft.getInstance().player.swing(InteractionHand.MAIN_HAND
+                player.swing(InteractionHand.MAIN_HAND
                     //? if >=26.3
-                    , SwingAnimation.DEFAULT, true
+                    //, SwingAnimation.DEFAULT, true
                 );
                 mouse.tappedX = mouse.x;
                 mouse.tappedY = mouse.y;

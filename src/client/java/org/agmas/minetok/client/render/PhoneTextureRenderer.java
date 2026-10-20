@@ -2,15 +2,15 @@ package org.agmas.minetok.client.render;
 
 //? if <26.3 {
 
-/*//? if >=26.2
-import com.mojang.blaze3d.GpuFormat;
+//? if >=26.2
+//import com.mojang.blaze3d.GpuFormat;
 import com.mojang.blaze3d.systems.GpuDevice;
-*///? } else {
-import com.mojang.renderpearl.api.GpuFormat;
+//? } else {
+/*import com.mojang.renderpearl.api.GpuFormat;
 import com.mojang.renderpearl.api.device.GpuDevice;
-//? }
+*///? }
 import net.minecraft.client.gui.render.GuiRenderer;
-import com.mojang.renderpearl.api.textures.*;
+import com.mojang.blaze3d.textures.*;
 import net.minecraft.client.renderer.feature.*;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.ByteBufferBuilder;
@@ -35,7 +35,7 @@ public class PhoneTextureRenderer extends AbstractTexture {
 
     public static PhoneTextureRenderer INSTANCE;
     //? if <26.2
-    //public static final MultiBufferSource.BufferSource bufferSource = MultiBufferSource.immediate(new ByteBufferBuilder(1536));
+    public static final MultiBufferSource.BufferSource bufferSource = MultiBufferSource.immediate(new ByteBufferBuilder(1536));
     public GpuTexture depthTexture;
     public GuiRenderer renderer;
     public GpuTextureView depthTextureView;
@@ -56,7 +56,7 @@ public class PhoneTextureRenderer extends AbstractTexture {
         createTexture();
 
         //? if <26.2 {
-        /*featureRenderDispatcher = new FeatureRenderDispatcher(submitNodeCollector,
+        featureRenderDispatcher = new FeatureRenderDispatcher(submitNodeCollector,
                 //? <26.1
                 //Minecraft.getInstance().getBlockRenderer(),
                 //? >=26.1
@@ -65,12 +65,12 @@ public class PhoneTextureRenderer extends AbstractTexture {
                 //? >=26.1
                 , Minecraft.getInstance().gameRenderer.getGameRenderState()
         );
-        *///? } else {
-        featureRenderDispatcher = new FeatureRenderDispatcher(Minecraft.getInstance().gameRenderer.renderBuffers(), Minecraft.getInstance().getModelManager(), Minecraft.getInstance().getAtlasManager(), Minecraft.getInstance().font, Minecraft.getInstance().gameRenderer.gameRenderState());
-        //? }
+        //? } else {
+        /*featureRenderDispatcher = new FeatureRenderDispatcher(Minecraft.getInstance().gameRenderer.renderBuffers(), Minecraft.getInstance().getModelManager(), Minecraft.getInstance().getAtlasManager(), Minecraft.getInstance().font, Minecraft.getInstance().gameRenderer.gameRenderState());
+        *///? }
         renderer = new GuiRenderer(renderState
                 //? if <26.2
-                //, bufferSource, submitNodeCollector
+                , bufferSource, submitNodeCollector
                 , featureRenderDispatcher, List.of());
     }
 
@@ -78,22 +78,22 @@ public class PhoneTextureRenderer extends AbstractTexture {
         RenderSystem.backupProjectionMatrix();
         RenderSystem.getDevice().createCommandEncoder().clearColorAndDepthTextures(texture,
                 //? if <26.2
-                //0,
+                0,
                 //? if >=26.2
-                new Vector4f(0,0,0,255),
+                //new Vector4f(0,0,0,255),
                 depthTexture, 1.0);
 
         //? if <26.3 {
-        /*RenderSystem.outputColorTextureOverride = this.textureView;
+        RenderSystem.outputColorTextureOverride = this.textureView;
         RenderSystem.outputDepthTextureOverride = this.depthTextureView;
-        *///? }
+        //? }
         overrideBuffers = true;
         PoseStack poseStack = new PoseStack();
 
         GuiGraphicsExtractor graphics = new GuiGraphicsExtractor(Minecraft.getInstance(), renderState, 0,0);
 
         poseStack.pushPose();
-        poseStack.rotate(camera.rotation());
+        poseStack.mulPose(camera.rotation());
         MinetokClient.phone.render(graphics);
         //? if >=26.1 {
         Projection projection = new Projection();
@@ -101,20 +101,20 @@ public class PhoneTextureRenderer extends AbstractTexture {
         //? }
         renderer.render(
                 //? if <26.2 {
-                /*this.projectionMatrixBuffer.getBuffer(
+                this.projectionMatrixBuffer.getBuffer(
                 //? if <26.1
                 //720,1280
                 //? if >=26.1
                 projection
                 )
-                *///? }
+                //? }
         );
         poseStack.popPose();
 
         //? if <26.3 {
-        /*RenderSystem.outputColorTextureOverride = null;
+        RenderSystem.outputColorTextureOverride = null;
         RenderSystem.outputDepthTextureOverride = null;
-        *///? }
+        //? }
         overrideBuffers = false;
         RenderSystem.restoreProjectionMatrix();
     }
@@ -124,17 +124,17 @@ public class PhoneTextureRenderer extends AbstractTexture {
 
         texture = gpuDevice.createTexture("phoneTexture", 13,
                 //? <26.2
-                //TextureFormat.RGBA8
+                TextureFormat.RGBA8
                 //? >=26.2
-                GpuFormat.RGBA8_UNORM
+                //GpuFormat.RGBA8_UNORM
                 , 720, 1280, 1, 1);
         textureView = gpuDevice.createTextureView(texture);
 
         depthTexture = gpuDevice.createTexture(() -> "phoneDepthTexture", 9,
                 //? if <26.2
-                //TextureFormat.DEPTH32
+                TextureFormat.DEPTH32
                 //? if >=26.2
-                GpuFormat.D32_FLOAT
+                //GpuFormat.D32_FLOAT
                 , 720, 1280, 1, 1);
         depthTextureView = gpuDevice.createTextureView(depthTexture);
 
@@ -142,9 +142,9 @@ public class PhoneTextureRenderer extends AbstractTexture {
 
         gpuDevice.createCommandEncoder().clearColorAndDepthTextures(texture,
                 //? if <26.2
-                //0,
+                0,
                 //? if >=26.2
-                new Vector4f(0,0,0,255),
+                //new Vector4f(0,0,0,255),
                 depthTexture, 1.0);
     }
 

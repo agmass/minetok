@@ -3,8 +3,8 @@ package org.agmas.minetok.client.mixin;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.mojang.blaze3d.pipeline.RenderTarget;
-import com.mojang.renderpearl.api.textures.GpuTexture;
-import com.mojang.renderpearl.api.textures.GpuTextureView;
+import com.mojang.blaze3d.textures.GpuTexture;
+import com.mojang.blaze3d.textures.GpuTextureView;
 import org.agmas.minetok.client.render.PhoneTextureRenderer;
 import org.spongepowered.asm.mixin.Mixin;
 

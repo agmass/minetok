@@ -1,5 +1,9 @@
 {
   "phone.app.minetok.calls": "Calls",
+  "phone.error": "Error",
   "phone.error.missing_mod": "Please Install %s",
-  "phone.error.no_service": "No Service"
+  "phone.error.no_service": "No Service",
+  "phone.error.server_missing_mod": "Server Missing Mod: %s",
+  "phone.notification": "Notification",
+  "phone.tap_continue": "Tap Anywhere to Continue"
 }

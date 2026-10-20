@@ -25,8 +25,15 @@ public class LanguageDatagen extends FabricLanguageProvider {
 
         translationBuilder.add("phone.app.minetok.calls", "Calls");
 
+        translationBuilder.add("phone.error", "Error");
+        translationBuilder.add("phone.notification", "Notification");
+        translationBuilder.add("phone.tap_continue", "Tap Anywhere to Continue");
+
         translationBuilder.add("phone.error.missing_mod", "Please Install %s");
         translationBuilder.add("phone.error.no_service", "No Service");
+        translationBuilder.add("phone.error.server_missing_mod", "Server Missing Mod: %s");
+        translationBuilder.add("phone.error.receiver_offline", "Receiver not online");
+        translationBuilder.add("phone.error.receiver_busy", "Receiver Busy");
     }
 
 }

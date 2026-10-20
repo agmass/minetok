@@ -1,5 +1,6 @@
 package org.agmas.minetok.client.render.sprites;
 
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.impl.util.log.Log;
 import net.fabricmc.loader.impl.util.log.LogCategory;
@@ -17,6 +18,7 @@ import org.agmas.minetok.client.MinetokClient;
 import org.agmas.minetok.client.api.PhoneTapInformation;
 import org.agmas.minetok.client.api.Sprite;
 import org.agmas.minetok.client.render.Phone;
+import org.agmas.minetok.network.ServerboundCallPacket;
 import org.joml.Vector3f;
 
 import java.awt.*;
@@ -49,7 +51,7 @@ public class CallsApplication extends ExitButtonSprite {
             int marginX = 40;
             int marginY;
             int i = 0;
-            int spacing = 50;
+            int spacing = 58;
             int scrollableArea = spacing * Minecraft.getInstance().getConnection().getListedOnlinePlayers().size();
 
             marginY = (int) Mth.lerp(scroll, 180, scrollableArea);
@@ -61,6 +63,9 @@ public class CallsApplication extends ExitButtonSprite {
                     if (mouse.y+40 > marginY + (spacing*i) && mouse.y+40 < marginY + (spacing*i) + 50) {
                         selected = true;
                         graphics.fill(marginX-6, marginY + (spacing*i) - 6, marginX+56, marginY + (spacing*i) + 56, -1);
+                        if (mouse.justReleased && Math.abs(mouse.tappedY-mouse.y) < 8) {
+                            ClientPlayNetworking.send(new ServerboundCallPacket(listedOnlinePlayer.getProfile().id().toString()));
+                        }
                     }
                 }
                 PlayerFaceExtractor.
