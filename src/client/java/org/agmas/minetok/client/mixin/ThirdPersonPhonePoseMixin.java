@@ -4,6 +4,10 @@ import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.HumanoidArm;
+import org.agmas.minetok.Minetok;
+import org.agmas.minetok.api.PhoneTapInformation;
+import org.agmas.minetok.client.MinetokClient;
 import org.agmas.minetok.client.animation.PhonePoser;
 import org.agmas.minetok.init.ModItems;
 import org.spongepowered.asm.mixin.Final;
@@ -30,17 +34,25 @@ public class ThirdPersonPhonePoseMixin {
 	@Inject(at = @At("TAIL"), method = "poseRightArm")
 	private void right(HumanoidRenderState state, CallbackInfo info) {
 		if (state.isUsingItem) {
-			if (state.getUseItemStackForArm(state.useItemHand == InteractionHand.MAIN_HAND ? state.mainArm : state.mainArm.getOpposite()).is(ModItems.PHONE)) {
+			if (state.getUseItemStackForArm(HumanoidArm.RIGHT).is(ModItems.PHONE)) {
 				PhonePoser.poseMainArm(rightArm, state.ticksUsingItem);
+			}
+		}
+	}
+	@Inject(at = @At("TAIL"), method = "poseLeftArm")
+	private void left(HumanoidRenderState state, CallbackInfo info) {
+		if (state.isUsingItem) {
+			if (state.getUseItemStackForArm(HumanoidArm.LEFT).is(ModItems.PHONE)) {
+				PhonePoser.poseMainArm(leftArm, state.ticksUsingItem);
 			}
 		}
 	}
 
 	@Inject(at = @At("TAIL"), method = "setupAnim(Lnet/minecraft/client/renderer/entity/state/HumanoidRenderState;)V")
-	private void left(HumanoidRenderState state, CallbackInfo info) {
+	private void head(HumanoidRenderState state, CallbackInfo info) {
 		if (state.isUsingItem) {
 			if (state.getUseItemStackForArm(state.useItemHand == InteractionHand.MAIN_HAND ? state.mainArm : state.mainArm.getOpposite()).is(ModItems.PHONE)) {
-				PhonePoser.poseHeadDown(head);
+				PhonePoser.poseHeadDown(head, state.getDataOrDefault(MinetokClient.headMouseInfoID, new PhoneTapInformation()), state.ageInTicks % 1, state.getUseItemStackForArm(HumanoidArm.RIGHT).is(ModItems.PHONE));
 			}
 		}
 	}

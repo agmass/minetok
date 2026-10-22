@@ -1,10 +1,11 @@
 package org.agmas.minetok.client;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.RenderStateDataKey;
-import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents;
+import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderEvents;
 import net.fabricmc.loader.impl.util.log.Log;
 import net.fabricmc.loader.impl.util.log.LogCategory;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -17,6 +18,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Util;
+import org.agmas.minetok.api.PhoneTapInformation;
 import org.agmas.minetok.client.init.MinetokApplications;
 import org.agmas.minetok.client.init.MinetokOverlays;
 import org.agmas.minetok.client.init.ModClientPackets;
@@ -38,6 +40,8 @@ public class MinetokClient implements ClientModInitializer {
 	public static Phone phone;
 	public static HashMap<UUID, OtherPlayerPhone> playerPhoneHashMap = new HashMap<>();
 	public static RenderStateDataKey<MTIdentifier> phoneTextureID = RenderStateDataKey.create(()->"phoneTextureID");
+	public static RenderStateDataKey<PhoneTapInformation> prevheadMouseInfoID = RenderStateDataKey.create(()->"prevheadMouseInfoID");
+	public static RenderStateDataKey<PhoneTapInformation> headMouseInfoID = RenderStateDataKey.create(()->"headMouseInfoID");
 	public static MTIdentifier missingId = MTIdentifier.of("missing");
 
 	private static final Function<Identifier, RenderType> PHONE_RENDER_TYPE = Util.memoize((texture) -> RenderType.create("phone_render_type", RenderSetup.builder(RenderPipelines.SOLID_BLOCK).useLightmap().withTexture("Sampler0", texture).affectsCrumbling().setOutline(RenderSetup.OutlineProperty.AFFECTS_OUTLINE).createRenderSetup()));
@@ -68,7 +72,7 @@ public class MinetokClient implements ClientModInitializer {
 			playerPhoneHashMap.clear();
 		});
 
-		ClientTickEvents.END_LEVEL_TICK.register((l)->{
+		ClientTickEvents.END_WORLD_TICK.register((l)->{
 			if (phone != null) {
 				if (phone.networkDirty) {
 					ClientPlayNetworking.send(new ServerboundPhoneStatePacket(phone.createTag()));
@@ -84,10 +88,9 @@ public class MinetokClient implements ClientModInitializer {
 					}
 				}
 			}
-
 		});
 
-        LevelRenderEvents.END_MAIN.register((wrc)->{
+        WorldRenderEvents.END_MAIN.register((wrc)->{
 			if (Minecraft.getInstance().player != null) {
 				if (!Minecraft.getInstance().player.isUsingItem()) {
 					phone.selectedElement = null;
@@ -121,6 +124,11 @@ public class MinetokClient implements ClientModInitializer {
 				//value.renderer.render(wrc.gameRenderer().mainCamera(), value.phone);
 			}
         });
+	}
+
+	public static void positionPhoneInThirdPersonHand(PoseStack poseStack) { //made this just so i can hotswap lol
+		poseStack.scale(0.25f,0.25f,0.15f);
+		poseStack.translate(-0.5f,-0.15f,0.55f);
 	}
 
 }

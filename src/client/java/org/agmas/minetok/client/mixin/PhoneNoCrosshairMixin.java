@@ -4,7 +4,7 @@ import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 //? if >=26.2
 //import net.minecraft.client.gui.Hud;
 import net.minecraft.world.entity.player.Player;
@@ -24,10 +24,10 @@ public abstract class PhoneNoCrosshairMixin {
     protected abstract @Nullable Player getCameraPlayer();
 
     //? if <26.1
-    //@WrapMethod(method = "renderCrosshair")
+    @WrapMethod(method = "renderCrosshair")
     //? if >=26.1
-    @WrapMethod(method = "extractCrosshair")
-    public void disableWhenWatchingCams(GuiGraphicsExtractor guiGraphics, DeltaTracker deltaTracker, Operation<Void> original) {
+    //@WrapMethod(method = "extractCrosshair")
+    public void disableWhenWatchingCams(GuiGraphics guiGraphics, DeltaTracker deltaTracker, Operation<Void> original) {
         if (getCameraPlayer() != null) {
             if (getCameraPlayer().isUsingItem() && getCameraPlayer().getActiveItem().getItem() instanceof PhoneItem) {
                 return;

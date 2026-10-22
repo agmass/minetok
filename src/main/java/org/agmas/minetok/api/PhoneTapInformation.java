@@ -6,10 +6,16 @@ public class PhoneTapInformation {
         this.isClient = isClient;
     }
 
+    public PhoneTapInformation() {}
+
+
     public boolean isClient = false;
 
     public float x = 0;
     public float y = 0;
+
+    public float prevX = 0;
+    public float prevY = 0;
 
     public float tappedX = 0;
     public float tappedY = 0;

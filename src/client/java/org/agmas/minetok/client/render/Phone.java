@@ -4,7 +4,7 @@ package org.agmas.minetok.client.render;
 // import net.minecraft.world.item.component.SwingAnimation;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
@@ -20,6 +20,7 @@ import org.agmas.minetok.client.api.Application;
 import org.agmas.minetok.client.api.NetworkSprite;
 import org.agmas.minetok.client.api.Sprite;
 import org.agmas.minetok.client.init.MinetokOverlays;
+import org.agmas.minetok.client.render.sprites.CallsApplication;
 import org.agmas.minetok.client.render.sprites.HomeScreenSprite;
 import org.agmas.minetok.client.render.sprites.calls.CallingSprite;
 import org.agmas.minetok.client.util.MinetokClientRegistries;
@@ -56,18 +57,19 @@ public class Phone {
         topSprite.overlays.add(overlay);
     }
 
-    public void render(GuiGraphicsExtractor graphics) {
+    public void render(GuiGraphics graphics) {
         if (this == MinetokClient.phone)
             handleMouseInput();
 
         if (player.hasAttached(ModAttachments.RINGING_ATTACHMENT_TYPE) && callingSprite == null) {
+            topSprite.overlays.remove(CallsApplication.waitingSprite);
             callingSprite = new CallingSprite(player.getAttached(ModAttachments.RINGING_ATTACHMENT_TYPE).recieving, player.getAttached(ModAttachments.RINGING_ATTACHMENT_TYPE).callingId);
             addNetOverlay(MinetokOverlays.CALLING, callingSprite);
             setDirty();
         }
 
         topSprite.render(graphics,mouse, Minecraft.getInstance().getDeltaTracker().getRealtimeDeltaTicks());
-        
+
         graphics.blitSprite(RenderPipelines.CROSSHAIR, CROSSHAIR_SPRITE, (int)mouse.x, (int)mouse.y, 80, 80);
         
         if (mouse.justTapped)
@@ -205,6 +207,8 @@ public class Phone {
     public void sync(CompoundTag tag) {
         java.util.Optional<CompoundTag> netMouse = tag.getCompound("mouse");
         if (netMouse.isPresent()) {
+            mouse.prevX = mouse.x;
+            mouse.prevY = mouse.y;
             mouse.x = netMouse.get().getFloatOr("x", 0f);
             mouse.y = netMouse.get().getFloatOr("y", 0f);
         }
@@ -231,7 +235,7 @@ public class Phone {
                     networkSprite.sync(netAppData);
                 }
             } else {
-                if (topSprite.focusedSprite != null && topSprite.focusedSprite.application != null) {
+                if (topSprite.focusedSprite != null && topSprite.focusedSprite.application != null && !topSprite.closing) {
                     topSprite.closing = true;
                     topSprite.openingAppAnimation = 1;
                 }

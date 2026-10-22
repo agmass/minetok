@@ -25,6 +25,7 @@ public abstract class MTExtractRenderStateMixin {
 		if (entity instanceof Player p) {
 			if (MinetokClient.playerPhoneHashMap.containsKey(p.getUUID())) {
 				state.setData(MinetokClient.phoneTextureID, MinetokClient.playerPhoneHashMap.get(p.getUUID()).textureIdentifier);
+				state.setData(MinetokClient.headMouseInfoID, MinetokClient.playerPhoneHashMap.get(p.getUUID()).phone.mouse);
 			}
 		}
 	}

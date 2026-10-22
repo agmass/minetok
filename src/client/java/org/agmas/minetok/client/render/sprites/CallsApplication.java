@@ -3,7 +3,7 @@ package org.agmas.minetok.client.render.sprites;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.*;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.renderer.RenderPipelines;
@@ -32,7 +32,7 @@ public class CallsApplication extends ExitButtonSprite implements NetworkSprite 
     public static NotificationSprite waitingSprite;
 
     @Override
-    public void render(GuiGraphicsExtractor graphics, PhoneTapInformation mouse, float renderDelta) {
+    public void render(GuiGraphics graphics, PhoneTapInformation mouse, float renderDelta) {
         graphics.blit(RenderPipelines.GUI_TEXTURED, Identifier.withDefaultNamespace("textures/block/white_concrete.png"), -8,-8,0,0, Phone.SCREEN_WIDTH+16, Phone.SCREEN_HEIGHT+16,128,128);
 
         if (FabricLoader.getInstance().isModLoaded("voicechat_api")) {
@@ -52,7 +52,7 @@ public class CallsApplication extends ExitButtonSprite implements NetworkSprite 
                     prevScroll = scroll;
                 } else {
                     timeSinceUpdate += renderDelta;
-                    scroll = Mth.lerp(Mth.clamp(timeSinceUpdate/20f, prevScroll, scroll), prevScroll, netScroll);
+                    scroll = Mth.lerp(Mth.clamp(timeSinceUpdate*20f, 0, 1), prevScroll, netScroll);
                 }
             }
 
@@ -71,23 +71,27 @@ public class CallsApplication extends ExitButtonSprite implements NetworkSprite 
                     if (mouse.y+40 > marginY + (spacing*i) && mouse.y+40 < marginY + (spacing*i) + 50) {
                         selected = true;
                         graphics.fill(marginX-6, marginY + (spacing*i) - 6, marginX+56, marginY + (spacing*i) + 56, -1);
-                        if (mouse.justReleased && Math.abs(mouse.tappedY-mouse.y) < 8) {
-                            waitingSprite = new NotificationSprite(Component.translatable("phone.notification.waiting_for_server"), false,MinetokClient.phone, false);
-                            MinetokClient.phone.addNetOverlay(MinetokOverlays.NOTIFICATION, waitingSprite);
-                            ClientPlayNetworking.send(new ServerboundCallPacket(listedOnlinePlayer.getProfile().id().toString()));
+                        if (!listedOnlinePlayer.getProfile().id().equals(Minecraft.getInstance().player.getUUID())) {
+                            if (mouse.justReleased && (Math.abs(mouse.tappedY - mouse.y) < 8)) {
+                                waitingSprite = new NotificationSprite(Component.translatable("phone.notification.waiting_for_server"), false, MinetokClient.phone, false);
+                                MinetokClient.phone.addNetOverlay(MinetokOverlays.NOTIFICATION, waitingSprite);
+                                ClientPlayNetworking.send(new ServerboundCallPacket(listedOnlinePlayer.getProfile().id().toString()));
+                            }
+                        } else if (mouse.justReleased && (Math.abs(mouse.tappedY - mouse.y) < 8)) {
+                            MinetokClient.phone.addNetOverlay(MinetokOverlays.NOTIFICATION, new NotificationSprite(Component.translatable("phone.error.cant_call_self"), true, MinetokClient.phone, true));
                         }
                     }
                 }
-                PlayerFaceExtractor.
+                PlayerFaceRenderer.
                         //? if <=1.21.11
-                        // draw
+                         draw
                         //? if >1.21.11
-                        extractRenderState
+                        //extractRenderState
                                 (graphics,listedOnlinePlayer.getSkin(),marginX,marginY + (spacing*i),48);
                 graphics.pose().pushMatrix();
                 graphics.pose().translate(marginX + 58,marginY+ 8 + (spacing*i));
                 graphics.pose().scale(4);
-                graphics.text(Minecraft.getInstance().font, listedOnlinePlayer.getProfile().name(), 0,0, selected ? -1 : Color.LIGHT_GRAY.getRGB());
+                graphics.drawString(Minecraft.getInstance().font, listedOnlinePlayer.getProfile().name(), 0,0, selected ? -1 : Color.LIGHT_GRAY.getRGB());
                 graphics.pose().popMatrix();
                 i++;
             }
@@ -104,9 +108,9 @@ public class CallsApplication extends ExitButtonSprite implements NetworkSprite 
             graphics.pose().scale(5);
 
             //? if >1.21.11
-            textField.extractRenderState(graphics, (int) mouse.x, (int) mouse.y,renderDelta);
+            //textField.extractRenderState(graphics, (int) mouse.x, (int) mouse.y,renderDelta);
             //? if <=1.21.11
-            // textField.render(graphics, (int) mouse.x, (int) mouse.y,renderDelta);
+             textField.render(graphics, (int) mouse.x, (int) mouse.y,renderDelta);
             if (mouse.x+40 > 80 && mouse.y+40 > 70 && mouse.x+40 < 680 && mouse.y+40 < 140) {
                 if (mouse.justTapped) {
                     MinetokClient.phone.selectedElement = textField;
@@ -117,17 +121,17 @@ public class CallsApplication extends ExitButtonSprite implements NetworkSprite 
         }
     }
 
-    public void renderNoService(GuiGraphicsExtractor graphics, PhoneTapInformation mouse, float renderDelta) {
+    public void renderNoService(GuiGraphics graphics, PhoneTapInformation mouse, float renderDelta) {
         graphics.pose().pushMatrix();
         graphics.pose().translate(Phone.SCREEN_WIDTH/2f, (Phone.SCREEN_HEIGHT/2f)-90);
         graphics.pose().scale(10);
-        graphics.text(Minecraft.getInstance().font, Component.translatable("phone.error.no_service"), -Minecraft.getInstance().font.width(Component.translatable("phone.error.no_service"))/2,-4,Color.RED.getRGB());
+        graphics.drawString(Minecraft.getInstance().font, Component.translatable("phone.error.no_service"), -Minecraft.getInstance().font.width(Component.translatable("phone.error.no_service"))/2,-4,Color.RED.getRGB());
         graphics.pose().popMatrix();
 
         graphics.pose().pushMatrix();
         graphics.pose().translate(Phone.SCREEN_WIDTH/2f, (Phone.SCREEN_HEIGHT/2f)-90);
         graphics.pose().scale(3);
-        graphics.text(Minecraft.getInstance().font, Component.translatable("phone.error.missing_mod", "Simple Voicechat"), -Minecraft.getInstance().font.width(Component.translatable("phone.error.missing_mod", "Simple Voicechat"))/2,20,Color.LIGHT_GRAY.getRGB());
+        graphics.drawString(Minecraft.getInstance().font, Component.translatable("phone.error.missing_mod", "Simple Voicechat"), -Minecraft.getInstance().font.width(Component.translatable("phone.error.missing_mod", "Simple Voicechat"))/2,20,Color.LIGHT_GRAY.getRGB());
         graphics.pose().popMatrix();
     }
 
@@ -143,5 +147,6 @@ public class CallsApplication extends ExitButtonSprite implements NetworkSprite 
     public void sync(CompoundTag phoneData) {
         textField.setValue(phoneData.getStringOr("search", ""));
         netScroll = phoneData.getFloatOr("scroll", 0);
+        timeSinceUpdate = 0;
     }
 }

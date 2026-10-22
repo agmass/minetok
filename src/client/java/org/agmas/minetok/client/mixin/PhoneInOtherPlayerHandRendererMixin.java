@@ -33,8 +33,7 @@ public class PhoneInOtherPlayerHandRendererMixin {
 		if (armedEntityRenderState instanceof AvatarRenderState state) {
 			if (itemStack.is(ModItems.PHONE) && state.getDataOrDefault(MinetokClient.phoneTextureID, MinetokClient.missingId) != MinetokClient.missingId) {
 				poseStack.pushPose();
-				poseStack.scale(0.3f,0.3f,0.3f);
-				poseStack.translate(-0.2f,-0.2f,0.6f);
+				MinetokClient.positionPhoneInThirdPersonHand(poseStack);
 				int fullbright = 15728880;
 				submitNodeCollector.submitCustomGeometry(poseStack, MinetokClient.getPhoneRenderType(state.getData(MinetokClient.phoneTextureID)), ((pose, vertexConsumer) -> {
 					vertexConsumer.addVertex(pose, 0,0,0).setUv(0,0).setLight(fullbright).setNormal(1,1,1).setUv2(0,0).setColor(-1);

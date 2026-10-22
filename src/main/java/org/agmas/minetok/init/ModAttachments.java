@@ -33,10 +33,10 @@ public class ModAttachments {
         //? if >=26.2 {
         /*attachmentTarget.fabric_syncChange(ModAttachments.RINGING_ATTACHMENT_TYPE, new AttachmentChange(attachmentTarget.fabric_getSyncTargetInfo(), ModAttachments.RINGING_ATTACHMENT_TYPE, playerAttachment));
         *///? } else if =26.1 {
-        attachmentTarget.fabric_syncChange(ModAttachments.RINGING_ATTACHMENT_TYPE, AttachmentChange.create(attachmentTarget.fabric_getSyncTargetInfo(), ModAttachments.RINGING_ATTACHMENT_TYPE, playerAttachment, attachmentTarget.fabric_getRegistryAccess()));
-         //? } else {
-        /*attachmentTarget.fabric_syncChange(ModAttachments.RINGING_ATTACHMENT_TYPE, AttachmentChange.create(attachmentTarget.fabric_getSyncTargetInfo(), ModAttachments.RINGING_ATTACHMENT_TYPE, playerAttachment, attachmentTarget.fabric_getDynamicRegistryManager()));
-         *///? }
+        /*attachmentTarget.fabric_syncChange(ModAttachments.RINGING_ATTACHMENT_TYPE, AttachmentChange.create(attachmentTarget.fabric_getSyncTargetInfo(), ModAttachments.RINGING_ATTACHMENT_TYPE, playerAttachment, attachmentTarget.fabric_getRegistryAccess()));
+         *///? } else {
+        attachmentTarget.fabric_syncChange(ModAttachments.RINGING_ATTACHMENT_TYPE, AttachmentChange.create(attachmentTarget.fabric_getSyncTargetInfo(), ModAttachments.RINGING_ATTACHMENT_TYPE, playerAttachment, attachmentTarget.fabric_getDynamicRegistryManager()));
+         //? }
     }
 
     public static void forceSyncPhoneTagAttachment(Player player, CompoundTag attachment) {
@@ -45,10 +45,10 @@ public class ModAttachments {
         //? if >=26.2 {
         /*attachmentTarget.fabric_syncChange(ModAttachments.PHONE_STATE, new AttachmentChange(attachmentTarget.fabric_getSyncTargetInfo(), ModAttachments.PHONE_STATE, attachment));
          *///? } else if =26.1 {
-        attachmentTarget.fabric_syncChange(ModAttachments.PHONE_STATE, AttachmentChange.create(attachmentTarget.fabric_getSyncTargetInfo(), ModAttachments.PHONE_STATE, attachment, attachmentTarget.fabric_getRegistryAccess()));
-        //? } else {
-        /*attachmentTarget.fabric_syncChange(ModAttachments.PHONE_STATE, AttachmentChange.create(attachmentTarget.fabric_getSyncTargetInfo(), ModAttachments.PHONE_STATE, attachment, attachmentTarget.fabric_getDynamicRegistryManager()));
-         *///? }
+        /*attachmentTarget.fabric_syncChange(ModAttachments.PHONE_STATE, AttachmentChange.create(attachmentTarget.fabric_getSyncTargetInfo(), ModAttachments.PHONE_STATE, attachment, attachmentTarget.fabric_getRegistryAccess()));
+        *///? } else {
+        attachmentTarget.fabric_syncChange(ModAttachments.PHONE_STATE, AttachmentChange.create(attachmentTarget.fabric_getSyncTargetInfo(), ModAttachments.PHONE_STATE, attachment, attachmentTarget.fabric_getDynamicRegistryManager()));
+         //? }
     }
 
     public static void init() {}

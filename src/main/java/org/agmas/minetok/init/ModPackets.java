@@ -20,25 +20,25 @@ import java.util.UUID;
 public class ModPackets {
     public static void init() {
         //? if >=26.1 {
-        PayloadTypeRegistry.serverboundPlay()
-        //? } else {
-        /*PayloadTypeRegistry.playC2S()
-         *///? }
+        /*PayloadTypeRegistry.serverboundPlay()
+        *///? } else {
+        PayloadTypeRegistry.playC2S()
+         //? }
             .register(ServerboundCallPacket.TYPE, ServerboundCallPacket.CODEC);
 
 
         //? if >=26.1 {
-        PayloadTypeRegistry.clientboundPlay()
-                //? } else {
-                /*PayloadTypeRegistry.playS2C()
-                 *///? }
+        /*PayloadTypeRegistry.clientboundPlay()
+                *///? } else {
+                PayloadTypeRegistry.playS2C()
+                 //? }
                 .register(ClientboundPhoneNotificationPacket.TYPE, ClientboundPhoneNotificationPacket.CODEC);
 
         //? if >=26.1 {
-        PayloadTypeRegistry.serverboundPlay()
-                //? } else {
-                /*PayloadTypeRegistry.playC2S()
-                 *///? }
+        /*PayloadTypeRegistry.serverboundPlay()
+                *///? } else {
+                PayloadTypeRegistry.playC2S()
+                 //? }
                 .register(ServerboundPhoneStatePacket.TYPE, ServerboundPhoneStatePacket.CODEC);
 
         ServerPlayNetworking.registerGlobalReceiver(ServerboundPhoneStatePacket.TYPE, (payload, context)->{
