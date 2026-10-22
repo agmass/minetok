@@ -12,7 +12,7 @@ import net.minecraft.util.EasingType;
 import net.minecraft.util.Mth;
 import org.agmas.minetok.client.MinetokClient;
 import org.agmas.minetok.client.api.Application;
-import org.agmas.minetok.client.api.PhoneTapInformation;
+import org.agmas.minetok.api.PhoneTapInformation;
 import org.agmas.minetok.client.api.Sprite;
 import org.agmas.minetok.client.render.Phone;
 import org.agmas.minetok.client.util.MinetokClientRegistries;
@@ -55,7 +55,7 @@ public class HomeScreenSprite extends Sprite {
         super.render(graphics, originalMouse, renderDelta);
         PhoneTapInformation mouse = originalMouse;
         if (!overlays.isEmpty()) {
-            mouse = new PhoneTapInformation();
+            mouse = new PhoneTapInformation(originalMouse.isClient);
         }
         if (mouse.justTapped) {
             MinetokClient.phone.selectedElement = null;
@@ -75,7 +75,7 @@ public class HomeScreenSprite extends Sprite {
             //? }
 
             PhoneTapInformation gridMouseInfo = mouse;
-            if (openingAppAnimation > 0 && !closing) gridMouseInfo = new PhoneTapInformation();
+            if (openingAppAnimation > 0 && !closing) gridMouseInfo = new PhoneTapInformation(originalMouse.isClient);
 
             renderApplicationGrid(graphics,gridMouseInfo,renderDelta);
         }

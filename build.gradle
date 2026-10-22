@@ -64,6 +64,7 @@ stonecutter {
 		replace 'graphics.drawString(', 'graphics.text('
 		replace 'GuiGraphics', 'GuiGraphicsExtractor'
 		replace 'CachedOrthoProjectionMatrixBuffer', 'ProjectionMatrixBuffer'
+		replace 'ClientTickEvents.END_WORLD_TICK', 'ClientTickEvents.END_LEVEL_TICK'
 		replace 'world.WorldRenderEvents', 'level.LevelRenderEvents'
 		replace 'WorldRenderEvents', 'LevelRenderEvents'
 	}

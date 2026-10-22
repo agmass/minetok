@@ -1,33 +1,33 @@
 package org.agmas.minetok.client.render;
 
+//? if >=26.3
+// import net.minecraft.world.item.component.SwingAnimation;
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.fabricmc.loader.impl.util.log.Log;
-import net.fabricmc.loader.impl.util.log.LogCategory;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.events.GuiEventListener;
-import net.minecraft.client.gui.render.GuiRenderer;
-import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.Holder;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemDisplayContext;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.component.SwingAnimation;
-import net.minecraft.world.phys.Vec2;
-import net.minecraft.world.phys.Vec3;
 import org.agmas.minetok.client.MinetokClient;
-import org.agmas.minetok.client.api.PhoneTapInformation;
+import org.agmas.minetok.api.PhoneTapInformation;
+import org.agmas.minetok.client.api.Application;
+import org.agmas.minetok.client.api.NetworkSprite;
+import org.agmas.minetok.client.api.Sprite;
+import org.agmas.minetok.client.init.MinetokOverlays;
 import org.agmas.minetok.client.render.sprites.HomeScreenSprite;
 import org.agmas.minetok.client.render.sprites.calls.CallingSprite;
+import org.agmas.minetok.client.util.MinetokClientRegistries;
 import org.agmas.minetok.init.ModAttachments;
+import org.agmas.minetok.porting.MTIdentifier;
 import org.jetbrains.annotations.Nullable;
 
-import java.awt.*;
+import java.util.Optional;
 
 public class Phone {
 
@@ -37,8 +37,9 @@ public class Phone {
     public GuiEventListener selectedElement = null;
     public boolean captured = false;
     public HomeScreenSprite topSprite = new HomeScreenSprite();
+    public boolean networkDirty = false;
 
-    public PhoneTapInformation mouse = new PhoneTapInformation();
+    public PhoneTapInformation mouse;
     public Player player;
     @Nullable CallingSprite callingSprite = null;
 
@@ -46,18 +47,35 @@ public class Phone {
 
     public Phone(Player player) {
         this.player = player;
+        mouse = new PhoneTapInformation(player.isLocalPlayer());
+    }
+
+    public void addNetOverlay(Application overlayType, Sprite overlay) {
+        overlay.overlay = overlayType;
+        setDirty();
+        topSprite.overlays.add(overlay);
     }
 
     public void render(GuiGraphicsExtractor graphics) {
-        handleMouseInput();
+        if (this == MinetokClient.phone)
+            handleMouseInput();
 
-        if (player.hasAttached(ModAttachments.RINGING_ATTACHMENT_TYPE)) {
-
+        if (player.hasAttached(ModAttachments.RINGING_ATTACHMENT_TYPE) && callingSprite == null) {
+            callingSprite = new CallingSprite(player.getAttached(ModAttachments.RINGING_ATTACHMENT_TYPE).recieving, player.getAttached(ModAttachments.RINGING_ATTACHMENT_TYPE).callingId);
+            addNetOverlay(MinetokOverlays.CALLING, callingSprite);
+            setDirty();
         }
 
         topSprite.render(graphics,mouse, Minecraft.getInstance().getDeltaTracker().getRealtimeDeltaTicks());
-
+        
         graphics.blitSprite(RenderPipelines.CROSSHAIR, CROSSHAIR_SPRITE, (int)mouse.x, (int)mouse.y, 80, 80);
+        
+        if (mouse.justTapped)
+            setDirty();
+    }
+    
+    public void setDirty() {
+        networkDirty = true;
     }
 
     public void handleMouseInput() {
@@ -123,11 +141,134 @@ public class Phone {
 
     public void createPlane(SubmitNodeCollector submitNodeCollector, PoseStack stack) {
         int fullbright = 15728880;
-        submitNodeCollector.submitCustomGeometry(stack, MinetokClient.PHONE_RENDER_TYPE, ((pose, vertexConsumer) -> {
+        submitNodeCollector.submitCustomGeometry(stack, MinetokClient.getPhoneRenderType(MTIdentifier.of("phone_texture")), ((pose, vertexConsumer) -> {
             vertexConsumer.addVertex(pose, 0,0,0).setUv(0,0).setLight(fullbright).setNormal(1,1,1).setUv2(0,0).setColor(-1);
             vertexConsumer.addVertex(pose, 9,0,0).setUv(1,0).setLight(fullbright).setNormal(1,1,1).setUv2(0,0).setColor(-1);
             vertexConsumer.addVertex(pose, 9,16,0).setUv(1,1).setLight(fullbright).setNormal(1,1,1).setUv2(0,0).setColor(-1);
             vertexConsumer.addVertex(pose, 0,16,0).setUv(0,1).setLight(fullbright).setNormal(1,1,1).setUv2(0,0).setColor(-1);
         }));
     }
+
+    public CompoundTag createOnlyMouseTag() {
+        CompoundTag mouseTag = new CompoundTag();
+        mouseTag.putFloat("x", mouse.x);
+        mouseTag.putFloat("y", mouse.y);
+        return mouseTag;
+    }
+    public CompoundTag createTag() {
+        CompoundTag tag = new CompoundTag();
+
+        CompoundTag mouseTag = new CompoundTag();
+        mouseTag.putFloat("x", mouse.x);
+        mouseTag.putFloat("y", mouse.y);
+        tag.put("mouse", mouseTag);
+
+        CompoundTag phoneTag = new CompoundTag();
+
+        if (topSprite.focusedSprite != null) {
+            if (topSprite.focusedSprite.application != null) {
+                if (MinetokClientRegistries.APPLICATIONS.getKey(topSprite.focusedSprite.application) != null) {
+                    phoneTag.putString("application_id", MinetokClientRegistries.APPLICATIONS.getKey(topSprite.focusedSprite.application).toString());
+
+                    CompoundTag applicationTag = new CompoundTag();
+                    if (topSprite.focusedSprite instanceof NetworkSprite networkSprite) {
+                        applicationTag = networkSprite.createTag();
+                    }
+                    if (applicationTag == null) {
+                        throw new NullPointerException("Application Tag is null");
+                    }
+                    phoneTag.put("application", applicationTag);
+                }
+            }
+        }
+
+        if (!topSprite.overlays.isEmpty()) {
+            if (topSprite.overlays.getLast().overlay != null) {
+                if (MinetokClientRegistries.OVERLAYS.getKey(topSprite.overlays.getLast().overlay) != null) {
+                    phoneTag.putString("overlay_id", MinetokClientRegistries.OVERLAYS.getKey(topSprite.overlays.getLast().overlay).toString());
+
+                    CompoundTag overlayTag = new CompoundTag();
+                    if (topSprite.overlays.getLast() instanceof NetworkSprite networkSprite) {
+                        overlayTag = networkSprite.createTag();
+                    }
+                    if (overlayTag == null) {
+                        throw new NullPointerException("Overlay Tag is null");
+                    }
+                    phoneTag.put("overlay", overlayTag);
+                }
+            }
+        }
+        tag.put("phone", phoneTag);
+        return tag;
+    }
+
+    public void sync(CompoundTag tag) {
+        java.util.Optional<CompoundTag> netMouse = tag.getCompound("mouse");
+        if (netMouse.isPresent()) {
+            mouse.x = netMouse.get().getFloatOr("x", 0f);
+            mouse.y = netMouse.get().getFloatOr("y", 0f);
+        }
+
+        java.util.Optional<CompoundTag> netPhoneTag = tag.getCompound("phone");
+        if (netPhoneTag.isPresent()) {
+            CompoundTag netPhone = netPhoneTag.get();
+            if (netPhone.contains("application_id")) {
+                Optional<Holder.Reference<Application>> netAppOp = MinetokClientRegistries.APPLICATIONS.get(Identifier.parse(netPhone.getString("application_id").get()));
+                if (netAppOp.isPresent()) {
+                    Application netApp = netAppOp.get().value();
+                    if (topSprite.focusedSprite == null || !topSprite.focusedSprite.application.equals(netApp)) {
+                        try {
+                            topSprite.focusedSprite = netApp.initializerSprite.getConstructor().newInstance();
+                            topSprite.focusedSprite.application = netApp;
+                            topSprite.openingAppAnimation = 1;
+                            topSprite.closing = false;
+                        } catch (Exception ignored) {}
+                    }
+                }
+
+                CompoundTag netAppData = netPhone.getCompoundOrEmpty("application");
+                if (topSprite.focusedSprite instanceof NetworkSprite networkSprite) {
+                    networkSprite.sync(netAppData);
+                }
+            } else {
+                if (topSprite.focusedSprite != null && topSprite.focusedSprite.application != null) {
+                    topSprite.closing = true;
+                    topSprite.openingAppAnimation = 1;
+                }
+            }
+
+            if (netPhone.contains("overlay_id")) {
+                Optional<Holder.Reference<Application>> netOverlayOp = MinetokClientRegistries.OVERLAYS.get(Identifier.parse(netPhone.getString("overlay_id").get()));
+                if (netOverlayOp.isPresent()) {
+                    Application netOverlay = netOverlayOp.get().value();
+                    if (topSprite.overlays.isEmpty() || topSprite.overlays.getLast().overlay != netOverlay) {
+                        topSprite.overlays.clear();
+                        try { topSprite.overlays.add(netOverlay.initializerSprite.getConstructor().newInstance()); } catch (Exception ignored) {}
+                    }
+                }
+
+                CompoundTag netAppData = netPhone.getCompoundOrEmpty("overlay");
+
+                if (!topSprite.overlays.isEmpty()) {
+                    if (topSprite.overlays.getLast() instanceof NetworkSprite networkSprite) {
+                        networkSprite.sync(netAppData);
+                    }
+                }
+
+            }
+        }
+    }
+
+    /*
+    super official epic documentation on how the nbt is structured
+
+    - mouse
+      - x (float)
+      - y (float)
+    - phone
+      - application_id (string // identifier)
+      - (if ^ exists) application (compound)
+      - overlay_id
+      - (if ^ exists) overlay
+     */
 }

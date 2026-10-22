@@ -13,32 +13,32 @@ public class ColorTextureMixin {
 
     @WrapMethod(method = "getColorTexture")
     public GpuTexture override(Operation<GpuTexture> original) {
-        if (PhoneTextureRenderer.overrideBuffers) {
-            return PhoneTextureRenderer.INSTANCE.getTexture();
+        if (PhoneTextureRenderer.overrideColorBuffer != null) {
+            return PhoneTextureRenderer.overrideColorBuffer;
         }
         return original.call();
     }
 
     @WrapMethod(method = "getColorTextureView")
     public GpuTextureView overrideView(Operation<GpuTextureView> original) {
-        if (PhoneTextureRenderer.overrideBuffers) {
-            return PhoneTextureRenderer.INSTANCE.getTextureView();
+        if (PhoneTextureRenderer.overrideColorViewBuffer != null) {
+            return PhoneTextureRenderer.overrideColorViewBuffer;
         }
         return original.call();
     }
 
     @WrapMethod(method = "getDepthTexture")
     public GpuTexture overrideD(Operation<GpuTexture> original) {
-        if (PhoneTextureRenderer.overrideBuffers) {
-            return PhoneTextureRenderer.INSTANCE.depthTexture;
+        if (PhoneTextureRenderer.overrideDepthBuffer != null) {
+            return PhoneTextureRenderer.overrideDepthBuffer;
         }
         return original.call();
     }
 
     @WrapMethod(method = "getDepthTextureView")
     public GpuTextureView overrideDView(Operation<GpuTextureView> original) {
-        if (PhoneTextureRenderer.overrideBuffers) {
-            return PhoneTextureRenderer.INSTANCE.depthTextureView;
+        if (PhoneTextureRenderer.overrideDepthViewBuffer != null) {
+            return PhoneTextureRenderer.overrideDepthViewBuffer;
         }
         return original.call();
     }

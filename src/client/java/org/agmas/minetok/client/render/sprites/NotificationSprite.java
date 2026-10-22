@@ -3,16 +3,20 @@ package org.agmas.minetok.client.render.sprites;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.MultiLineTextWidget;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.util.EasingType;
-import net.minecraft.util.Mth;
-import org.agmas.minetok.client.api.PhoneTapInformation;
+import org.agmas.minetok.api.PhoneTapInformation;
+import org.agmas.minetok.client.api.NetworkSprite;
 import org.agmas.minetok.client.api.Sprite;
+import org.agmas.minetok.client.init.MinetokOverlays;
 import org.agmas.minetok.client.render.Phone;
 
 import java.awt.*;
 
-public class NotificationSprite extends Sprite {
+public class NotificationSprite extends Sprite implements NetworkSprite {
 
     static Color topBarColor = new Color(133, 133, 133,255);
     static Color bgColor = new Color(200,200,200,255);
@@ -27,6 +31,7 @@ public class NotificationSprite extends Sprite {
     float time = 0;
     boolean accepted = false;
     Phone parent;
+    boolean canBeQuit = true;
 
     public NotificationSprite(Component text, boolean isError, Phone parent) {
         this.isError = isError;
@@ -34,7 +39,18 @@ public class NotificationSprite extends Sprite {
         messageWidget = new MultiLineTextWidget(text, Minecraft.getInstance().font);
         messageWidget.setMaxWidth(400);
         this.parent = parent;
-        parent.topSprite.overlays.add(this);
+        parent.addNetOverlay(MinetokOverlays.NOTIFICATION, this);
+    }
+
+
+    public NotificationSprite(Component text, boolean isError, Phone parent, boolean canBeQuit) {
+        this.isError = isError;
+        this.notificationText = text;
+        messageWidget = new MultiLineTextWidget(text, Minecraft.getInstance().font);
+        messageWidget.setMaxWidth(400);
+        this.parent = parent;
+        this.canBeQuit = canBeQuit;
+        parent.addNetOverlay(MinetokOverlays.NOTIFICATION, this);
     }
 
     @Override
@@ -49,7 +65,7 @@ public class NotificationSprite extends Sprite {
                 return;
             }
         }
-        if (mouse.justTapped) accepted = true;
+        if (mouse.justTapped && canBeQuit) accepted = true;
         graphics.fill(-100,-100, Phone.SCREEN_WIDTH+100, Phone.SCREEN_HEIGHT+100, new Color(0,0,0, EasingType.OUT_CIRC.apply(time)*0.5f).getRGB());
 
         int padding = 32;
@@ -79,15 +95,36 @@ public class NotificationSprite extends Sprite {
         messageWidget.setMaxWidth(100);
         messageWidget.setWidth(100);
         messageWidget.visitLines(graphics.textRenderer());
+        //? if >=26.1
         messageWidget.extractRenderState(graphics, (int) mouse.x, (int) mouse.y,renderDelta);
+        //? if <26.1
+        //messageWidget.render(graphics, (int) mouse.x, (int) mouse.y,renderDelta);
         graphics.pose().popMatrix();
 
 
-        graphics.pose().pushMatrix();
-        graphics.pose().translate(Phone.SCREEN_WIDTH/2f, Phone.SCREEN_HEIGHT/2f + 200);
-        graphics.pose().translate(-(Minecraft.getInstance().font.width(tap_continue)*3)/2f,0f);
-        graphics.pose().scale(3);
-        graphics.text(Minecraft.getInstance().font,tap_continue,0,0,-1);
-        graphics.pose().popMatrix();
+        if (canBeQuit && mouse.isClient) {
+            graphics.pose().pushMatrix();
+            graphics.pose().translate(Phone.SCREEN_WIDTH / 2f, Phone.SCREEN_HEIGHT / 2f + 200);
+            graphics.pose().translate(-(Minecraft.getInstance().font.width(tap_continue) * 3) / 2f, 0f);
+            graphics.pose().scale(3);
+            graphics.text(Minecraft.getInstance().font, tap_continue, 0, 0, -1);
+            graphics.pose().popMatrix();
+        }
+    }
+
+    @Override
+    public CompoundTag createTag() {
+        CompoundTag tag = new CompoundTag();
+        tag.putBoolean("is_error", isError);
+        tag.put("component", ComponentSerialization.CODEC.encodeStart(NbtOps.INSTANCE, messageWidget.getMessage()).getOrThrow());
+        return tag;
+    }
+
+    @Override
+    public void sync(CompoundTag phoneData) {
+        if (phoneData.contains("component")) {
+            messageWidget.setMessage(ComponentSerialization.CODEC.decode(NbtOps.INSTANCE, phoneData.get("component")).getOrThrow().getFirst());
+        }
+        isError = phoneData.getBooleanOr("is_error", false);
     }
 }

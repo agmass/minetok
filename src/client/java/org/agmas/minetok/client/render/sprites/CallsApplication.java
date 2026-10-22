@@ -2,32 +2,34 @@ package org.agmas.minetok.client.render.sprites;
 
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.loader.api.FabricLoader;
-import net.fabricmc.loader.impl.util.log.Log;
-import net.fabricmc.loader.impl.util.log.LogCategory;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.*;
-import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
-import org.agmas.minetok.Minetok;
 import org.agmas.minetok.client.MinetokClient;
-import org.agmas.minetok.client.api.PhoneTapInformation;
-import org.agmas.minetok.client.api.Sprite;
+import org.agmas.minetok.api.PhoneTapInformation;
+import org.agmas.minetok.client.api.NetworkSprite;
+import org.agmas.minetok.client.init.MinetokOverlays;
 import org.agmas.minetok.client.render.Phone;
 import org.agmas.minetok.network.ServerboundCallPacket;
-import org.joml.Vector3f;
+import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
 
-public class CallsApplication extends ExitButtonSprite {
+public class CallsApplication extends ExitButtonSprite implements NetworkSprite {
 
     EditBox textField = new EditBox(Minecraft.getInstance().font, 0,0,100,10,Component.empty());
     public float prevScroll = 0;
     public float scroll = 0;
+    public float timeSinceUpdate = 0;
+    public float netScroll = 0;
+    @Nullable
+    public static NotificationSprite waitingSprite;
 
     @Override
     public void render(GuiGraphicsExtractor graphics, PhoneTapInformation mouse, float renderDelta) {
@@ -44,8 +46,14 @@ public class CallsApplication extends ExitButtonSprite {
                 scroll = prevScroll - ((mouse.tappedY- mouse.y)/area);
                 if (scroll < 0) scroll = 0;
                 if (scroll > 1) scroll = 1;
+                MinetokClient.phone.setDirty();
             } else {
-                prevScroll = scroll;
+                if (mouse.isClient) {
+                    prevScroll = scroll;
+                } else {
+                    timeSinceUpdate += renderDelta;
+                    scroll = Mth.lerp(Mth.clamp(timeSinceUpdate/20f, prevScroll, scroll), prevScroll, netScroll);
+                }
             }
 
             int marginX = 40;
@@ -64,6 +72,8 @@ public class CallsApplication extends ExitButtonSprite {
                         selected = true;
                         graphics.fill(marginX-6, marginY + (spacing*i) - 6, marginX+56, marginY + (spacing*i) + 56, -1);
                         if (mouse.justReleased && Math.abs(mouse.tappedY-mouse.y) < 8) {
+                            waitingSprite = new NotificationSprite(Component.translatable("phone.notification.waiting_for_server"), false,MinetokClient.phone, false);
+                            MinetokClient.phone.addNetOverlay(MinetokOverlays.NOTIFICATION, waitingSprite);
                             ClientPlayNetworking.send(new ServerboundCallPacket(listedOnlinePlayer.getProfile().id().toString()));
                         }
                     }
@@ -119,5 +129,19 @@ public class CallsApplication extends ExitButtonSprite {
         graphics.pose().scale(3);
         graphics.text(Minecraft.getInstance().font, Component.translatable("phone.error.missing_mod", "Simple Voicechat"), -Minecraft.getInstance().font.width(Component.translatable("phone.error.missing_mod", "Simple Voicechat"))/2,20,Color.LIGHT_GRAY.getRGB());
         graphics.pose().popMatrix();
+    }
+
+    @Override
+    public CompoundTag createTag() {
+        CompoundTag tag = new CompoundTag();
+        tag.putString("search", textField.getValue());
+        tag.putFloat("scroll", scroll);
+        return tag;
+    }
+
+    @Override
+    public void sync(CompoundTag phoneData) {
+        textField.setValue(phoneData.getStringOr("search", ""));
+        netScroll = phoneData.getFloatOr("scroll", 0);
     }
 }

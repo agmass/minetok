@@ -4,8 +4,10 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import org.agmas.minetok.client.MinetokClient;
 import org.agmas.minetok.client.api.Application;
-import org.agmas.minetok.client.api.PhoneTapInformation;
+import org.agmas.minetok.api.PhoneTapInformation;
+import org.agmas.minetok.client.api.ApplicationSprite;
 import org.agmas.minetok.client.api.Sprite;
 
 import java.awt.*;
@@ -14,7 +16,6 @@ public class ApplicationGridIcon extends Sprite {
 
     public static int APP_GRID_ICON_HEIGHT = 128+32+6;
     Identifier appId;
-    Application application;
 
     public ApplicationGridIcon(Identifier appId, Application application) {
         this.appId = appId;
@@ -53,12 +54,14 @@ public class ApplicationGridIcon extends Sprite {
         graphics.text(Minecraft.getInstance().font, text, 0, 0, selected ? Color.WHITE.getRGB() : Color.LIGHT_GRAY.getRGB());
         graphics.pose().popMatrix();
 
-        if (selected && mouse.justReleased) {
+        if (selected && mouse.justReleased && application != null) {
             if (Math.abs(mouse.tappedX-mouse.x) < 9) {
                 try {
                     parent.focusedSprite = application.initializerSprite.getConstructor().newInstance();
+                    parent.focusedSprite.application = application;
                     parent.openingAppAnimation = 1;
                     parent.closing = false;
+                    MinetokClient.phone.setDirty();
                 } catch (Exception ignored) {}
             }
         }

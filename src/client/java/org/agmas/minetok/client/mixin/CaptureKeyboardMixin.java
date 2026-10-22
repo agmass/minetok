@@ -21,16 +21,18 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class CaptureKeyboardMixin {
     @Inject(method = "keyPress", at = @At(value = "HEAD"), cancellable = true)
     public void overrideKeyboard(long l, int i, KeyEvent keyEvent, CallbackInfo ci) {
-        if (MinetokClient.phone.selectedElement != null && (i == 1 || i == 2)) {
+        if (MinetokClient.phone != null && MinetokClient.phone.selectedElement != null && (i == 1 || i == 2)) {
             MinetokClient.phone.selectedElement.keyPressed(keyEvent);
+            MinetokClient.phone.setDirty();
             ci.cancel();
         }
     }
 
     @Inject(method = "charTyped", at = @At(value = "HEAD"), cancellable = true)
     public void overrideKeyboard2(long l, CharacterEvent characterEvent, CallbackInfo ci) {
-        if (MinetokClient.phone.selectedElement != null) {
+        if (MinetokClient.phone != null && MinetokClient.phone.selectedElement != null) {
             MinetokClient.phone.selectedElement.charTyped(characterEvent);
+            MinetokClient.phone.setDirty();
             ci.cancel();
         }
     }

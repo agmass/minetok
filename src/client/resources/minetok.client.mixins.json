@@ -7,8 +7,11 @@
     "ColorTextureMixin",
     "DontStopBelievinMixin",
     "GuiRendererMixin",
+    "MTExtractRenderStateMixin",
+    "PhoneInOtherPlayerHandRendererMixin",
     "PhoneInWorldMixin",
-    "PhoneNoCrosshairMixin"
+    "PhoneNoCrosshairMixin",
+    "ThirdPersonPhonePoseMixin"
   ],
   "injectors": {
     "defaultRequire": 1

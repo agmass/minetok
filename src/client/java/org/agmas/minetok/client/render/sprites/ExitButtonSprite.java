@@ -2,7 +2,7 @@ package org.agmas.minetok.client.render.sprites;
 
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import org.agmas.minetok.client.MinetokClient;
-import org.agmas.minetok.client.api.PhoneTapInformation;
+import org.agmas.minetok.api.PhoneTapInformation;
 import org.agmas.minetok.client.api.Sprite;
 import org.agmas.minetok.client.render.Phone;
 import org.agmas.minetok.porting.MTIdentifier;

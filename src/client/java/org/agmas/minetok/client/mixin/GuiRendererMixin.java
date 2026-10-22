@@ -18,7 +18,7 @@ public class GuiRendererMixin {
     //? if <26.1 {
     /*@WrapOperation(method = "draw", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/ProjectionMatrixBuffer;getBuffer(FF)Lcom/mojang/blaze3d/buffers/GpuBufferSlice;"))
     public GpuBufferSlice override(ProjectionMatrixBuffer instance, float f, float g, Operation<GpuBufferSlice> original) {
-        if (PhoneTextureRenderer.overrideBuffers) {
+        if (PhoneTextureRenderer.overrideColorBuffer != null) {
             return original.call(instance,720f,1280f);
         }
         return original.call(instance,f,g);
@@ -26,7 +26,7 @@ public class GuiRendererMixin {
     *///? } else {
     @WrapOperation(method = "draw", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/Projection;setupOrtho(FFFFZ)V"))
     public void override(Projection instance, float zNear, float zFar, float width, float height, boolean invertY, Operation<Void> original) {
-        if (PhoneTextureRenderer.overrideBuffers) {
+        if (PhoneTextureRenderer.overrideColorBuffer != null) {
             original.call(instance,zNear,zFar,720f,1280f,invertY);
             return;
         }

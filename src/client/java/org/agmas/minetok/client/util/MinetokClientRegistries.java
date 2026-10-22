@@ -16,6 +16,16 @@ public class MinetokClientRegistries {
          //? }
         .buildAndRegister();
 
+
+    private static final ResourceKey<Registry<Application>> OVERLAYS_KEY = createRegistryKey("overlays");
+    public static final Registry<Application> OVERLAYS =
+            //? if <26.1 {
+            /*FabricRegistryBuilder.createSimple(OVERLAYS_KEY)
+             *///? } else {
+            FabricRegistryBuilder.create(OVERLAYS_KEY)
+                    //? }
+                    .buildAndRegister();
+
     public static void init()
     {}
 

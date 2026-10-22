@@ -1,6 +1,7 @@
 package org.agmas.minetok;
 
 import net.fabricmc.api.ModInitializer;
+import org.agmas.minetok.init.ModAttachments;
 import org.agmas.minetok.init.ModItems;
 import org.agmas.minetok.init.ModPackets;
 import org.slf4j.Logger;
@@ -17,5 +18,6 @@ public class Minetok implements ModInitializer {
 
 		ModItems.init();
 		ModPackets.init();
+		ModAttachments.init();
 	}
 }

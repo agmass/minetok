@@ -1,8 +1,12 @@
-package org.agmas.minetok.client.api;
-
-import net.minecraft.world.phys.Vec2;
+package org.agmas.minetok.api;
 
 public class PhoneTapInformation {
+
+    public PhoneTapInformation(boolean isClient) {
+        this.isClient = isClient;
+    }
+
+    public boolean isClient = false;
 
     public float x = 0;
     public float y = 0;

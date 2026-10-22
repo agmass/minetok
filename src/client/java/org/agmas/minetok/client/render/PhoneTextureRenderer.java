@@ -19,21 +19,20 @@ import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.texture.AbstractTexture;
-import org.agmas.minetok.client.MinetokClient;
 //? if <26.1 {
 /*import net.minecraft.client.gui.render.state.GuiRenderState;
 *///? } else {
 import net.minecraft.client.renderer.state.gui.GuiRenderState;
-import net.minecraft.client.renderer.state.gui.PanoramaRenderState;
 //? }
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import org.joml.Vector4f;
+
 import java.util.List;
-import java.util.function.Supplier;
 
 public class PhoneTextureRenderer extends AbstractTexture {
 
     public static PhoneTextureRenderer INSTANCE;
+
     //? if <26.2
     public static final MultiBufferSource.BufferSource bufferSource = MultiBufferSource.immediate(new ByteBufferBuilder(1536));
     public GpuTexture depthTexture;
@@ -41,10 +40,13 @@ public class PhoneTextureRenderer extends AbstractTexture {
     public GpuTextureView depthTextureView;
     public GuiRenderState renderState = new GuiRenderState();
 
-    public static boolean overrideBuffers = false;
+    public static GpuTexture overrideColorBuffer;
+    public static GpuTexture overrideDepthBuffer;
+    public static GpuTextureView overrideColorViewBuffer;
+    public static GpuTextureView overrideDepthViewBuffer;
 
     public FeatureRenderDispatcher featureRenderDispatcher;
-    private final ProjectionMatrixBuffer projectionMatrixBuffer = new ProjectionMatrixBuffer("PhoneMatrix"
+    private static final ProjectionMatrixBuffer projectionMatrixBuffer = new ProjectionMatrixBuffer("PhoneMatrix"
             //? if <26.1
             //, 0f, 1000.0f, true
     );
@@ -74,7 +76,7 @@ public class PhoneTextureRenderer extends AbstractTexture {
                 , featureRenderDispatcher, List.of());
     }
 
-    public void render(Camera camera) {
+    public void render(Camera camera, Phone phone) {
         RenderSystem.backupProjectionMatrix();
         RenderSystem.getDevice().createCommandEncoder().clearColorAndDepthTextures(texture,
                 //? if <26.2
@@ -87,14 +89,19 @@ public class PhoneTextureRenderer extends AbstractTexture {
         RenderSystem.outputColorTextureOverride = this.textureView;
         RenderSystem.outputDepthTextureOverride = this.depthTextureView;
         //? }
-        overrideBuffers = true;
+
+        overrideColorBuffer = texture;
+        overrideColorViewBuffer = textureView;
+        overrideDepthBuffer = depthTexture;
+        overrideDepthViewBuffer = depthTextureView;
+
         PoseStack poseStack = new PoseStack();
 
         GuiGraphicsExtractor graphics = new GuiGraphicsExtractor(Minecraft.getInstance(), renderState, 0,0);
 
         poseStack.pushPose();
         poseStack.mulPose(camera.rotation());
-        MinetokClient.phone.render(graphics);
+        phone.render(graphics);
         //? if >=26.1 {
         Projection projection = new Projection();
         projection.setupOrtho(0,1000f,720,1280,true);
@@ -115,7 +122,10 @@ public class PhoneTextureRenderer extends AbstractTexture {
         RenderSystem.outputColorTextureOverride = null;
         RenderSystem.outputDepthTextureOverride = null;
         //? }
-        overrideBuffers = false;
+        overrideColorBuffer = null;
+        overrideDepthBuffer = null;
+        overrideColorViewBuffer = null;
+        overrideDepthViewBuffer = null;
         RenderSystem.restoreProjectionMatrix();
     }
 
@@ -164,4 +174,5 @@ public class PhoneTextureRenderer extends AbstractTexture {
         depthTexture.close();
         depthTextureView.close();
     }
+
 }

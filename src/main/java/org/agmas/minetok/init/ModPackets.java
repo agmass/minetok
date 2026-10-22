@@ -3,12 +3,16 @@ package org.agmas.minetok.init;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.loader.api.FabricLoader;
+import net.fabricmc.loader.impl.util.log.Log;
+import net.fabricmc.loader.impl.util.log.LogCategory;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import org.agmas.minetok.network.ClientboundPhoneNotificationPacket;
 import org.agmas.minetok.network.ServerboundCallPacket;
+import org.agmas.minetok.network.ServerboundPhoneStatePacket;
 import org.agmas.minetok.voicechat.MinetokVoicechatPlugin;
 
 import java.util.UUID;
@@ -29,6 +33,26 @@ public class ModPackets {
                 /*PayloadTypeRegistry.playS2C()
                  *///? }
                 .register(ClientboundPhoneNotificationPacket.TYPE, ClientboundPhoneNotificationPacket.CODEC);
+
+        //? if >=26.1 {
+        PayloadTypeRegistry.serverboundPlay()
+                //? } else {
+                /*PayloadTypeRegistry.playC2S()
+                 *///? }
+                .register(ServerboundPhoneStatePacket.TYPE, ServerboundPhoneStatePacket.CODEC);
+
+        ServerPlayNetworking.registerGlobalReceiver(ServerboundPhoneStatePacket.TYPE, (payload, context)->{
+
+            if (payload.phoneTag().contains("x")) {
+                CompoundTag currentTag = context.player().getAttachedOrElse(ModAttachments.PHONE_STATE, new CompoundTag());
+                currentTag.put("mouse", payload.phoneTag());
+                context.player().setAttached(ModAttachments.PHONE_STATE, currentTag);
+                ModAttachments.forceSyncPhoneTagAttachment(context.player(), currentTag);
+            } else {
+                context.player().setAttached(ModAttachments.PHONE_STATE, payload.phoneTag());
+                ModAttachments.forceSyncPhoneTagAttachment(context.player(), payload.phoneTag());
+            }
+        });
 
         ServerPlayNetworking.registerGlobalReceiver(ServerboundCallPacket.TYPE, (payload, context)->{
             handleRingRequest(context.player(), UUID.fromString(payload.playerUUID()), context.server());

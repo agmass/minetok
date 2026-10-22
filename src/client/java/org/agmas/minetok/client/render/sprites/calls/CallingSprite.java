@@ -6,8 +6,10 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 //? if >=26.1 {
 import net.minecraft.client.renderer.state.gui.PanoramaRenderState;
 //? }
+import net.minecraft.client.gui.components.PlayerFaceExtractor;
 import org.agmas.minetok.client.MinetokClient;
-import org.agmas.minetok.client.api.PhoneTapInformation;
+import net.minecraft.client.multiplayer.PlayerInfo;
+import org.agmas.minetok.api.PhoneTapInformation;
 import org.agmas.minetok.client.api.Sprite;
 import org.agmas.minetok.client.render.Phone;
 
@@ -35,6 +37,17 @@ public class CallingSprite extends Sprite {
         MinetokClient.phone.topSprite.pano.render(10.0F, MinetokClient.phone.topSprite.panoramaRenderState.spin());
         //? }
 
+        PlayerInfo info = Minecraft.getInstance().getConnection().getPlayerInfo(otherPlayer);
+        if (info != null) {
+            graphics.pose().pushMatrix();
+            graphics.pose().translate((Phone.SCREEN_WIDTH / 2f) , (Phone.SCREEN_HEIGHT / 2f));
+            PlayerFaceExtractor.extractRenderState(graphics, info.getSkin(), -128,-128,256);
+            graphics.pose().translate(-(Minecraft.getInstance().font.width(info.getProfile().name())*3) , -24);
+            graphics.pose().translate(0,256);
+            graphics.pose().scale(6,6);
+            graphics.text(Minecraft.getInstance().font, info.getProfile().name(), -4,-4,-1);
+            graphics.pose().popMatrix();
+        }
 
     }
 }
