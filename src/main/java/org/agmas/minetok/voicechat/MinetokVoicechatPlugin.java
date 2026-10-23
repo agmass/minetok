@@ -21,6 +21,13 @@ public class MinetokVoicechatPlugin implements VoicechatPlugin {
         VoicechatPlugin.super.initialize(api);
         MinetokVoicechatPlugin.api = api;
     }
+    public static void acceptRing(ServerPlayer sender, ServerPlayer reciever) {
+        VoicechatServerApi serverApi = (VoicechatServerApi) api;
+        VoicechatConnection connection = serverApi.getConnectionOf(api.fromServerPlayer(sender));
+        VoicechatConnection connectionReceiver = serverApi.getConnectionOf(api.fromServerPlayer(reciever));
+        if (connection.getGroup() == null) return;
+        connectionReceiver.setGroup(connection.getGroup());
+    }
 
     public static void ringPlayer(ServerPlayer sender, ServerPlayer reciever) {
         VoicechatServerApi serverApi = (VoicechatServerApi) api;

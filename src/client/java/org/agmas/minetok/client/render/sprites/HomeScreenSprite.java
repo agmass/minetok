@@ -126,7 +126,7 @@ public class HomeScreenSprite extends Sprite {
 
         int page = 0;
 
-        int paddingX = 20;
+        int paddingX = 60;
         int paddngY = 30;
 
         int marginX = 50;

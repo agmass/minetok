@@ -1,0 +1,51 @@
+package org.agmas.minetok.client.config;
+
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.stream.JsonWriter;
+import org.agmas.minetok.Minetok;
+
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+
+public class PhoneConfig {
+    public static PhoneConfig INSTANCE = new PhoneConfig();
+
+    public boolean muteOtherPhones = false;
+    public boolean muteRingtones = false;
+
+    public static PhoneConfig parse() {
+        PhoneConfig parsed = new PhoneConfig();
+        File configFile = new File("config/minetok.json");
+        if (configFile.exists()) {
+            try {
+                JsonElement element = JsonParser.parseReader(new FileReader(configFile));
+                parsed.muteRingtones = element.getAsJsonObject().getAsJsonPrimitive("mute_ringtones").getAsBoolean();
+                parsed.muteOtherPhones = element.getAsJsonObject().getAsJsonPrimitive("mute_other_phones").getAsBoolean();
+            } catch (Exception ignored) {}
+        }
+        return parsed;
+    }
+
+    public static void write() {
+        File configFile = new File("config/minetok.json");
+
+        try {
+            configFile.createNewFile();
+            FileWriter writer = new FileWriter("config/minetok.json");
+            JsonWriter jsonWriter = new JsonWriter(writer);
+
+            jsonWriter.beginObject();
+            jsonWriter.name("mute_ringtones").value(INSTANCE.muteRingtones);
+            jsonWriter.name("mute_other_phones").value(INSTANCE.muteOtherPhones);
+            jsonWriter.endObject();
+            jsonWriter.close();
+
+            Minetok.LOGGER.info("Minetok config updated");
+        } catch (Exception e) {
+            Minetok.LOGGER.info("Failed to update config: " + e.getMessage());
+        }
+    }
+}

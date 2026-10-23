@@ -1,4 +1,4 @@
-package org.agmas.minetok.client.render.sprites;
+package org.agmas.minetok.client.render.sprites.calls;
 
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.loader.api.FabricLoader;
@@ -16,23 +16,24 @@ import org.agmas.minetok.api.PhoneTapInformation;
 import org.agmas.minetok.client.api.NetworkSprite;
 import org.agmas.minetok.client.init.MinetokOverlays;
 import org.agmas.minetok.client.render.Phone;
+import org.agmas.minetok.client.render.sprites.ExitButtonSprite;
+import org.agmas.minetok.client.render.sprites.NotificationSprite;
 import org.agmas.minetok.network.ServerboundCallPacket;
-import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
 
-public class CallsApplication extends ExitButtonSprite implements NetworkSprite {
+public class CallsApplicationSprite extends ExitButtonSprite implements NetworkSprite {
 
     EditBox textField = new EditBox(Minecraft.getInstance().font, 0,0,100,10,Component.empty());
     public float prevScroll = 0;
     public float scroll = 0;
     public float timeSinceUpdate = 0;
     public float netScroll = 0;
-    @Nullable
-    public static NotificationSprite waitingSprite;
 
     @Override
     public void render(GuiGraphics graphics, PhoneTapInformation mouse, float renderDelta) {
+        exitBarCapture(mouse);
+
         graphics.blit(RenderPipelines.GUI_TEXTURED, Identifier.withDefaultNamespace("textures/block/white_concrete.png"), -8,-8,0,0, Phone.SCREEN_WIDTH+16, Phone.SCREEN_HEIGHT+16,128,128);
 
         if (FabricLoader.getInstance().isModLoaded("voicechat_api")) {
@@ -73,8 +74,6 @@ public class CallsApplication extends ExitButtonSprite implements NetworkSprite 
                         graphics.fill(marginX-6, marginY + (spacing*i) - 6, marginX+56, marginY + (spacing*i) + 56, -1);
                         if (!listedOnlinePlayer.getProfile().id().equals(Minecraft.getInstance().player.getUUID())) {
                             if (mouse.justReleased && (Math.abs(mouse.tappedY - mouse.y) < 8)) {
-                                waitingSprite = new NotificationSprite(Component.translatable("phone.notification.waiting_for_server"), false, MinetokClient.phone, false);
-                                MinetokClient.phone.addNetOverlay(MinetokOverlays.NOTIFICATION, waitingSprite);
                                 ClientPlayNetworking.send(new ServerboundCallPacket(listedOnlinePlayer.getProfile().id().toString()));
                             }
                         } else if (mouse.justReleased && (Math.abs(mouse.tappedY - mouse.y) < 8)) {

@@ -77,6 +77,7 @@ public class PhoneTextureRenderer extends AbstractTexture {
     }
 
     public void render(Camera camera, Phone phone) {
+        if (phone == null) return;
         RenderSystem.backupProjectionMatrix();
         RenderSystem.getDevice().createCommandEncoder().clearColorAndDepthTextures(texture,
                 //? if <26.2

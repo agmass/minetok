@@ -1,5 +1,6 @@
 package org.agmas.minetok.client.render.sprites.calls;
 
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 
@@ -7,16 +8,20 @@ import net.minecraft.client.gui.GuiGraphics;
 /*import net.minecraft.client.renderer.state.gui.PanoramaRenderState;
 *///? }
 import net.minecraft.client.gui.components.PlayerFaceRenderer;
+import net.minecraft.nbt.CompoundTag;
 import org.agmas.minetok.client.MinetokClient;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import org.agmas.minetok.api.PhoneTapInformation;
+import org.agmas.minetok.client.api.NetworkSprite;
 import org.agmas.minetok.client.api.Sprite;
 import org.agmas.minetok.client.render.Phone;
+import org.agmas.minetok.network.ServerboundCallResponsePacket;
 import org.agmas.minetok.porting.MTIdentifier;
 
+import java.awt.*;
 import java.util.UUID;
 
-public class CallingSprite extends Sprite {
+public class CallingSprite extends Sprite implements NetworkSprite {
 
     public boolean receiving;
     public UUID otherPlayer;
@@ -63,8 +68,48 @@ public class CallingSprite extends Sprite {
         int marginY = 450;
         int size = 200;
 
-        graphics.blit(HANG_UP.id, marginX, Phone.SCREEN_HEIGHT - marginY, (marginX+size), Phone.SCREEN_HEIGHT - (marginY-size), 0,1,0,1);
-        graphics.blit(PICK_UP.id, Phone.SCREEN_WIDTH-(marginX+size), Phone.SCREEN_HEIGHT - marginY, Phone.SCREEN_WIDTH-marginX, Phone.SCREEN_HEIGHT - (marginY-size), 0,1,0,1);
+        if (receiving) {
+            graphics.blit(HANG_UP.id, marginX, Phone.SCREEN_HEIGHT - marginY, (marginX + size), Phone.SCREEN_HEIGHT - (marginY - size), 0, 1, 0, 1);
+            if (mouse.x > marginX && mouse.x < (marginX + size)) {
+                if (mouse.y > Phone.SCREEN_HEIGHT - marginY && mouse.y < Phone.SCREEN_HEIGHT - (marginY - size)) {
+                    graphics.fill(marginX, Phone.SCREEN_HEIGHT - marginY, marginX + size, Phone.SCREEN_HEIGHT - (marginY - size), new Color(100, 100, 100, 100).getRGB());
+                    if (mouse.justTapped) {
+                        ClientPlayNetworking.send(new ServerboundCallResponsePacket(false));
+                    }
+                }
+            }
 
+            graphics.blit(PICK_UP.id, Phone.SCREEN_WIDTH - (marginX + size), Phone.SCREEN_HEIGHT - marginY, Phone.SCREEN_WIDTH - marginX, Phone.SCREEN_HEIGHT - (marginY - size), 0, 1, 0, 1);
+            if (mouse.x > Phone.SCREEN_WIDTH - (marginX + size) && mouse.x < Phone.SCREEN_WIDTH - marginX) {
+                if (mouse.y > Phone.SCREEN_HEIGHT - marginY && mouse.y < Phone.SCREEN_HEIGHT - (marginY - size)) {
+                    graphics.fill(Phone.SCREEN_WIDTH - (marginX + size), Phone.SCREEN_HEIGHT - marginY, Phone.SCREEN_WIDTH - marginX, Phone.SCREEN_HEIGHT - (marginY - size), new Color(100, 100, 100, 100).getRGB());
+                    if (mouse.justTapped) {
+                        ClientPlayNetworking.send(new ServerboundCallResponsePacket(true));
+                    }
+                }
+            }
+        } else {
+            graphics.blit(HANG_UP.id, (Phone.SCREEN_WIDTH/2) - (size/2), Phone.SCREEN_HEIGHT - marginY, (Phone.SCREEN_WIDTH/2) + (size/2), Phone.SCREEN_HEIGHT - (marginY - size), 0, 1, 0, 1);
+            if (mouse.x > (Phone.SCREEN_WIDTH/2f) - (size/2f) && mouse.x < (Phone.SCREEN_WIDTH/2f) + (size/2f)) {
+                if (mouse.y > Phone.SCREEN_HEIGHT - marginY && mouse.y < Phone.SCREEN_HEIGHT - (marginY - size)) {
+                    graphics.fill((Phone.SCREEN_WIDTH/2) - (size/2), Phone.SCREEN_HEIGHT - marginY, (Phone.SCREEN_WIDTH/2) + (size/2), Phone.SCREEN_HEIGHT - (marginY - size), new Color(100, 100, 100, 100).getRGB());
+                    if (mouse.justTapped) {
+                        ClientPlayNetworking.send(new ServerboundCallResponsePacket(false));
+                    }
+                }
+            }
+        }
+    }
+
+    @Override
+    public CompoundTag createTag() {
+        CompoundTag tag = new CompoundTag();
+        tag.putBoolean("receiving", receiving);
+        return tag;
+    }
+
+    @Override
+    public void sync(CompoundTag phoneData) {
+        receiving = phoneData.getBooleanOr("receiving", true);
     }
 }

@@ -1,5 +1,8 @@
 {
+  "config.minetok.muteOtherPhones": "Mute Other Phones",
+  "config.minetok.muteRingtones": "Mute All Ringtones",
   "phone.app.minetok.calls": "Calls",
+  "phone.app.minetok.settings": "Settings",
   "phone.error": "Error",
   "phone.error.cant_call_self": "You can't call yourself!",
   "phone.error.missing_mod": "Please Install %s",

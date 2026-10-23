@@ -27,6 +27,7 @@ public class ModAttachments {
                     .syncWith(ByteBufCodecs.COMPOUND_TAG, AttachmentSyncPredicate.all())
     );
 
+
     public static void forceSyncRingingAttachment(Player player, RingingAttachment playerAttachment) {
         AttachmentTargetImpl attachmentTarget = ((AttachmentTargetImpl) player);
 

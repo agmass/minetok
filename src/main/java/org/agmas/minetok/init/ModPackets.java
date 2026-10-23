@@ -12,6 +12,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import org.agmas.minetok.network.ClientboundPhoneNotificationPacket;
 import org.agmas.minetok.network.ServerboundCallPacket;
+import org.agmas.minetok.network.ServerboundCallResponsePacket;
 import org.agmas.minetok.network.ServerboundPhoneStatePacket;
 import org.agmas.minetok.voicechat.MinetokVoicechatPlugin;
 
@@ -41,8 +42,14 @@ public class ModPackets {
                  //? }
                 .register(ServerboundPhoneStatePacket.TYPE, ServerboundPhoneStatePacket.CODEC);
 
-        ServerPlayNetworking.registerGlobalReceiver(ServerboundPhoneStatePacket.TYPE, (payload, context)->{
+        //? if >=26.1 {
+        /*PayloadTypeRegistry.serverboundPlay()
+         *///? } else {
+        PayloadTypeRegistry.playC2S()
+                //? }
+                .register(ServerboundCallResponsePacket.TYPE, ServerboundCallResponsePacket.CODEC);
 
+        ServerPlayNetworking.registerGlobalReceiver(ServerboundPhoneStatePacket.TYPE, (payload, context)->{
             if (payload.phoneTag().contains("x")) {
                 CompoundTag currentTag = context.player().getAttachedOrElse(ModAttachments.PHONE_STATE, new CompoundTag());
                 currentTag.put("mouse", payload.phoneTag());
@@ -52,6 +59,22 @@ public class ModPackets {
                 context.player().setAttached(ModAttachments.PHONE_STATE, payload.phoneTag());
                 ModAttachments.forceSyncPhoneTagAttachment(context.player(), payload.phoneTag());
             }
+        });
+
+        ServerPlayNetworking.registerGlobalReceiver(ServerboundCallResponsePacket.TYPE, (payload, context)->{
+            if (context.player().getAttached(ModAttachments.RINGING_ATTACHMENT_TYPE) == null) return;
+
+            ServerPlayer otherPlayer = context.server().getPlayerList().getPlayer(context.player().getAttached(ModAttachments.RINGING_ATTACHMENT_TYPE).callingId);
+
+            if (otherPlayer != null) {
+                if (payload.accept() && context.player().getAttached(ModAttachments.RINGING_ATTACHMENT_TYPE).recieving) {
+                    if (FabricLoader.getInstance().isModLoaded("voicechat_api")) {
+                        MinetokVoicechatPlugin.acceptRing(otherPlayer, context.player());
+                    }
+                }
+                otherPlayer.removeAttached(ModAttachments.RINGING_ATTACHMENT_TYPE);
+            }
+            context.player().removeAttached(ModAttachments.RINGING_ATTACHMENT_TYPE);
         });
 
         ServerPlayNetworking.registerGlobalReceiver(ServerboundCallPacket.TYPE, (payload, context)->{
@@ -66,7 +89,7 @@ public class ModPackets {
                 ServerPlayNetworking.send(sender, new ClientboundPhoneNotificationPacket(true, Component.translatable("phone.error.receiver_offline")));
                 return;
             }
-            if (receivingPlayer.hasAttached(ModAttachments.RINGING_ATTACHMENT_TYPE)) {
+            if (receivingPlayer.getAttached(ModAttachments.RINGING_ATTACHMENT_TYPE) != null) {
                 ServerPlayNetworking.send(sender, new ClientboundPhoneNotificationPacket(false, Component.translatable("phone.error.receiver_busy")));
                 return;
             }

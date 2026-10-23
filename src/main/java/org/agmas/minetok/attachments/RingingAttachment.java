@@ -34,14 +34,13 @@ public class RingingAttachment {
     public Identifier ringtone = SoundEvents.MUSIC_DISC_FAR.key().identifier();
     public UUID callingId = null;
     public boolean recieving = false;
+    public boolean isPlayingSound = false;
 
     public static RingingAttachment decode(ByteBuf byteBuf) {
         RingingAttachment attachment = new RingingAttachment();
         attachment.recieving = byteBuf.readBoolean();
         attachment.ringtone = Identifier.parse(Utf8String.read(byteBuf, 32767));
         attachment.callingId = UUID.fromString(Utf8String.read(byteBuf, 32767));
-
-        Log.info(LogCategory.GENERAL, "DECODED ATTACHMENT:\nringtone: " + attachment.ringtone + "\nplayer: " + attachment.callingId + "\nrecieving: " + attachment.recieving);
         return attachment;
     }
 

@@ -24,6 +24,10 @@ public class LanguageDatagen extends FabricLanguageProvider {
     public void generateTranslations(HolderLookup.Provider provider, TranslationBuilder translationBuilder) {
 
         translationBuilder.add("phone.app.minetok.calls", "Calls");
+        translationBuilder.add("phone.app.minetok.settings", "Settings");
+
+        translationBuilder.add("config.minetok.muteOtherPhones", "Mute Other Phones");
+        translationBuilder.add("config.minetok.muteRingtones", "Mute All Ringtones");
 
         translationBuilder.add("phone.error", "Error");
         translationBuilder.add("phone.notification", "Notification");

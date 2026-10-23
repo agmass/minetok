@@ -20,7 +20,6 @@ import org.agmas.minetok.client.api.Application;
 import org.agmas.minetok.client.api.NetworkSprite;
 import org.agmas.minetok.client.api.Sprite;
 import org.agmas.minetok.client.init.MinetokOverlays;
-import org.agmas.minetok.client.render.sprites.CallsApplication;
 import org.agmas.minetok.client.render.sprites.HomeScreenSprite;
 import org.agmas.minetok.client.render.sprites.calls.CallingSprite;
 import org.agmas.minetok.client.util.MinetokClientRegistries;
@@ -61,10 +60,14 @@ public class Phone {
         if (this == MinetokClient.phone)
             handleMouseInput();
 
-        if (player.hasAttached(ModAttachments.RINGING_ATTACHMENT_TYPE) && callingSprite == null) {
-            topSprite.overlays.remove(CallsApplication.waitingSprite);
+        if (player.getAttached(ModAttachments.RINGING_ATTACHMENT_TYPE) != null && callingSprite == null) {
             callingSprite = new CallingSprite(player.getAttached(ModAttachments.RINGING_ATTACHMENT_TYPE).recieving, player.getAttached(ModAttachments.RINGING_ATTACHMENT_TYPE).callingId);
             addNetOverlay(MinetokOverlays.CALLING, callingSprite);
+            setDirty();
+        }
+        if (player.getAttached(ModAttachments.RINGING_ATTACHMENT_TYPE) == null && topSprite.overlays.contains(callingSprite)) {
+            topSprite.overlays.remove(callingSprite);
+            callingSprite = null;
             setDirty();
         }
 

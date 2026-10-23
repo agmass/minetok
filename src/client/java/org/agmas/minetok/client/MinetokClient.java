@@ -1,5 +1,6 @@
 package org.agmas.minetok.client;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
@@ -15,15 +16,22 @@ import net.minecraft.client.renderer.rendertype.RenderType;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.minecraft.client.Minecraft;
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.Identifier;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Util;
 import org.agmas.minetok.api.PhoneTapInformation;
+import org.agmas.minetok.client.config.PhoneConfig;
 import org.agmas.minetok.client.init.MinetokApplications;
 import org.agmas.minetok.client.init.MinetokOverlays;
 import org.agmas.minetok.client.init.ModClientPackets;
 import org.agmas.minetok.client.render.Phone;
 import org.agmas.minetok.client.render.PhoneTextureRenderer;
+import org.agmas.minetok.client.sound.RingtoneSoundInstance;
 import org.agmas.minetok.client.util.MinetokClientRegistries;
 import org.agmas.minetok.client.util.OtherPlayerPhone;
 import org.agmas.minetok.init.ModAttachments;
@@ -31,7 +39,9 @@ import org.agmas.minetok.init.ModItems;
 import org.agmas.minetok.network.ServerboundPhoneStatePacket;
 import org.agmas.minetok.porting.MTIdentifier;
 
+import java.lang.ref.Reference;
 import java.util.HashMap;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
 
@@ -40,7 +50,6 @@ public class MinetokClient implements ClientModInitializer {
 	public static Phone phone;
 	public static HashMap<UUID, OtherPlayerPhone> playerPhoneHashMap = new HashMap<>();
 	public static RenderStateDataKey<MTIdentifier> phoneTextureID = RenderStateDataKey.create(()->"phoneTextureID");
-	public static RenderStateDataKey<PhoneTapInformation> prevheadMouseInfoID = RenderStateDataKey.create(()->"prevheadMouseInfoID");
 	public static RenderStateDataKey<PhoneTapInformation> headMouseInfoID = RenderStateDataKey.create(()->"headMouseInfoID");
 	public static MTIdentifier missingId = MTIdentifier.of("missing");
 
@@ -57,6 +66,7 @@ public class MinetokClient implements ClientModInitializer {
 		MinetokApplications.init();
 		MinetokOverlays.init();
 		ModClientPackets.init();
+		PhoneConfig.parse();
 
 		ClientLifecycleEvents.CLIENT_STARTED.register((m)->{
 			PhoneTextureRenderer.INSTANCE = new PhoneTextureRenderer();
@@ -68,7 +78,6 @@ public class MinetokClient implements ClientModInitializer {
 		});
 
 		ClientPlayConnectionEvents.DISCONNECT.register((cpl,m)->{
-			phone = null;
 			playerPhoneHashMap.clear();
 		});
 
@@ -85,6 +94,18 @@ public class MinetokClient implements ClientModInitializer {
 					if (player.hasAttached(ModAttachments.PHONE_STATE) && playerPhoneHashMap.containsKey(player.getUUID())) {
 						OtherPlayerPhone otherPhone = playerPhoneHashMap.get(player.getUUID());
 						otherPhone.phone.sync(player.getAttachedOrElse(ModAttachments.PHONE_STATE, new CompoundTag()));
+					}
+					if (player.getAttached(ModAttachments.RINGING_ATTACHMENT_TYPE) != null && !player.getAttached(ModAttachments.RINGING_ATTACHMENT_TYPE).isPlayingSound) {
+						Identifier ringSound = player.getAttached(ModAttachments.RINGING_ATTACHMENT_TYPE).ringtone;
+						player.getAttached(ModAttachments.RINGING_ATTACHMENT_TYPE).isPlayingSound= true;
+						Log.info(LogCategory.GENERAL, ringSound.getPath());
+						if (BuiltInRegistries.SOUND_EVENT.containsKey(ringSound)) {
+							Optional<Holder.Reference<SoundEvent>> potentialSound = BuiltInRegistries.SOUND_EVENT.get(ringSound);
+							if (potentialSound.isPresent()) {
+								SoundEvent s = potentialSound.get().value();
+								Minecraft.getInstance().getSoundManager().play(new RingtoneSoundInstance(player, s, SoundSource.PLAYERS, player.getRandom()));
+							}
+						}
 					}
 				}
 			}
@@ -124,6 +145,7 @@ public class MinetokClient implements ClientModInitializer {
 				//value.renderer.render(wrc.gameRenderer().mainCamera(), value.phone);
 			}
         });
+
 	}
 
 	public static void positionPhoneInThirdPersonHand(PoseStack poseStack) { //made this just so i can hotswap lol
