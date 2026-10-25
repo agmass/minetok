@@ -7,13 +7,11 @@ import net.fabricmc.loader.impl.util.log.Log;
 import net.fabricmc.loader.impl.util.log.LogCategory;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
-import org.agmas.minetok.network.ClientboundPhoneNotificationPacket;
-import org.agmas.minetok.network.ServerboundCallPacket;
-import org.agmas.minetok.network.ServerboundCallResponsePacket;
-import org.agmas.minetok.network.ServerboundPhoneStatePacket;
+import org.agmas.minetok.network.*;
 import org.agmas.minetok.voicechat.MinetokVoicechatPlugin;
 
 import java.util.UUID;
@@ -49,6 +47,13 @@ public class ModPackets {
                 //? }
                 .register(ServerboundCallResponsePacket.TYPE, ServerboundCallResponsePacket.CODEC);
 
+        //? if >=26.1 {
+        /*PayloadTypeRegistry.serverboundPlay()
+         *///? } else {
+        PayloadTypeRegistry.playC2S()
+                //? }
+                .register(ServerboundRingtoneSetPacket.TYPE, ServerboundRingtoneSetPacket.CODEC);
+
         ServerPlayNetworking.registerGlobalReceiver(ServerboundPhoneStatePacket.TYPE, (payload, context)->{
             if (payload.phoneTag().contains("x")) {
                 CompoundTag currentTag = context.player().getAttachedOrElse(ModAttachments.PHONE_STATE, new CompoundTag());
@@ -59,6 +64,10 @@ public class ModPackets {
                 context.player().setAttached(ModAttachments.PHONE_STATE, payload.phoneTag());
                 ModAttachments.forceSyncPhoneTagAttachment(context.player(), payload.phoneTag());
             }
+        });
+
+        ServerPlayNetworking.registerGlobalReceiver(ServerboundRingtoneSetPacket.TYPE, (payload, context)->{
+            context.player().setAttached(ModAttachments.SAVED_RINGTONE, Identifier.parse(payload.ringtoneSoundId()));
         });
 
         ServerPlayNetworking.registerGlobalReceiver(ServerboundCallResponsePacket.TYPE, (payload, context)->{
@@ -82,7 +91,7 @@ public class ModPackets {
         });
     }
 
-    public static void handleRingRequest(ServerPlayer sender, UUID reciever, MinecraftServer server) {
+    public static void handleRingRequest(ServerPlayer sender, UUID reciever,  MinecraftServer server) {
         if (FabricLoader.getInstance().isModLoaded("voicechat_api")) {
             ServerPlayer receivingPlayer = server.getPlayerList().getPlayer(reciever);
             if (receivingPlayer == null) {

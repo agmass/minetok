@@ -14,10 +14,12 @@ import net.minecraft.util.Mth;
 import org.agmas.minetok.client.MinetokClient;
 import org.agmas.minetok.api.PhoneTapInformation;
 import org.agmas.minetok.client.api.NetworkSprite;
+import org.agmas.minetok.client.config.PhoneConfig;
 import org.agmas.minetok.client.init.MinetokOverlays;
 import org.agmas.minetok.client.render.Phone;
 import org.agmas.minetok.client.render.sprites.ExitButtonSprite;
 import org.agmas.minetok.client.render.sprites.NotificationSprite;
+import org.agmas.minetok.client.render.sprites.ScrollBarSprite;
 import org.agmas.minetok.network.ServerboundCallPacket;
 
 import java.awt.*;
@@ -25,10 +27,7 @@ import java.awt.*;
 public class CallsApplicationSprite extends ExitButtonSprite implements NetworkSprite {
 
     EditBox textField = new EditBox(Minecraft.getInstance().font, 0,0,100,10,Component.empty());
-    public float prevScroll = 0;
-    public float scroll = 0;
-    public float timeSinceUpdate = 0;
-    public float netScroll = 0;
+    ScrollBarSprite scrollBarSprite = new ScrollBarSprite(Phone.SCREEN_WIDTH-64, 200);
 
     @Override
     public void render(GuiGraphics graphics, PhoneTapInformation mouse, float renderDelta) {
@@ -37,25 +36,8 @@ public class CallsApplicationSprite extends ExitButtonSprite implements NetworkS
         graphics.blit(RenderPipelines.GUI_TEXTURED, Identifier.withDefaultNamespace("textures/block/white_concrete.png"), -8,-8,0,0, Phone.SCREEN_WIDTH+16, Phone.SCREEN_HEIGHT+16,128,128);
 
         if (FabricLoader.getInstance().isModLoaded("voicechat_api")) {
-            graphics.fill(Phone.SCREEN_WIDTH-32,200, Phone.SCREEN_WIDTH-64,Phone.SCREEN_HEIGHT-200,Color.DARK_GRAY.getRGB());
 
-            int area = Phone.SCREEN_HEIGHT-600;
-            int scrollBarY = (int) Mth.lerp(scroll, 0, area);
-            graphics.fill(Phone.SCREEN_WIDTH-32,200 + (scrollBarY), Phone.SCREEN_WIDTH-64,400 + (scrollBarY),Color.LIGHT_GRAY.getRGB());
-
-            if (mouse.tapping && mouse.tappedX+80 > Phone.SCREEN_WIDTH-42) {
-                scroll = prevScroll - ((mouse.tappedY- mouse.y)/area);
-                if (scroll < 0) scroll = 0;
-                if (scroll > 1) scroll = 1;
-                MinetokClient.phone.setDirty();
-            } else {
-                if (mouse.isClient) {
-                    prevScroll = scroll;
-                } else {
-                    timeSinceUpdate += renderDelta;
-                    scroll = Mth.lerp(Mth.clamp(timeSinceUpdate*20f, 0, 1), prevScroll, netScroll);
-                }
-            }
+            scrollBarSprite.render(graphics, mouse, renderDelta);
 
             int marginX = 40;
             int marginY;
@@ -63,7 +45,7 @@ public class CallsApplicationSprite extends ExitButtonSprite implements NetworkS
             int spacing = 58;
             int scrollableArea = spacing * Minecraft.getInstance().getConnection().getListedOnlinePlayers().size();
 
-            marginY = (int) Mth.lerp(scroll, 180, scrollableArea);
+            marginY = (int) Mth.lerp(scrollBarSprite.scroll, 180, scrollableArea);
 
             for (PlayerInfo listedOnlinePlayer : Minecraft.getInstance().getConnection().getListedOnlinePlayers()) {
                 if (!textField.getValue().isEmpty() && !listedOnlinePlayer.getProfile().name().toLowerCase().contains(textField.getValue().toLowerCase())) continue;
@@ -138,14 +120,13 @@ public class CallsApplicationSprite extends ExitButtonSprite implements NetworkS
     public CompoundTag createTag() {
         CompoundTag tag = new CompoundTag();
         tag.putString("search", textField.getValue());
-        tag.putFloat("scroll", scroll);
+        tag.put("scroll", scrollBarSprite.createTag());
         return tag;
     }
 
     @Override
     public void sync(CompoundTag phoneData) {
         textField.setValue(phoneData.getStringOr("search", ""));
-        netScroll = phoneData.getFloatOr("scroll", 0);
-        timeSinceUpdate = 0;
+        scrollBarSprite.sync(phoneData.getCompoundOrEmpty("scroll"));
     }
 }

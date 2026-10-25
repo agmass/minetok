@@ -26,4 +26,5 @@ public class PhoneTapInformation {
 
     public boolean rightClicking = false;
     public boolean justRightClicked = false;
+
 }

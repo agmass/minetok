@@ -54,11 +54,11 @@ public class HomeScreenSprite extends Sprite {
     public void render(GuiGraphics graphics, PhoneTapInformation originalMouse, float renderDelta) {
         super.render(graphics, originalMouse, renderDelta);
         PhoneTapInformation mouse = originalMouse;
-        if (!overlays.isEmpty()) {
-            mouse = new PhoneTapInformation(originalMouse.isClient);
-        }
         if (mouse.justTapped) {
             MinetokClient.phone.selectedElement = null;
+        }
+        if (!overlays.isEmpty()) {
+            mouse = new PhoneTapInformation(originalMouse.isClient);
         }
 
         if (focusedSprite == null || openingAppAnimation > 0) {

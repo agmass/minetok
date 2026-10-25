@@ -1,5 +1,10 @@
 {
+  "config.minetok.disableRingingIndicator": "Disable Ringing Text",
+  "config.minetok.muteOtherPhones": "Mute Other Phones",
+  "config.minetok.muteRingtones": "Mute All Ringtones",
+  "config.minetok.ringtone": "Ringtone Selector",
   "phone.app.minetok.calls": "Calls",
+  "phone.app.minetok.settings": "Settings",
   "phone.error": "Error",
   "phone.error.cant_call_self": "You can't call yourself!",
   "phone.error.missing_mod": "Please Install %s",
@@ -9,5 +14,6 @@
   "phone.error.server_missing_mod": "Server Missing Mod: %s",
   "phone.notification": "Notification",
   "phone.notification.waiting_for_server": "Waiting for Server...",
+  "phone.ringtone": "%s's phone is ringing",
   "phone.tap_continue": "Tap Anywhere to Continue"
 }

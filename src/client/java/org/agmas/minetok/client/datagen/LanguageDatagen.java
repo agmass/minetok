@@ -28,6 +28,9 @@ public class LanguageDatagen extends FabricLanguageProvider {
 
         translationBuilder.add("config.minetok.muteOtherPhones", "Mute Other Phones");
         translationBuilder.add("config.minetok.muteRingtones", "Mute All Ringtones");
+        translationBuilder.add("config.minetok.disableRingingIndicator", "Disable Ringing Text");
+        translationBuilder.add("config.minetok.ringtone", "Ringtone Selector");
+
 
         translationBuilder.add("phone.error", "Error");
         translationBuilder.add("phone.notification", "Notification");
@@ -36,6 +39,7 @@ public class LanguageDatagen extends FabricLanguageProvider {
         translationBuilder.add("phone.error.missing_mod", "Please Install %s");
         translationBuilder.add("phone.error.no_service", "No Service");
         translationBuilder.add("phone.error.server_missing_mod", "Server Missing Mod: %s");
+        translationBuilder.add("phone.ringtone", "%s's phone is ringing");
         translationBuilder.add("phone.error.receiver_offline", "Receiver not online");
         translationBuilder.add("phone.error.receiver_busy", "Receiver Busy");
         translationBuilder.add("phone.error.cant_call_self", "You can't call yourself!");

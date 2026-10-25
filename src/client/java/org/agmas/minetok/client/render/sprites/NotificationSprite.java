@@ -13,6 +13,7 @@ import org.agmas.minetok.client.api.NetworkSprite;
 import org.agmas.minetok.client.api.Sprite;
 import org.agmas.minetok.client.init.MinetokOverlays;
 import org.agmas.minetok.client.render.Phone;
+import org.agmas.minetok.client.util.ForcedWidthTextWidget;
 
 import java.awt.*;
 
@@ -34,20 +35,16 @@ public class NotificationSprite extends Sprite implements NetworkSprite {
     boolean canBeQuit = true;
 
     public NotificationSprite(Component text, boolean isError, Phone parent) {
-        this.isError = isError;
-        this.notificationText = text;
-        messageWidget = new MultiLineTextWidget(text, Minecraft.getInstance().font);
-        messageWidget.setMaxWidth(400);
-        this.parent = parent;
-        parent.addNetOverlay(MinetokOverlays.NOTIFICATION, this);
+        this(text,isError,parent,true);
     }
 
 
     public NotificationSprite(Component text, boolean isError, Phone parent, boolean canBeQuit) {
         this.isError = isError;
         this.notificationText = text;
-        messageWidget = new MultiLineTextWidget(text, Minecraft.getInstance().font);
+        messageWidget = new ForcedWidthTextWidget(text, Minecraft.getInstance().font,100);
         messageWidget.setMaxWidth(400);
+        messageWidget.setCentered(true);
         this.parent = parent;
         this.canBeQuit = canBeQuit;
         parent.addNetOverlay(MinetokOverlays.NOTIFICATION, this);
@@ -93,8 +90,8 @@ public class NotificationSprite extends Sprite implements NetworkSprite {
         graphics.pose().scale(4);
         messageWidget.setCentered(true);
         messageWidget.setMaxWidth(100);
-        messageWidget.setWidth(100);
         messageWidget.visitLines(graphics.textRenderer());
+        messageWidget.setWidth(100);
         //? if >=26.1
         //messageWidget.extractRenderState(graphics, (int) mouse.x, (int) mouse.y,renderDelta);
         //? if <26.1

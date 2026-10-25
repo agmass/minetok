@@ -1,6 +1,9 @@
 package org.agmas.minetok.voicechat;
 
 import de.maxhenkel.voicechat.api.*;
+import net.fabricmc.loader.impl.util.log.Log;
+import net.fabricmc.loader.impl.util.log.LogCategory;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import org.agmas.minetok.attachments.RingingAttachment;
@@ -46,15 +49,14 @@ public class MinetokVoicechatPlugin implements VoicechatPlugin {
         RingingAttachment ringingAttachment = new RingingAttachment();
         ringingAttachment.recieving = true;
         ringingAttachment.callingId = sender.getUUID();
+        ringingAttachment.ringtone = reciever.getAttachedOrCreate(ModAttachments.SAVED_RINGTONE);
         reciever.setAttached(ModAttachments.RINGING_ATTACHMENT_TYPE, ringingAttachment);
 
         RingingAttachment sendingAttachment = new RingingAttachment();
         sendingAttachment.recieving = false;
         sendingAttachment.callingId = reciever.getUUID();
+        sendingAttachment.ringtone = sender.getAttachedOrCreate(ModAttachments.SAVED_RINGTONE);
         sender.setAttached(ModAttachments.RINGING_ATTACHMENT_TYPE, sendingAttachment);
-
-        ModAttachments.forceSyncRingingAttachment(sender, sendingAttachment);
-        ModAttachments.forceSyncRingingAttachment(reciever, ringingAttachment);
     }
 
 }

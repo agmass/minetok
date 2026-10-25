@@ -5,6 +5,7 @@ import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import net.minecraft.sounds.SoundEvents;
 import org.agmas.minetok.Minetok;
 import org.agmas.minetok.api.PhoneTapInformation;
 import org.agmas.minetok.client.MinetokClient;
@@ -22,11 +23,16 @@ public class SettingsApplicationSprite extends ExitButtonSprite implements Netwo
     public static boolean dirty = false;
     BooleanOptionSprite muteRingtones = new BooleanOptionSprite(Component.translatable("config.minetok.muteRingtones"),PhoneConfig.INSTANCE.muteRingtones);
     BooleanOptionSprite muteOtherPhones = new BooleanOptionSprite(Component.translatable("config.minetok.muteOtherPhones"), PhoneConfig.INSTANCE.muteOtherPhones);
+    BooleanOptionSprite disableRingingIndicator = new BooleanOptionSprite(Component.translatable("config.minetok.disableRingingIndicator"), PhoneConfig.INSTANCE.disableRingingIndicator);
+    SoundOverlayOptionSprite ringtone = new SoundOverlayOptionSprite(Component.translatable("config.minetok.ringtone"), PhoneConfig.INSTANCE.ringtone);
+
     ArrayList<Sprite> options  = new ArrayList<>();
 
     public SettingsApplicationSprite() {
         options.add(muteOtherPhones);
         options.add(muteRingtones);
+        options.add(disableRingingIndicator);
+        options.add(ringtone);
     }
 
     @Override
@@ -53,6 +59,8 @@ public class SettingsApplicationSprite extends ExitButtonSprite implements Netwo
         if (mouse.isClient) {
             PhoneConfig.INSTANCE.muteRingtones = muteRingtones.ticked;
             PhoneConfig.INSTANCE.muteOtherPhones = muteOtherPhones.ticked;
+            PhoneConfig.INSTANCE.disableRingingIndicator = disableRingingIndicator.ticked;
+            PhoneConfig.INSTANCE.ringtone = ringtone.soundSelectorOverlay.chosenIdentifier;
             if (dirty) {
                 dirty = false;
                 PhoneConfig.write();
@@ -67,6 +75,7 @@ public class SettingsApplicationSprite extends ExitButtonSprite implements Netwo
         CompoundTag tag = new CompoundTag();
         tag.putBoolean("mute_ringtones", muteRingtones.ticked);
         tag.putBoolean("mute_other_phones", muteOtherPhones.ticked);
+        tag.putBoolean("disable_ringing_indicator", disableRingingIndicator.ticked);
         return tag;
     }
 
@@ -74,5 +83,6 @@ public class SettingsApplicationSprite extends ExitButtonSprite implements Netwo
     public void sync(CompoundTag phoneData) {
         muteRingtones.ticked = phoneData.getBooleanOr("mute_ringtones", false);
         muteOtherPhones.ticked = phoneData.getBooleanOr("mute_other_phones", false);
+        disableRingingIndicator.ticked = phoneData.getBooleanOr("mute_other_phones", false);
     }
 }

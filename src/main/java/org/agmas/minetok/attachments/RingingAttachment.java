@@ -41,12 +41,13 @@ public class RingingAttachment {
         attachment.recieving = byteBuf.readBoolean();
         attachment.ringtone = Identifier.parse(Utf8String.read(byteBuf, 32767));
         attachment.callingId = UUID.fromString(Utf8String.read(byteBuf, 32767));
+
         return attachment;
     }
 
     public void encode(ByteBuf byteBuf) {
         byteBuf.writeBoolean(recieving);
-        Utf8String.write(byteBuf, callingId.toString(), 32767);
+        Utf8String.write(byteBuf, ringtone.toString(), 32767);
         Utf8String.write(byteBuf, callingId.toString(), 32767);
     }
 }

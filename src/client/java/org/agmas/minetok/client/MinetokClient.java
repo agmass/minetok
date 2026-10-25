@@ -16,9 +16,11 @@ import net.minecraft.client.renderer.rendertype.RenderType;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.sounds.WeighedSoundEvents;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
@@ -36,7 +38,9 @@ import org.agmas.minetok.client.util.MinetokClientRegistries;
 import org.agmas.minetok.client.util.OtherPlayerPhone;
 import org.agmas.minetok.init.ModAttachments;
 import org.agmas.minetok.init.ModItems;
+import org.agmas.minetok.item.PhoneItem;
 import org.agmas.minetok.network.ServerboundPhoneStatePacket;
+import org.agmas.minetok.network.ServerboundRingtoneSetPacket;
 import org.agmas.minetok.porting.MTIdentifier;
 
 import java.lang.ref.Reference;
@@ -75,6 +79,7 @@ public class MinetokClient implements ClientModInitializer {
 
 		ClientPlayConnectionEvents.JOIN.register((cpl,ps,m)->{
 			phone = new Phone(m.player);
+			ps.sendPacket(new ServerboundRingtoneSetPacket(PhoneConfig.INSTANCE.ringtone.toString()));
 		});
 
 		ClientPlayConnectionEvents.DISCONNECT.register((cpl,m)->{
@@ -95,15 +100,22 @@ public class MinetokClient implements ClientModInitializer {
 						OtherPlayerPhone otherPhone = playerPhoneHashMap.get(player.getUUID());
 						otherPhone.phone.sync(player.getAttachedOrElse(ModAttachments.PHONE_STATE, new CompoundTag()));
 					}
-					if (player.getAttached(ModAttachments.RINGING_ATTACHMENT_TYPE) != null && !player.getAttached(ModAttachments.RINGING_ATTACHMENT_TYPE).isPlayingSound) {
-						Identifier ringSound = player.getAttached(ModAttachments.RINGING_ATTACHMENT_TYPE).ringtone;
-						player.getAttached(ModAttachments.RINGING_ATTACHMENT_TYPE).isPlayingSound= true;
-						Log.info(LogCategory.GENERAL, ringSound.getPath());
-						if (BuiltInRegistries.SOUND_EVENT.containsKey(ringSound)) {
-							Optional<Holder.Reference<SoundEvent>> potentialSound = BuiltInRegistries.SOUND_EVENT.get(ringSound);
-							if (potentialSound.isPresent()) {
-								SoundEvent s = potentialSound.get().value();
-								Minecraft.getInstance().getSoundManager().play(new RingtoneSoundInstance(player, s, SoundSource.PLAYERS, player.getRandom()));
+					if (!PhoneConfig.INSTANCE.muteRingtones && (!PhoneConfig.INSTANCE.muteOtherPhones || player.equals(Minecraft.getInstance().player))) {
+						if (player.getAttached(ModAttachments.RINGING_ATTACHMENT_TYPE) != null && !player.getAttached(ModAttachments.RINGING_ATTACHMENT_TYPE).isPlayingSound) {
+							Identifier ringSound = player.getAttached(ModAttachments.RINGING_ATTACHMENT_TYPE).ringtone;
+							player.getAttached(ModAttachments.RINGING_ATTACHMENT_TYPE).isPlayingSound = true;
+							if (BuiltInRegistries.SOUND_EVENT.containsKey(ringSound)) {
+								Optional<Holder.Reference<SoundEvent>> potentialSound = BuiltInRegistries.SOUND_EVENT.get(ringSound);
+								if (potentialSound.isPresent()) {
+									SoundEvent s = potentialSound.get().value();
+									if (!PhoneConfig.INSTANCE.disableRingingIndicator)
+
+										Minecraft.getInstance().gui
+										//?if >=26.2
+										//.hud
+												.setOverlayMessage(Component.translatable("phone.ringtone", player.getScoreboardName()), true);
+									Minecraft.getInstance().getSoundManager().play(new RingtoneSoundInstance(player, s, SoundSource.PLAYERS, player.getRandom()));
+								}
 							}
 						}
 					}
@@ -115,6 +127,13 @@ public class MinetokClient implements ClientModInitializer {
 			if (Minecraft.getInstance().player != null) {
 				if (!Minecraft.getInstance().player.isUsingItem()) {
 					phone.selectedElement = null;
+				} else {
+					if (Minecraft.getInstance().player.getActiveItem().getItem() instanceof PhoneItem) {
+						//? if <=26.1
+						PhoneTextureRenderer.INSTANCE.render(wrc.gameRenderer().getMainCamera(),phone);
+						//? if >26.1
+						//PhoneTextureRenderer.INSTANCE.render(wrc.gameRenderer().mainCamera(),phone);
+					}
 				}
 
 				playerPhoneHashMap.keySet().removeIf(uuid -> {
@@ -133,10 +152,7 @@ public class MinetokClient implements ClientModInitializer {
 					}
 				}
 			}
-			//? if <=26.1
-			PhoneTextureRenderer.INSTANCE.render(wrc.gameRenderer().getMainCamera(),phone);
-			//? if >26.1
-			//PhoneTextureRenderer.INSTANCE.render(wrc.gameRenderer().mainCamera(),phone);
+
 
 			for (OtherPlayerPhone value : playerPhoneHashMap.values()) {
 				//? if <=26.1

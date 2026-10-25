@@ -56,6 +56,10 @@ dependencies {
 	modRuntimeOnly "maven.modrinth:simple-voice-chat:fabric-${voicechat_version}"
 	modRuntimeOnly "de.maxhenkel.voicechat:voicechat-api:${voicechat_api_version}:fabric-stub"
 
+	if (stonecutter.current.parsed <= "26.2") {
+		implementation "maven.modrinth:G922NeHS:FdCZ5Rxq"
+		implementation "maven.modrinth:P0w3IrnX:Vg5ofKQp"
+	}
 }
 
 stonecutter {
