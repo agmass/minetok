@@ -1,5 +1,7 @@
 package org.agmas.minetok.client.render.sprites;
 
+import net.fabricmc.loader.impl.util.log.Log;
+import net.fabricmc.loader.impl.util.log.LogCategory;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
@@ -11,6 +13,7 @@ import org.agmas.minetok.client.api.ApplicationSprite;
 import org.agmas.minetok.client.api.Sprite;
 
 import java.awt.*;
+import java.lang.reflect.InvocationTargetException;
 
 public class ApplicationGridIcon extends Sprite {
 
@@ -63,7 +66,10 @@ public class ApplicationGridIcon extends Sprite {
                     parent.closing = false;
                     MinetokClient.phone.setDirty();
                     mouse.justReleased = false;
-                } catch (Exception ignored) {}
+                } catch (NoSuchMethodException | InstantiationException | IllegalAccessException |
+                         InvocationTargetException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }

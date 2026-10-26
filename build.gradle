@@ -1,6 +1,7 @@
 plugins {
 	id("dev.kikugie.loom-back-compat")
 	id 'maven-publish'
+	id("ir.mahozad.vlc-setup") version "0.1.0"
 }
 
 base {
@@ -20,6 +21,15 @@ repositories {
 			includeGroup "maven.modrinth"
 		}
 	}
+}
+
+vlcSetup {
+	vlcVersion = "4.0"
+	shouldCompressVlcFiles = true
+	shouldIncludeAllVlcFiles = false
+	pathToCopyVlcLinuxFilesTo = rootDir.resolve("vlc/linux/")
+	pathToCopyVlcMacosFilesTo = rootDir.resolve("vlc/macos/")
+	pathToCopyVlcWindowsFilesTo = rootDir.resolve("vlc/windows/")
 }
 
 loom {
@@ -56,10 +66,7 @@ dependencies {
 	modRuntimeOnly "maven.modrinth:simple-voice-chat:fabric-${voicechat_version}"
 	modRuntimeOnly "de.maxhenkel.voicechat:voicechat-api:${voicechat_api_version}:fabric-stub"
 
-	if (stonecutter.current.parsed <= "26.2") {
-		implementation "maven.modrinth:G922NeHS:FdCZ5Rxq"
-		implementation "maven.modrinth:P0w3IrnX:Vg5ofKQp"
-	}
+	implementation "uk.co.caprica:vlcj:4.12.1"
 }
 
 stonecutter {
