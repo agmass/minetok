@@ -14,6 +14,7 @@ import org.agmas.minetok.client.api.Sprite;
 import org.agmas.minetok.client.config.PhoneConfig;
 import org.agmas.minetok.client.render.Phone;
 import org.agmas.minetok.client.render.sprites.ExitButtonSprite;
+import org.agmas.minetok.client.vlcj.YTDLPDownloader;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -25,6 +26,7 @@ public class SettingsApplicationSprite extends ExitButtonSprite implements Netwo
     BooleanOptionSprite muteOtherPhones = new BooleanOptionSprite(Component.translatable("config.minetok.muteOtherPhones"), PhoneConfig.INSTANCE.muteOtherPhones);
     BooleanOptionSprite disableRingingIndicator = new BooleanOptionSprite(Component.translatable("config.minetok.disableRingingIndicator"), PhoneConfig.INSTANCE.disableRingingIndicator);
     SoundOverlayOptionSprite ringtone = new SoundOverlayOptionSprite(Component.translatable("config.minetok.ringtone"), PhoneConfig.INSTANCE.ringtone);
+    YTDLPOptionSprite ytdlp = new YTDLPOptionSprite(Component.translatable("config.minetok.install_ytdlp"));
 
     ArrayList<Sprite> options  = new ArrayList<>();
 
@@ -33,6 +35,7 @@ public class SettingsApplicationSprite extends ExitButtonSprite implements Netwo
         options.add(muteRingtones);
         options.add(disableRingingIndicator);
         options.add(ringtone);
+        options.add(ytdlp);
     }
 
     @Override

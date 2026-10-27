@@ -57,7 +57,7 @@ dependencies {
 	modRuntimeOnly "de.maxhenkel.voicechat:voicechat-api:${voicechat_api_version}:fabric-stub"
 
 	implementation include("uk.co.caprica:vlcj:4.12.1")
-	implementation include("uk.co.caprica:vlcj-natives:4.08")
+	implementation include("uk.co.caprica:vlcj-natives:4.8.3")
 }
 
 stonecutter {

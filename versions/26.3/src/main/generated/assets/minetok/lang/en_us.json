@@ -1,5 +1,6 @@
 {
   "config.minetok.disableRingingIndicator": "Disable Ringing Text",
+  "config.minetok.install_ytdlp": "Install/Update YT-DLP",
   "config.minetok.muteOtherPhones": "Mute Other Phones",
   "config.minetok.muteRingtones": "Mute All Ringtones",
   "config.minetok.ringtone": "Ringtone Selector",
@@ -9,11 +10,18 @@
   "phone.error.cant_call_self": "You can't call yourself!",
   "phone.error.missing_mod": "Please Install %s",
   "phone.error.no_service": "No Service",
+  "phone.error.no_vlc": "Minetok failed to load. You probbably don't have VLC Media Player installed. Go install that please\n\n%s",
+  "phone.error.no_ytdlp": "Minetok requires yt-dlp. You can go install it (or update when needed) in the Settings app.",
   "phone.error.receiver_busy": "Receiver Busy",
   "phone.error.receiver_offline": "Receiver not online",
   "phone.error.server_missing_mod": "Server Missing Mod: %s",
+  "phone.install_fail": "Failed to install yt-dlp. Check logs for errors.",
+  "phone.install_success": "Installed yt-dlp!",
+  "phone.installing": "Installing..",
+  "phone.media_not_found": "%s not found",
   "phone.notification": "Notification",
   "phone.notification.waiting_for_server": "Waiting for Server...",
   "phone.ringtone": "%s's phone is ringing",
-  "phone.tap_continue": "Tap Anywhere to Continue"
+  "phone.tap_continue": "Tap Anywhere to Continue",
+  "phone.youtube_error": "Youtube links don't work. Sorry. ;_C"
 }

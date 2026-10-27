@@ -30,6 +30,8 @@ public class LanguageDatagen extends FabricLanguageProvider {
         translationBuilder.add("config.minetok.muteRingtones", "Mute All Ringtones");
         translationBuilder.add("config.minetok.disableRingingIndicator", "Disable Ringing Text");
         translationBuilder.add("config.minetok.ringtone", "Ringtone Selector");
+        translationBuilder.add("config.minetok.install_ytdlp", "Install/Update YT-DLP");
+
 
 
         translationBuilder.add("phone.error", "Error");
@@ -37,7 +39,12 @@ public class LanguageDatagen extends FabricLanguageProvider {
         translationBuilder.add("phone.tap_continue", "Tap Anywhere to Continue");
 
         translationBuilder.add("phone.error.missing_mod", "Please Install %s");
+        translationBuilder.add("phone.error.no_vlc", "Minetok failed to load. You probbably don't have VLC Media Player installed. Go install that please\n\n%s");
+        translationBuilder.add("phone.error.no_ytdlp", "Minetok requires yt-dlp. You can go install it (or update when needed) in the Settings app.");
         translationBuilder.add("phone.error.no_service", "No Service");
+        translationBuilder.add("phone.install_fail", "Failed to install yt-dlp. Check logs for errors.");
+        translationBuilder.add("phone.installing", "Installing..");
+        translationBuilder.add("phone.install_success", "Installed yt-dlp!");
         translationBuilder.add("phone.error.server_missing_mod", "Server Missing Mod: %s");
         translationBuilder.add("phone.media_not_found", "%s not found");
         translationBuilder.add("phone.youtube_error", "Youtube links don't work. Sorry. ;_C");

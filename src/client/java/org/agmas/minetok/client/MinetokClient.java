@@ -36,6 +36,7 @@ import org.agmas.minetok.client.render.PhoneTextureRenderer;
 import org.agmas.minetok.client.sound.RingtoneSoundInstance;
 import org.agmas.minetok.client.util.MinetokClientRegistries;
 import org.agmas.minetok.client.util.OtherPlayerPhone;
+import org.agmas.minetok.client.vlcj.YTDLPDownloader;
 import org.agmas.minetok.init.ModAttachments;
 import org.agmas.minetok.init.ModItems;
 import org.agmas.minetok.item.PhoneItem;
@@ -53,6 +54,7 @@ import java.util.function.Function;
 public class MinetokClient implements ClientModInitializer {
 
 	public static Phone phone;
+	public static Phone currentlyRendering_phone;
 	public static HashMap<UUID, OtherPlayerPhone> playerPhoneHashMap = new HashMap<>();
 	public static RenderStateDataKey<MTIdentifier> phoneTextureID = RenderStateDataKey.create(()->"phoneTextureID");
 	public static RenderStateDataKey<PhoneTapInformation> headMouseInfoID = RenderStateDataKey.create(()->"headMouseInfoID");
@@ -66,6 +68,8 @@ public class MinetokClient implements ClientModInitializer {
 
 	@Override
 	public void onInitializeClient() {
+
+		YTDLPDownloader.clearYTDLPFolder();
 
 		MinetokClientRegistries.init();
 		MinetokApplications.init();
@@ -130,6 +134,7 @@ public class MinetokClient implements ClientModInitializer {
 					phone.selectedElement = null;
 				} else {
 					if (Minecraft.getInstance().player.getActiveItem().getItem() instanceof PhoneItem) {
+						currentlyRendering_phone = phone;
 						//? if <=26.1
 						PhoneTextureRenderer.INSTANCE.render(wrc.gameRenderer().getMainCamera(),phone);
 						//? if >26.1
@@ -156,6 +161,7 @@ public class MinetokClient implements ClientModInitializer {
 
 
 			for (OtherPlayerPhone value : playerPhoneHashMap.values()) {
+				currentlyRendering_phone = value.phone;
 				//? if <=26.1
 				value.renderer.render(wrc.gameRenderer().getMainCamera(), value.phone);
 				//? if >26.1

@@ -20,6 +20,8 @@
     "requireAnnotations": true
   },
   "mixins": [
-    "CaptureMouseMixin"
+    "CaptureMouseMixin",
+    "VKAccessor",
+    "VKAccessorFrontend"
   ]
 }

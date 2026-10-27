@@ -1,7 +1,7 @@
 package org.agmas.minetok.client.render;
 
 //? if >=26.3
-// import net.minecraft.world.item.component.SwingAnimation;
+ //import net.minecraft.world.item.component.SwingAnimation;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -31,7 +31,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Optional;
 
 public class Phone {
-
     public static int SCREEN_WIDTH = 720;
     public static int SCREEN_HEIGHT = 1280;
 

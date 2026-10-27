@@ -50,7 +50,7 @@ public class VLCJHandler extends AbstractTexture {
     public int sourceWidth;
     public int sourceHeight;
 
-    private final EmbeddedMediaPlayer mediaPlayer;
+    public EmbeddedMediaPlayer mediaPlayer;
     public boolean textureDirty = false;
 
     public boolean updateTexture() {
@@ -59,7 +59,7 @@ public class VLCJHandler extends AbstractTexture {
                 GlStateManager._bindTexture(gl.glId());
                 int[] pixels = bufferedImage.getRGB(0, 0, bufferedImage.getWidth(), bufferedImage.getHeight(), null, 0, bufferedImage.getWidth());
 
-                GL11.glPixelStorei(GL11.GL_UNPACK_ALIGNMENT, 0);
+                GL11.glPixelStorei(GL11.GL_UNPACK_ALIGNMENT, 4);
                 GL11.glPixelStorei(GL11.GL_UNPACK_ROW_LENGTH, 0);
                 GL33.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL33.GL_BGRA, bufferedImage.getWidth(), bufferedImage.getHeight(), 0, GL33.GL_BGRA, GL11.GL_UNSIGNED_BYTE, pixels);
             });
@@ -121,7 +121,6 @@ public class VLCJHandler extends AbstractTexture {
                 VideoSurfaceAdapters.getVideoSurfaceAdapter()
         ));
 
-        mediaPlayer.media().play("https://www.youtube.com/watch?v=8GUcpb0kBno");
         sampler = RenderSystem.getSamplerCache().getClampToEdge(FilterMode.LINEAR);
     }
 
