@@ -65,7 +65,7 @@ public abstract class PhoneInWorldMixin {
             poseStack.popPose();
 
             ItemStackRenderState itemStackRenderState = new ItemStackRenderState();
-            itemModelResolver.updateForTopItem(itemStackRenderState, itemStack, ItemDisplayContext.NONE, abstractClientPlayer.level(), abstractClientPlayer, abstractClientPlayer.getId());
+            //itemModelResolver.updateForTopItem(itemStackRenderState, itemStack, ItemDisplayContext.NONE, abstractClientPlayer.level(), abstractClientPlayer, abstractClientPlayer.getId());
             MinetokClient.phone.renderInHand(poseStack, submitNodeCollector, itemStackRenderState,j,abstractClientPlayer.getTicksUsingItem(f));
             return;
         }

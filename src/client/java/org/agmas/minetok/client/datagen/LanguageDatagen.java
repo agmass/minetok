@@ -39,6 +39,9 @@ public class LanguageDatagen extends FabricLanguageProvider {
         translationBuilder.add("phone.error.missing_mod", "Please Install %s");
         translationBuilder.add("phone.error.no_service", "No Service");
         translationBuilder.add("phone.error.server_missing_mod", "Server Missing Mod: %s");
+        translationBuilder.add("phone.media_not_found", "%s not found");
+        translationBuilder.add("phone.youtube_error", "Youtube links don't work. Sorry. ;_C");
+
         translationBuilder.add("phone.ringtone", "%s's phone is ringing");
         translationBuilder.add("phone.error.receiver_offline", "Receiver not online");
         translationBuilder.add("phone.error.receiver_busy", "Receiver Busy");

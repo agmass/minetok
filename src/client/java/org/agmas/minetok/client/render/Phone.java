@@ -22,6 +22,7 @@ import org.agmas.minetok.client.api.Sprite;
 import org.agmas.minetok.client.init.MinetokOverlays;
 import org.agmas.minetok.client.render.sprites.HomeScreenSprite;
 import org.agmas.minetok.client.render.sprites.calls.CallingSprite;
+import org.agmas.minetok.client.render.sprites.minetok.TikTokApplication;
 import org.agmas.minetok.client.util.MinetokClientRegistries;
 import org.agmas.minetok.init.ModAttachments;
 import org.agmas.minetok.porting.MTIdentifier;
