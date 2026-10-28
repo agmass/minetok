@@ -1,6 +1,6 @@
 package org.agmas.minetok.client.api;
 
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import org.jetbrains.annotations.Nullable;
 
 public class Sprite {
@@ -11,6 +11,7 @@ public class Sprite {
     @Nullable
     public Application overlay = null;
 
-    public void render(GuiGraphics graphics, org.agmas.minetok.api.PhoneTapInformation mouse, float renderDelta) {}
+    public void render(GuiGraphicsExtractor graphics, org.agmas.minetok.api.PhoneTapInformation mouse, float renderDelta) {}
 
+    public void destroy() {}
 }

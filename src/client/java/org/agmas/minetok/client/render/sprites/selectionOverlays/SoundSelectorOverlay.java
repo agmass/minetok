@@ -2,7 +2,7 @@ package org.agmas.minetok.client.render.sprites.selectionOverlays;
 
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.resources.sounds.AbstractSoundInstance;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
@@ -66,7 +66,7 @@ public class SoundSelectorOverlay extends Sprite implements NetworkSprite {
     SimpleSoundInstance exampleSound = SimpleSoundInstance.forUI(SoundEvents.MUSIC_DISC_FAR, 1f);
 
     @Override
-    public void render(GuiGraphics graphics, PhoneTapInformation mouse, float renderDelta) {
+    public void render(GuiGraphicsExtractor graphics, PhoneTapInformation mouse, float renderDelta) {
         time = Math.clamp(time+renderDelta,0f,1f);
         exitBar.exitBarCapture(mouse);
         graphics.fill(-100,-100, Phone.SCREEN_WIDTH+100, Phone.SCREEN_HEIGHT+100, new Color(0,0,0, EasingType.OUT_CIRC.apply(time)*0.5f).getRGB());
@@ -132,7 +132,7 @@ public class SoundSelectorOverlay extends Sprite implements NetworkSprite {
                 graphics.pose().pushMatrix();
                 graphics.pose().translate(x + marginX + 52, y + 64 + (spacing * i));
                 graphics.pose().scale(6, 6);
-                graphics.drawString(Minecraft.getInstance().font,
+                graphics.text(Minecraft.getInstance().font,
                         name.getString().substring(0, Math.min(name.getString().length(), selected ? 32 : 16)), 0, 0, -1);
                 graphics.pose().popMatrix();
                 graphics.blit(texture, x + marginX, y + 64 + (spacing * i), x + marginX + 48, y + 64 + (spacing * i) + 48, 0, 1, 0, 1);
@@ -152,9 +152,9 @@ public class SoundSelectorOverlay extends Sprite implements NetworkSprite {
         graphics.pose().scale(5);
 
         //? if >1.21.11
-        //textField.extractRenderState(graphics, (int) mouse.x, (int) mouse.y,renderDelta);
+        textField.extractRenderState(graphics, (int) mouse.x, (int) mouse.y,renderDelta);
         //? if <=1.21.11
-        textField.render(graphics, (int) mouse.x, (int) mouse.y,renderDelta);
+        //textField.render(graphics, (int) mouse.x, (int) mouse.y,renderDelta);
         if (mouse.x+40 > x+52 && mouse.y+40 > y && mouse.x+40 < x+452 && mouse.y+40 < y+140) {
             if (mouse.justTapped) {
                 MinetokClient.phone.selectedElement = textField;

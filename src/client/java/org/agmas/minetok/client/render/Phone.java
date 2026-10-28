@@ -4,7 +4,7 @@ package org.agmas.minetok.client.render;
  //import net.minecraft.world.item.component.SwingAnimation;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
@@ -56,7 +56,7 @@ public class Phone {
         topSprite.overlays.add(overlay);
     }
 
-    public void render(GuiGraphics graphics) {
+    public void render(GuiGraphicsExtractor graphics) {
         if (this == MinetokClient.phone)
             handleMouseInput();
 
@@ -264,6 +264,14 @@ public class Phone {
 
             }
         }
+    }
+
+    public void destroy() {
+        topSprite.destroy();
+        for (Sprite overlay : topSprite.overlays) {
+            overlay.destroy();
+        }
+        topSprite.focusedSprite.destroy();
     }
 
     /*

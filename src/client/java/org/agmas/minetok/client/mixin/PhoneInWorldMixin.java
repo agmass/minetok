@@ -6,7 +6,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.ItemInHandRenderer;
 import net.minecraft.client.renderer.SubmitNodeCollector;
@@ -47,9 +47,9 @@ public abstract class PhoneInWorldMixin {
 
     //? if <26.3 {
     //? if <26.2
-    @WrapMethod(method = "renderArmWithItem")
+    //@WrapMethod(method = "renderArmWithItem")
     //? if >=26.2
-    //@WrapMethod(method = "submitArmWithItem")
+    @WrapMethod(method = "submitArmWithItem")
     public void disableWhenWatchingCams(AbstractClientPlayer abstractClientPlayer, float f, float g, InteractionHand interactionHand, float h, ItemStack itemStack, float i, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, int j, Operation<Void> original) {
         if (abstractClientPlayer.isUsingItem() && abstractClientPlayer.getActiveItem().getItem() instanceof PhoneItem && abstractClientPlayer.getUsedItemHand().equals(interactionHand)) {
             poseStack.pushPose();

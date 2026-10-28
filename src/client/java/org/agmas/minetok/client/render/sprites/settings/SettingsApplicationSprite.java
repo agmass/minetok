@@ -1,6 +1,6 @@
 package org.agmas.minetok.client.render.sprites.settings;
 
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -39,7 +39,7 @@ public class SettingsApplicationSprite extends ExitButtonSprite implements Netwo
     }
 
     @Override
-    public void render(GuiGraphics graphics, PhoneTapInformation mouse, float renderDelta) {
+    public void render(GuiGraphicsExtractor graphics, PhoneTapInformation mouse, float renderDelta) {
         exitBarCapture(mouse);
 
 

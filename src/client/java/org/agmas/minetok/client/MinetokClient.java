@@ -6,7 +6,7 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.RenderStateDataKey;
-import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderEvents;
+import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents;
 import net.fabricmc.loader.impl.util.log.Log;
 import net.fabricmc.loader.impl.util.log.LogCategory;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -46,6 +46,7 @@ import org.agmas.minetok.porting.MTIdentifier;
 import uk.co.caprica.vlcj.factory.MediaPlayerFactory;
 
 import java.lang.ref.Reference;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.UUID;
@@ -65,6 +66,8 @@ public class MinetokClient implements ClientModInitializer {
 	public static final RenderType getPhoneRenderType(MTIdentifier identifier) {
 		return PHONE_RENDER_TYPE.apply(identifier.id);
 	}
+
+	public static Runnable lastRenderFrame = null;
 
 	@Override
 	public void onInitializeClient() {
@@ -91,7 +94,7 @@ public class MinetokClient implements ClientModInitializer {
 			playerPhoneHashMap.clear();
 		});
 
-		ClientTickEvents.END_WORLD_TICK.register((l)->{
+		ClientTickEvents.END_LEVEL_TICK.register((l)->{
 			if (phone != null) {
 				if (phone.networkDirty) {
 					ClientPlayNetworking.send(new ServerboundPhoneStatePacket(phone.createTag()));
@@ -117,7 +120,7 @@ public class MinetokClient implements ClientModInitializer {
 
 										Minecraft.getInstance().gui
 										//?if >=26.2
-										//.hud
+										.hud
 												.setOverlayMessage(Component.translatable("phone.ringtone", player.getScoreboardName()), true);
 									Minecraft.getInstance().getSoundManager().play(new RingtoneSoundInstance(player, s, SoundSource.PLAYERS, player.getRandom()));
 								}
@@ -128,7 +131,7 @@ public class MinetokClient implements ClientModInitializer {
 			}
 		});
 
-        WorldRenderEvents.END_MAIN.register((wrc)->{
+        LevelRenderEvents.END_MAIN.register((wrc)->{
 			if (Minecraft.getInstance().player != null) {
 				if (!Minecraft.getInstance().player.isUsingItem()) {
 					phone.selectedElement = null;
@@ -136,9 +139,9 @@ public class MinetokClient implements ClientModInitializer {
 					if (Minecraft.getInstance().player.getActiveItem().getItem() instanceof PhoneItem) {
 						currentlyRendering_phone = phone;
 						//? if <=26.1
-						PhoneTextureRenderer.INSTANCE.render(wrc.gameRenderer().getMainCamera(),phone);
+						//PhoneTextureRenderer.INSTANCE.render(wrc.gameRenderer().getMainCamera(),phone);
 						//? if >26.1
-						//PhoneTextureRenderer.INSTANCE.render(wrc.gameRenderer().mainCamera(),phone);
+						PhoneTextureRenderer.INSTANCE.render(wrc.gameRenderer().mainCamera(),phone);
 					}
 				}
 
@@ -161,11 +164,13 @@ public class MinetokClient implements ClientModInitializer {
 
 
 			for (OtherPlayerPhone value : playerPhoneHashMap.values()) {
+				if (value.phone.player.equals(Minecraft.getInstance().player)) return;
 				currentlyRendering_phone = value.phone;
+
 				//? if <=26.1
-				value.renderer.render(wrc.gameRenderer().getMainCamera(), value.phone);
+				//value.renderer.render(wrc.gameRenderer().getMainCamera(), value.phone);
 				//? if >26.1
-				//value.renderer.render(wrc.gameRenderer().mainCamera(), value.phone);
+				value.renderer.render(wrc.gameRenderer().mainCamera(), value.phone);
 			}
         });
 

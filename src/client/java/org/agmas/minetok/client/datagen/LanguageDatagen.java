@@ -3,20 +3,20 @@ package org.agmas.minetok.client.datagen;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricLanguageProvider;
 import net.minecraft.core.HolderLookup;
 //? if >=26.1 {
-/*import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
-*///? } else {
-import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
-//? }
+import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
+//? } else {
+/*import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
+*///? }
 
 import java.util.concurrent.CompletableFuture;
 
 public class LanguageDatagen extends FabricLanguageProvider {
 
     //? if >=26.1 {
-    /*public LanguageDatagen(FabricPackOutput dataOutput, CompletableFuture<HolderLookup.Provider> registryLookup) {
-        *///? } else {
-        public LanguageDatagen(FabricDataOutput dataOutput, CompletableFuture<HolderLookup.Provider> registryLookup) {
-         //? }
+    public LanguageDatagen(FabricPackOutput dataOutput, CompletableFuture<HolderLookup.Provider> registryLookup) {
+        //? } else {
+        /*public LanguageDatagen(FabricDataOutput dataOutput, CompletableFuture<HolderLookup.Provider> registryLookup) {
+         *///? }
         super(dataOutput, registryLookup);
     }
 
@@ -32,8 +32,6 @@ public class LanguageDatagen extends FabricLanguageProvider {
         translationBuilder.add("config.minetok.ringtone", "Ringtone Selector");
         translationBuilder.add("config.minetok.install_ytdlp", "Install/Update YT-DLP");
 
-
-
         translationBuilder.add("phone.error", "Error");
         translationBuilder.add("phone.notification", "Notification");
         translationBuilder.add("phone.tap_continue", "Tap Anywhere to Continue");
@@ -41,6 +39,7 @@ public class LanguageDatagen extends FabricLanguageProvider {
         translationBuilder.add("phone.error.missing_mod", "Please Install %s");
         translationBuilder.add("phone.error.no_vlc", "Minetok failed to load. You probbably don't have VLC Media Player installed. Go install that please\n\n%s");
         translationBuilder.add("phone.error.no_ytdlp", "Minetok requires yt-dlp. You can go install it (or update when needed) in the Settings app.");
+        translationBuilder.add("phone.vulkan_warning", "Using Vulkan for Video Rendering is still experimental. Artifacts may occur.");
         translationBuilder.add("phone.error.no_service", "No Service");
         translationBuilder.add("phone.install_fail", "Failed to install yt-dlp. Check logs for errors.");
         translationBuilder.add("phone.installing", "Installing..");

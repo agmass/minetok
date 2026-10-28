@@ -1,6 +1,6 @@
 package org.agmas.minetok.client.render.sprites;
 
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Mth;
 import org.agmas.minetok.api.PhoneTapInformation;
@@ -33,7 +33,7 @@ public class ScrollBarSprite extends Sprite implements NetworkSprite {
     }
 
     @Override
-    public void render(GuiGraphics graphics, PhoneTapInformation mouse, float renderDelta) {
+    public void render(GuiGraphicsExtractor graphics, PhoneTapInformation mouse, float renderDelta) {
         int scrollBarY = (int) Mth.lerp(scroll, 0, (height-scrollBarHeight));
         graphics.fill(x,y, x+width,y+height,Color.DARK_GRAY.getRGB());
 

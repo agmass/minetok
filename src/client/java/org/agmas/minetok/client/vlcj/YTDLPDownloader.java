@@ -1,13 +1,17 @@
 package org.agmas.minetok.client.vlcj;
 
+import net.fabricmc.loader.impl.util.log.Log;
+import net.fabricmc.loader.impl.util.log.LogCategory;
 import net.minecraft.network.chat.Component;
 import org.agmas.minetok.Minetok;
 import org.agmas.minetok.client.MinetokClient;
 import org.agmas.minetok.client.init.MinetokOverlays;
 import org.agmas.minetok.client.render.sprites.NotificationSprite;
+import org.apache.commons.io.IOUtils;
 
 import java.io.*;
 import java.net.URL;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Objects;
 
@@ -17,10 +21,10 @@ public class YTDLPDownloader {
     // https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp
 
     public static String getReleaseName() {
-        if (System.getProperty("os.name").contains("win")) {
+        if (System.getProperty("os.name").toLowerCase().contains("win")) {
             return "yt-dlp.exe";
         }
-        else if (System.getProperty("os.name").contains("mac") || System.getProperty("os.name").contains("darwin")) {
+        else if (System.getProperty("os.name").toLowerCase().contains("mac") || System.getProperty("os.name").contains("darwin")) {
             return "yt-dlp_macos";
         }
         return "yt-dlp_linux";
@@ -36,7 +40,9 @@ public class YTDLPDownloader {
 
     public static Process downloadVideo(String url, String filename, String args) {
         try {
-            return Runtime.getRuntime().exec("./ytdlp/yt-dlp " + url + " -o ./ytdlp/" + filename + " " + args);
+            return Runtime.getRuntime().exec(
+                    System.getProperty("os.name").toLowerCase().contains("win") ? "" :  "./" + // windows is  so weird and quirky and not like the other kids haha
+                    "yt-dlp " + url + " -o " + filename + " " + args, new String[0], new File("ytdlp"));
         } catch (IOException e) {
             e.printStackTrace();
             return null;
@@ -48,24 +54,39 @@ public class YTDLPDownloader {
         return !installingProcess.isEmpty();
     }
 
+    public static boolean hasNextReel() {
+        File reel1 = new File("ytdlp/nextReel.mp4");
+        return reel1.exists();
+    }
+
     public static boolean hasPlayableReel() {
         File reel1 = new File("ytdlp/reel1.mp4");
         return reel1.exists();
     }
 
-    public static boolean nextReel(String url, boolean cycleReels) {
-        File reel1 = new File("ytdlp/reel1.mp4");
-        File nextReel = new File("ytdlp/nextReel.mp4");
-        if (cycleReels) {
-            if (reel1.exists()) {
-                reel1.delete();
-            }
+    public static File currentThumbnail() {
+        return new File("ytdlp/reel1.png");
+    }
 
-            if (nextReel.exists()) {
-                nextReel.renameTo(reel1);
-            }
+    public static File nextThumbnail() {
+        return new File("ytdlp/nextReel.png");
+    }
+    public static void cycleReel() {
+        File reel1 = new File("ytdlp/reel1.mp4");
+        File reel1Thumbnail = new File("ytdlp/reel1.png");
+        File nextReel = new File("ytdlp/nextReel.mp4");
+        File nextReelThumbnail = new File("ytdlp/nextReel.png");
+        if (reel1.exists()) {
+            reel1.delete();
+            reel1Thumbnail.delete();
         }
 
+        if (nextReel.exists()) {
+            nextReel.renameTo(reel1);
+            nextReelThumbnail.renameTo(reel1Thumbnail);
+        }
+    }
+    public static boolean nextReel(String url) {
         Process p = downloadVideo(url, "nextReel.mp4"," --remux-video mp4 --write-thumbnail --convert-thumbnails png"); // Force MP4, png thumbnail
         if (p != null) installingProcess.add(p);
         return p != null;

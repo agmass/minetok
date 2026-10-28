@@ -1,7 +1,7 @@
 package org.agmas.minetok.client.render.sprites.settings;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import org.agmas.minetok.api.PhoneTapInformation;
@@ -20,7 +20,7 @@ public class BooleanOptionSprite extends Sprite {
     }
 
     @Override
-    public void render(GuiGraphics graphics, PhoneTapInformation mouse, float renderDelta) {
+    public void render(GuiGraphicsExtractor graphics, PhoneTapInformation mouse, float renderDelta) {
         graphics.pose().pushMatrix();
         if (mouse.y+40 > y-6 && mouse.y+40 < y+54) {
             graphics.fill(-6,-6,54,54,-1);
@@ -33,7 +33,7 @@ public class BooleanOptionSprite extends Sprite {
         graphics.pose().pushMatrix();
         graphics.pose().translate(54,0);
         graphics.pose().scale(6,6);
-        graphics.drawString(Minecraft.getInstance().font, component, 0,0,-1);
+        graphics.text(Minecraft.getInstance().font, component, 0,0,-1);
         graphics.pose().popMatrix();
         graphics.pose().popMatrix();
     }

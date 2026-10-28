@@ -1,7 +1,7 @@
 package org.agmas.minetok.client.render.sprites;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.MultiLineTextWidget;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
@@ -51,7 +51,7 @@ public class NotificationSprite extends Sprite implements NetworkSprite {
     }
 
     @Override
-    public void render(GuiGraphics graphics, PhoneTapInformation mouse, float renderDelta) {
+    public void render(GuiGraphicsExtractor graphics, PhoneTapInformation mouse, float renderDelta) {
         super.render(graphics, mouse, renderDelta);
         time += (accepted ? -renderDelta : renderDelta)/20f;
         if (time > 1) time = 1;
@@ -81,7 +81,7 @@ public class NotificationSprite extends Sprite implements NetworkSprite {
         graphics.pose().translate((Phone.SCREEN_WIDTH - width)/2f, Phone.SCREEN_HEIGHT/2f - height/2f);
         graphics.pose().translate(width/2f - errorWidth/2f,0);
         graphics.pose().scale(4);
-        graphics.drawString(Minecraft.getInstance().font, topBarText, 0,2,Color.LIGHT_GRAY.getRGB());
+        graphics.text(Minecraft.getInstance().font, topBarText, 0,2,Color.LIGHT_GRAY.getRGB());
         graphics.pose().popMatrix();
 
         graphics.pose().pushMatrix();
@@ -93,9 +93,9 @@ public class NotificationSprite extends Sprite implements NetworkSprite {
         messageWidget.visitLines(graphics.textRenderer());
         messageWidget.setWidth(100);
         //? if >=26.1
-        //messageWidget.extractRenderState(graphics, (int) mouse.x, (int) mouse.y,renderDelta);
+        messageWidget.extractRenderState(graphics, (int) mouse.x, (int) mouse.y,renderDelta);
         //? if <26.1
-        messageWidget.render(graphics, (int) mouse.x, (int) mouse.y,renderDelta);
+        //messageWidget.render(graphics, (int) mouse.x, (int) mouse.y,renderDelta);
         graphics.pose().popMatrix();
 
 
@@ -104,7 +104,7 @@ public class NotificationSprite extends Sprite implements NetworkSprite {
             graphics.pose().translate(Phone.SCREEN_WIDTH / 2f, Phone.SCREEN_HEIGHT / 2f + 200);
             graphics.pose().translate(-(Minecraft.getInstance().font.width(tap_continue) * 3) / 2f, 0f);
             graphics.pose().scale(3);
-            graphics.drawString(Minecraft.getInstance().font, tap_continue, 0, 0, -1);
+            graphics.text(Minecraft.getInstance().font, tap_continue, 0, 0, -1);
             graphics.pose().popMatrix();
         }
     }

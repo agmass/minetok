@@ -3,7 +3,7 @@ package org.agmas.minetok.client.render.sprites;
 import net.fabricmc.loader.impl.util.log.Log;
 import net.fabricmc.loader.impl.util.log.LogCategory;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import org.agmas.minetok.client.MinetokClient;
@@ -25,7 +25,7 @@ public class ApplicationGridIcon extends Sprite {
         this.application = application;
     }
 
-    public void render(GuiGraphics graphics, PhoneTapInformation mouse, float renderDelta, HomeScreenSprite parent) {
+    public void render(GuiGraphicsExtractor graphics, PhoneTapInformation mouse, float renderDelta, HomeScreenSprite parent) {
         super.render(graphics, mouse, renderDelta);
 
         boolean selected = false;
@@ -54,7 +54,7 @@ public class ApplicationGridIcon extends Sprite {
         graphics.pose().translate(-(Minecraft.getInstance().font.width(text)*2),128+6);
         graphics.pose().scale(4);
 
-        graphics.drawString(Minecraft.getInstance().font, text, 0, 0, selected ? Color.WHITE.getRGB() : Color.LIGHT_GRAY.getRGB());
+        graphics.text(Minecraft.getInstance().font, text, 0, 0, selected ? Color.WHITE.getRGB() : Color.LIGHT_GRAY.getRGB());
         graphics.pose().popMatrix();
 
         if (selected && mouse.justReleased && application != null) {

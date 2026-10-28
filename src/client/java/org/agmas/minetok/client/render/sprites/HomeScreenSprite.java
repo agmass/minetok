@@ -1,11 +1,11 @@
 package org.agmas.minetok.client.render.sprites;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.renderer.CubeMap;
 //? if >=26.1 {
-/*import net.minecraft.client.renderer.state.gui.PanoramaRenderState;
-*///? }
+import net.minecraft.client.renderer.state.gui.PanoramaRenderState;
+//? }
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.EasingType;
@@ -24,9 +24,9 @@ import java.util.Map;
 public class HomeScreenSprite extends Sprite {
 
     //? if >=26.1 {
-    /*public PanoramaRenderState panoramaRenderState = new PanoramaRenderState(0);
+    public PanoramaRenderState panoramaRenderState = new PanoramaRenderState(0);
     public float spin = 0;
-    *///? }
+    //? }
     public CubeMap pano = new CubeMap(Identifier.withDefaultNamespace("textures/gui/title/background/panorama"));
 
     public Sprite focusedSprite = null;
@@ -51,7 +51,7 @@ public class HomeScreenSprite extends Sprite {
     }
 
     @Override
-    public void render(GuiGraphics graphics, PhoneTapInformation originalMouse, float renderDelta) {
+    public void render(GuiGraphicsExtractor graphics, PhoneTapInformation originalMouse, float renderDelta) {
         super.render(graphics, originalMouse, renderDelta);
         PhoneTapInformation mouse = originalMouse;
         if (mouse.justTapped) {
@@ -67,12 +67,12 @@ public class HomeScreenSprite extends Sprite {
             }
 
             //? if <26.1 {
-            Minecraft.getInstance().gameRenderer.getPanorama().render(graphics,0,0,true);
-            //? } else {
-            /*spin += 0.1f * Minecraft.getInstance().getDeltaTracker().getRealtimeDeltaTicks();
+            /*Minecraft.getInstance().gameRenderer.getPanorama().render(graphics,0,0,true);
+            *///? } else {
+            spin += 0.1f * Minecraft.getInstance().getDeltaTracker().getRealtimeDeltaTicks();
             panoramaRenderState = new PanoramaRenderState(spin);
             pano.render(10.0F, panoramaRenderState.spin());
-            *///? }
+            //? }
 
             PhoneTapInformation gridMouseInfo = mouse;
             if (openingAppAnimation > 0 && !closing) gridMouseInfo = new PhoneTapInformation(originalMouse.isClient);
@@ -114,7 +114,7 @@ public class HomeScreenSprite extends Sprite {
     float prePressedCurrentPage = 0;
     float currentPage = 0;
 
-    public void renderApplicationGrid(GuiGraphics graphicsExtractor, PhoneTapInformation mouse, float renderDelta) {
+    public void renderApplicationGrid(GuiGraphicsExtractor graphicsExtractor, PhoneTapInformation mouse, float renderDelta) {
         if (mouse.tapping) {
             currentPage = prePressedCurrentPage - ((mouse.x - mouse.tappedX)/600f);
         } else {

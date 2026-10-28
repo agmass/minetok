@@ -23,5 +23,6 @@
   "phone.notification.waiting_for_server": "Waiting for Server...",
   "phone.ringtone": "%s's phone is ringing",
   "phone.tap_continue": "Tap Anywhere to Continue",
+  "phone.vulkan_warning": "Using Vulkan for Video Rendering is still experimental. Artifacts may occur.",
   "phone.youtube_error": "Youtube links don't work. Sorry. ;_C"
 }
