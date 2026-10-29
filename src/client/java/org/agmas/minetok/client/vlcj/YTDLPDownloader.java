@@ -59,9 +59,11 @@ public class YTDLPDownloader {
 
     public Process downloadVideo(String url, String filename, String args) {
         try {
-            return Runtime.getRuntime().exec(
-                    System.getProperty("os.name").toLowerCase().contains("win") ? "" :  "./" + // windows is  so weird and quirky and not like the other kids haha
-                    "yt-dlp " + url + " -o " + prefix + "/" + filename + " " + args, new String[0], new File("ytdlp"));
+            return new ProcessBuilder()
+                    .command(System.getProperty("os.name").toLowerCase().contains("win") ? "" :  "./" + // windows is  so weird and quirky and not like the other kids haha
+                            "yt-dlp " + url + " -o " + prefix + "/" + filename + " " + args)
+                    .directory(new File("ytdlp"))
+                    .start();
         } catch (IOException e) {
             e.printStackTrace();
             return null;

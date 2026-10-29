@@ -198,10 +198,6 @@ public class TikTokApplication extends Sprite implements NetworkSprite {
                     0
             ),0,100));
         }
-        metadata = new ParsedMetadata("test", "test", 1000, 1000, List.of(
-                new ParsedMetadata.Comment("Hello I am a comment", "awesomeguy32", "", -1),
-                new ParsedMetadata.Comment("Hello I am also a comment!!!", "awesomegal89", "", 293993289)
-        ));
         if (metadata != null) {
             graphics.pose().pushMatrix();
             graphics.pose().translate(32,Phone.SCREEN_HEIGHT-260);

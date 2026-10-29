@@ -72,7 +72,7 @@ public class MinetokClient implements ClientModInitializer {
 	@Override
 	public void onInitializeClient() {
 
-		//YTDLPDownloader.clearYTDLPFolder();
+		YTDLPDownloader.clearYTDLPFolder();
 
 		MinetokClientRegistries.init();
 		MinetokApplications.init();
