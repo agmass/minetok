@@ -34,6 +34,7 @@ import org.spongepowered.asm.mixin.Shadow;
 public abstract class PhoneInWorldMixin {
 
 
+    //? if >1.21.1 {
     //? if <26.3 {
     @Shadow
     protected abstract void renderPlayerArm(PoseStack poseStack, SubmitNodeCollector submitNodeCollector, int i, float f, float g, HumanoidArm humanoidArm);
@@ -44,12 +45,14 @@ public abstract class PhoneInWorldMixin {
     /*@Shadow
     protected abstract void renderPlayerArm(PoseStack poseStack, SubmitNodeCollector submitNodeCollector, int lightCoords, float inverseArmHeight, float attackValue, HumanoidArm arm, PlayerRenderState playerState);
     *///? }
+    //? }
 
     //? if <26.3 {
     //? if <26.2
     @WrapMethod(method = "renderArmWithItem")
     //? if >=26.2
     //@WrapMethod(method = "submitArmWithItem")
+    //? if <1.21.1
     public void disableWhenWatchingCams(AbstractClientPlayer abstractClientPlayer, float f, float g, InteractionHand interactionHand, float h, ItemStack itemStack, float i, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, int j, Operation<Void> original) {
         if (abstractClientPlayer.isUsingItem() && abstractClientPlayer.getUseItem().getItem() instanceof PhoneItem && abstractClientPlayer.getUsedItemHand().equals(interactionHand)) {
             poseStack.pushPose();
