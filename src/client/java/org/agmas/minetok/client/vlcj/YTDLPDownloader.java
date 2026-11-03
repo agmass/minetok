@@ -7,10 +7,12 @@ import org.agmas.minetok.Minetok;
 import org.agmas.minetok.client.MinetokClient;
 import org.agmas.minetok.client.init.MinetokOverlays;
 import org.agmas.minetok.client.render.sprites.NotificationSprite;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 
 import java.io.*;
 import java.net.URL;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Objects;
@@ -44,26 +46,34 @@ public class YTDLPDownloader {
                         String s = new String(process.getInputStream().readAllBytes());
                         if (!s.isEmpty())
                             Log.info(LogCategory.GENERAL, "[YT-DLP] " + s);
+                        s = new String(process.getErrorStream().readAllBytes());
+                        if (!s.isEmpty())
+                            Log.info(LogCategory.GENERAL, "[YT-DLP] " + s);
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
             }
         }).start();
     }
+    static File ytdlp() {
+        return new File("ytdlp/yt-dlp" + (System.getProperty("os.name").toLowerCase().contains("win") ? ".exe" : ""));
+    }
 
     public static boolean checkYtDLP() {
-        File ytDlpFile = new File("ytdlp/yt-dlp");
+        File ytDlpFile = ytdlp();
         isYTDLPDownloaded = ytDlpFile.exists();
         return isYTDLPDownloaded;
     }
 
     public Process downloadVideo(String url, String filename, String args) {
         try {
-            return new ProcessBuilder()
-                    .command(System.getProperty("os.name").toLowerCase().contains("win") ? "" :  "./" + // windows is  so weird and quirky and not like the other kids haha
-                            "yt-dlp " + url + " -o " + prefix + "/" + filename + " " + args)
-                    .directory(new File("ytdlp"))
-                    .start();
+            ytdlp().setExecutable(true, false);
+            String[] env = {"TMP=\"" + Path.of("ytdlp/temp/").toAbsolutePath().toString()+"\""};
+            return Runtime.getRuntime().exec(
+                    (System.getProperty("os.name").toLowerCase().contains("win") ? Path.of("ytdlp").toAbsolutePath().toFile() + "\\" :  "./") + // windows is  so weird and quirky and not like the other kids haha
+                            "yt-dlp" +
+                            (System.getProperty("os.name").toLowerCase().contains("win") ? ".exe" :  "") // KILL BILL GATES
+                            + " " + url + " -o " + prefix + "/" + filename + " " + args, env, Path.of("ytdlp").toAbsolutePath().toFile());
         } catch (IOException e) {
             e.printStackTrace();
             return null;
@@ -76,7 +86,7 @@ public class YTDLPDownloader {
     }
 
     public File metadataAndComments() {
-        return new File("ytdlp/" + prefix + "/reel1.mp4.info.json");
+        return new File("ytdlp/" + prefix + "/reel1.info.json");
     }
 
     public boolean hasNextReel() {
@@ -98,11 +108,11 @@ public class YTDLPDownloader {
     }
     public void cycleReel() {
         File reel1 = new File("ytdlp/" + prefix + "/reel1.mp4");
-        File reel1Thumbnail = new File("ytdlp/"  + prefix + "/reel1.mp4.png");
-        File reel1Info = new File("ytdlp/"  + prefix + "/reel1.mp4.info.json");
+        File reel1Thumbnail = new File("ytdlp/"  + prefix + "/reel1.png");
+        File reel1Info = new File("ytdlp/"  + prefix + "/reel1.info.json");
         File nextReel = new File("ytdlp/" + prefix + "/nextReel.mp4");
-        File nextReelThumbnail = new File("ytdlp/" + prefix + "/nextReel.mp4.png");
-        File nextReelInfo = new File("ytdlp/" + prefix + "/nextReel.mp4.info.json");
+        File nextReelThumbnail = new File("ytdlp/" + prefix + "/nextReel.png");
+        File nextReelInfo = new File("ytdlp/" + prefix + "/nextReel.info.json");
         if (reel1.exists()) {
             reel1.delete();
             reel1Thumbnail.delete();
@@ -126,8 +136,15 @@ public class YTDLPDownloader {
         File ytDLPFolder = new File("ytdlp");
         if (ytDLPFolder.exists() && ytDLPFolder.isDirectory()) {
             for (String s : ytDLPFolder.list()) {
-                if (!s.equals("yt-dlp")  && !s.equals("README.txt")) {
-                    new File("./ytdlp/" +s).delete();
+                if (!s.equals("yt-dlp") && !s.equals("yt-dlp.exe")  && !s.equals("README.txt")) {
+                    File file = new File("./ytdlp/" +s);
+                    if (file.isDirectory()) {
+                        try {
+                            FileUtils.deleteDirectory(file);
+                        } catch (IOException e) {}
+                    } else {
+                        file.delete();
+                    }
                 }
             }
         }
@@ -135,7 +152,7 @@ public class YTDLPDownloader {
 
     public static void downloadYTDLP() {
         File README = new File("ytdlp/README.txt");
-        File ytDlpFile = new File("ytdlp/yt-dlp");
+        File ytDlpFile = ytdlp();
         new File("ytdlp").mkdir();
         try {
             README.createNewFile();
@@ -168,6 +185,5 @@ public class YTDLPDownloader {
             e.printStackTrace();
         }
         MinetokClient.phone.topSprite.overlays.remove(installingNotification);
-        ytDlpFile.setExecutable(true);
     }
 }

@@ -61,6 +61,14 @@ dependencies {
 }
 
 stonecutter {
+	replacements.string(stonecutter.current.parsed >= '1.21.11', '!identify') {
+		replace 'ResourceLocation', 'Identifier'
+		replace 'location', 'identifier'
+		replace 'getUseItem', 'getActiveItem'
+		replace 'getTimer', 'getDeltaTracker'
+		replace 'popPose', 'popMatrix'
+		replace 'pushPose', 'pushMatrix'
+	}
 	replacements.string(stonecutter.current.parsed >= '26.1') {
 		replace 'PlayerFaceRenderer', 'PlayerFaceExtractor'
 		replace 'graphics.drawString(', 'graphics.text('

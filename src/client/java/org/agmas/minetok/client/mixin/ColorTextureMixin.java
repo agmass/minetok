@@ -3,15 +3,19 @@ package org.agmas.minetok.client.mixin;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.mojang.blaze3d.pipeline.RenderTarget;
-import com.mojang.blaze3d.textures.GpuTexture;
+
+//? if >1.21.1 {
+/*import com.mojang.blaze3d.textures.GpuTexture;
 import com.mojang.blaze3d.textures.GpuTextureView;
+*///? }
 import org.agmas.minetok.client.render.PhoneTextureRenderer;
 import org.spongepowered.asm.mixin.Mixin;
 
 @Mixin(RenderTarget.class)
 public class ColorTextureMixin {
 
-    @WrapMethod(method = "getColorTexture")
+    //? if >1.21.1 {
+    /*@WrapMethod(method = "getColorTexture")
     public GpuTexture override(Operation<GpuTexture> original) {
         if (PhoneTextureRenderer.overrideColorBuffer != null) {
             return PhoneTextureRenderer.overrideColorBuffer;
@@ -42,4 +46,5 @@ public class ColorTextureMixin {
         }
         return original.call();
     }
+    *///? }
 }

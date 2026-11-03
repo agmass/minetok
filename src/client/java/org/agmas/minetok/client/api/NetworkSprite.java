@@ -1,6 +1,6 @@
 package org.agmas.minetok.client.api;
 
-import net.minecraft.nbt.CompoundTag;import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.nbt.CompoundTag;
 
 public interface NetworkSprite {
     CompoundTag createTag();

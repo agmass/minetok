@@ -1,6 +1,6 @@
 package org.agmas.minetok.client.api;
 
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 
 public class Application {
     public Class<? extends Sprite> initializerSprite;

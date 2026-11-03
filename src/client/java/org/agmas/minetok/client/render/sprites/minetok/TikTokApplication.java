@@ -4,7 +4,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.blaze3d.platform.NativeImage;
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.textures.GpuTexture;
 import com.mojang.blaze3d.textures.GpuTextureView;
 import net.fabricmc.loader.impl.util.log.Log;
@@ -12,12 +11,12 @@ import net.fabricmc.loader.impl.util.log.LogCategory;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 //? if >=26.2
-import net.minecraft.client.PreferredGraphicsApi;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+//import net.minecraft.client.PreferredGraphicsApi;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import org.agmas.minetok.api.PhoneTapInformation;
 import org.agmas.minetok.client.MinetokClient;
@@ -27,7 +26,7 @@ import org.agmas.minetok.client.init.MinetokOverlays;
 import org.agmas.minetok.client.render.Phone;
 import org.agmas.minetok.client.render.sprites.NotificationSprite;
 import org.agmas.minetok.client.vlcj.YTDLPDownloader;
-import org.agmas.minetok.porting.MTIdentifier;
+import org.agmas.minetok.porting.MTID;
 import org.joml.Random;
 import uk.co.caprica.vlcj.player.base.State;
 
@@ -37,7 +36,6 @@ import java.io.FileInputStream;
 import java.io.FileReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.List;
 
 public class TikTokApplication extends Sprite implements NetworkSprite {
 
@@ -110,23 +108,25 @@ public class TikTokApplication extends Sprite implements NetworkSprite {
     }
 
     @Override
-    public void render(GuiGraphicsExtractor graphics, PhoneTapInformation mouse, float renderDelta) {
+    public void render(GuiGraphics graphics, PhoneTapInformation mouse, float renderDelta) {
         super.render(graphics, mouse, renderDelta);
         //? if >=26.2 {
-        if (mouse.isClient && Minecraft.getInstance().options.preferredGraphicsBackend().get().equals(PreferredGraphicsApi.VULKAN) && !warnedAboutVulkan) {
+        /*if (mouse.isClient && Minecraft.getInstance().options.preferredGraphicsBackend().get().equals(PreferredGraphicsApi.VULKAN) && !warnedAboutVulkan) {
             warnedAboutVulkan = true;
             MinetokClient.currentlyRendering_phone.addNetOverlay(MinetokOverlays.NOTIFICATION, new NotificationSprite(Component.translatable("phone.vulkan_warning"), false, MinetokClient.phone));
         }
-        //? }
+        *///? }
         YTDLPDownloader downloader = MinetokClient.currentlyRendering_phone.downloader;
         if (mouse.isClient) {
             if (!downloader.hasNextReel() && !YTDLPDownloader.isDownloadingVideo()) {
                 try {
-                    byte[] tiktokFile = Minecraft.getInstance().getResourceManager().getResourceStack(MTIdentifier.of("reels.txt").id).getLast().open().readAllBytes();
+                    byte[] tiktokFile = Minecraft.getInstance().getResourceManager().getResourceStack(MTID.of("reels.txt").id).getLast().open().readAllBytes();
                     String s = new String(tiktokFile, StandardCharsets.UTF_8);
                     int totalTiktoks = s.split("\n").length - 1;
-                    downloader.nextReel(s.split("\n")[new Random().nextInt(totalTiktoks)],false);
-                    net_nextReel = s;
+                    String reel = s.split("\n")[new Random().nextInt(totalTiktoks)];
+                    downloader.nextReel(reel,false);
+                    net_nextReel = reel;
+                    MinetokClient.phone.networkDirty = true;
                 } catch (Exception ignored) {
                 }
             }
@@ -134,6 +134,7 @@ public class TikTokApplication extends Sprite implements NetworkSprite {
                 downloader.cycleReel();
                 net_currentReel = net_nextReel;
                 likedCurrentReel = false;
+                metadata = null; 
             }
         } else {
             if (net_expectedReel) {
@@ -142,10 +143,12 @@ public class TikTokApplication extends Sprite implements NetworkSprite {
             }
             if (!net_currentReel.equals(net_lastCurrentReel)) {
                 downloader.nextReel(net_currentReel,true);
+                metadata = null;
                 net_lastCurrentReel = net_currentReel;
             }
             if (!net_nextReel.equals(net_lastNextReel)) {
                 downloader.nextReel(net_nextReel,true);
+                metadata = null;
                 net_lastNextReel = net_nextReel;
             }
 
@@ -162,6 +165,7 @@ public class TikTokApplication extends Sprite implements NetworkSprite {
                 }
                 player.handler.mediaPlayer.media().play("ytdlp/" + downloader.prefix + "/reel1.mp4");
                 player.handler.mediaPlayer.controls().setRepeat(false);
+                MinetokClient.phone.networkDirty = true;
             }
             loading = true;
         } else {
@@ -170,7 +174,9 @@ public class TikTokApplication extends Sprite implements NetworkSprite {
 
         if (mouse.justReleased && Math.abs(mouse.tappedX-mouse.x) < 12) {
             player.handler.mediaPlayer.controls().pause();
+            MinetokClient.phone.networkDirty = true;
         }
+
 
         if (mouse.tapping) {
             if (!commentsOpen) {
@@ -190,20 +196,20 @@ public class TikTokApplication extends Sprite implements NetworkSprite {
             startCommentsScroll = commentsScroll;
         }
 
-        graphics.pose().pushMatrix();
+        graphics.pose().pushPose();
         graphics.pose().translate(0, scroll*1000f);
 
-        graphics.pose().pushMatrix();
+        graphics.pose().pushPose();
         graphics.pose().scale(3,3);
-        graphics.text(Minecraft.getInstance().font, "its loading ok let it think", 4, 32, Color.WHITE.getRGB());
-        graphics.pose().popMatrix();
+        graphics.drawString(Minecraft.getInstance().font, "its loading ok let it think", 4, 32, Color.WHITE.getRGB());
+        graphics.pose().popPose();
 
         if (downloader.hasNextReel() && downloader.nextThumbnail().exists()) {
             if (!thumbnailState) {
                 try {
                     image = NativeImage.read(new FileInputStream(downloader.nextThumbnail()));
                     thumbnailTexture = new DynamicTexture(()->"thumbnailTexture", image);
-                    Minecraft.getInstance().getTextureManager().register(MTIdentifier.of(MinetokClient.currentlyRendering_phone.player.getStringUUID() + "-thumbnail").id, thumbnailTexture);
+                    Minecraft.getInstance().getTextureManager().register(MTID.of(MinetokClient.currentlyRendering_phone.player.getStringUUID() + "-thumbnail").id, thumbnailTexture);
                 } catch (Exception e) {
                     e.printStackTrace();
                     image = null;
@@ -213,7 +219,7 @@ public class TikTokApplication extends Sprite implements NetworkSprite {
         } else {
             thumbnailState = false;
         }
-        graphics.pose().pushMatrix();
+        graphics.pose().pushPose();
         float scale = Mth.lerp(commentsTransition, 1f, 0.4f);
         graphics.pose().translate((Phone.SCREEN_WIDTH/2f) - (Phone.SCREEN_WIDTH*scale)/2f,0);
         graphics.pose().scale(scale);
@@ -226,40 +232,40 @@ public class TikTokApplication extends Sprite implements NetworkSprite {
             ),0,100));
         }
         if (metadata != null) {
-            graphics.pose().pushMatrix();
+            graphics.pose().pushPose();
             graphics.pose().translate(32,Phone.SCREEN_HEIGHT-260);
             graphics.pose().scale(3,3);
-            graphics.text(Minecraft.getInstance().font, metadata.title(), 0, 0, -1);
-            graphics.pose().popMatrix();
+            graphics.drawString(Minecraft.getInstance().font, metadata.title(), 0, 0, -1);
+            graphics.pose().popPose();
 
-            graphics.pose().pushMatrix();
+            graphics.pose().pushPose();
             graphics.pose().translate(32,Phone.SCREEN_HEIGHT-208);
             graphics.pose().scale(2,2);
-            graphics.text(Minecraft.getInstance().font, Component.literal(metadata.author()).append(Component.translatable("phone.minetok.followers", metadata.followers()).withStyle(ChatFormatting.DARK_GRAY)), 0, 0, -1);
-            graphics.pose().popMatrix();
+            graphics.drawString(Minecraft.getInstance().font, Component.literal(metadata.author()).append(Component.translatable("phone.minetok.followers", metadata.followers()).withStyle(ChatFormatting.DARK_GRAY)), 0, 0, -1);
+            graphics.pose().popPose();
 
-            graphics.pose().pushMatrix();
+            graphics.pose().pushPose();
             graphics.pose().translate(Phone.SCREEN_WIDTH-96,Phone.SCREEN_HEIGHT-612);
-            graphics.blit(Identifier.withDefaultNamespace("textures/gui/sprites/hud/heart/container.png"), 0,0,64,64,0,1,0,1);
+            graphics.blit(ResourceLocation.withDefaultNamespace("textures/gui/sprites/hud/heart/container.png"), 0,0,64,64,0,1,0,1);
             if (likedCurrentReel) {
-                graphics.blit(Identifier.withDefaultNamespace("textures/gui/sprites/hud/heart/full.png"), 0,0,64,64,0,1,0,1);
+                graphics.blit(ResourceLocation.withDefaultNamespace("textures/gui/sprites/hud/heart/full.png"), 0,0,64,64,0,1,0,1);
             }
             if (mouse.x+40 > Phone.SCREEN_WIDTH-96 && mouse.y+40 > Phone.SCREEN_HEIGHT-612) {
                 if (mouse.x+40 < Phone.SCREEN_WIDTH-16 && mouse.y+40 < Phone.SCREEN_HEIGHT-550) {
-                    graphics.blit(Identifier.withDefaultNamespace("textures/gui/sprites/hud/heart/frozen_full.png"), 0,0,64,64,0,1,0,1);
+                    graphics.blit(ResourceLocation.withDefaultNamespace("textures/gui/sprites/hud/heart/frozen_full.png"), 0,0,64,64,0,1,0,1);
                     if (mouse.justReleased && !commentsOpen) {
                         likedCurrentReel = !likedCurrentReel;
                     }
                 }
             }
-            graphics.pose().translate(32 - (Minecraft.getInstance().font.width(metadata.likes()+"")),68);
+            graphics.pose().translate(32 - (Minecraft.getInstance().font.width((metadata.likes() + (likedCurrentReel ? 1 : 0))+"")),68);
             graphics.pose().scale(2,2);
-            graphics.text(Minecraft.getInstance().font, metadata.likes()+"", 0,0,-1);
-            graphics.pose().popMatrix();
+            graphics.drawString(Minecraft.getInstance().font, (metadata.likes() + (likedCurrentReel ? 1 : 0))+"", 0,0,-1);
+            graphics.pose().popPose();
 
-            graphics.pose().pushMatrix();
+            graphics.pose().pushPose();
             graphics.pose().translate(Phone.SCREEN_WIDTH-96,Phone.SCREEN_HEIGHT-508);
-            graphics.blit(Identifier.withDefaultNamespace("textures/gui/sprites/hud/heart/container.png"), 0,0,64,64,0,1,0,1);
+            graphics.blit(ResourceLocation.withDefaultNamespace("textures/gui/sprites/hud/heart/container.png"), 0,0,64,64,0,1,0,1);
 
             if (mouse.x+40 > Phone.SCREEN_WIDTH-96 && mouse.y+40 > Phone.SCREEN_HEIGHT-508) {
                 if (mouse.x+40 < Phone.SCREEN_WIDTH-16 && mouse.y+40 < Phone.SCREEN_HEIGHT-444) {
@@ -268,10 +274,10 @@ public class TikTokApplication extends Sprite implements NetworkSprite {
                     }
                 }
             }
-            graphics.pose().translate(32 - (Minecraft.getInstance().font.width(metadata.likes()+"")),68);
+            graphics.pose().translate(32 - (Minecraft.getInstance().font.width(metadata.comments().size()+"")),68);
             graphics.pose().scale(2,2);
-            graphics.text(Minecraft.getInstance().font, metadata.likes()+"", 0,0,-1);
-            graphics.pose().popMatrix();
+            graphics.drawString(Minecraft.getInstance().font, metadata.comments().size()+"", 0,0,-1);
+            graphics.pose().popPose();
 
             if (mouse.justReleased && mouse.tappedY < 512 && mouse.y < 512) {
                 commentsOpen = false;
@@ -286,11 +292,11 @@ public class TikTokApplication extends Sprite implements NetworkSprite {
             commentsTransition = 0;
         }
         if (thumbnailTexture != null) {
-            graphics.blit(MTIdentifier.of(MinetokClient.currentlyRendering_phone.player.getStringUUID() + "-thumbnail").id, 0,Phone.SCREEN_HEIGHT, Phone.SCREEN_WIDTH, Phone.SCREEN_HEIGHT, 0,1,0,1);
+            graphics.blit(MTID.of(MinetokClient.currentlyRendering_phone.player.getStringUUID() + "-thumbnail").id, 0,Phone.SCREEN_HEIGHT, Phone.SCREEN_WIDTH, Phone.SCREEN_HEIGHT, 0,1,0,1);
         }
-        graphics.pose().popMatrix();
+        graphics.pose().popPose();
 
-        graphics.pose().popMatrix();
+        graphics.pose().popPose();
         if (commentsOpen) {
             if (commentSpritesDirty) {
                 comments.clear();
@@ -301,11 +307,11 @@ public class TikTokApplication extends Sprite implements NetworkSprite {
             }
             graphics.enableScissor(0,480,Phone.SCREEN_WIDTH,Phone.SCREEN_HEIGHT);
 
-            graphics.pose().pushMatrix();
+            graphics.pose().pushPose();
             graphics.pose().translate(0,Mth.lerp(commentsTransition, Phone.SCREEN_HEIGHT, 512));
             graphics.fill(0, 0, Phone.SCREEN_WIDTH, Phone.SCREEN_HEIGHT, new Color(52, 52, 52,255).getRGB());
 
-            graphics.pose().pushMatrix();
+            graphics.pose().pushPose();
             graphics.pose().translate(16,commentsScroll);
             float y = 0;
             for (CommentSprite comment : comments) {
@@ -314,10 +320,10 @@ public class TikTokApplication extends Sprite implements NetworkSprite {
                 graphics.pose().translate(0,comment.height()+48);
                 y += comment.height()+48;
             }
-            graphics.pose().popMatrix();
+            graphics.pose().popPose();
             graphics.disableScissor();
             graphics.fill(0, -32, Phone.SCREEN_WIDTH, 0, new Color(33, 33, 33,255).getRGB());
-            graphics.pose().popMatrix();
+            graphics.pose().popPose();
         }
 
     }
@@ -327,6 +333,12 @@ public class TikTokApplication extends Sprite implements NetworkSprite {
     public boolean thumbnailState = false;
     public boolean likedCurrentReel = false;
     public float scroll = 0;
+
+
+    @Override
+    public void unfocusedRender() {
+        super.unfocusedRender();
+    }
 
     @Override
     public void destroy() {
@@ -346,7 +358,10 @@ public class TikTokApplication extends Sprite implements NetworkSprite {
         tag.putString("next_reel", net_nextReel);
         tag.putString("current_reel", net_currentReel);
         tag.putBoolean("likedReel", likedCurrentReel);
+        tag.putBoolean("commentsOpen", commentsOpen);
+        tag.putFloat("commentsScroll", commentsScroll);
         tag.putFloat("time", player.handler.mediaPlayer.status().position());
+        tag.putBoolean("paused", player.handler.mediaPlayer.status().isPlaying());
         return tag;
     }
 
@@ -354,6 +369,8 @@ public class TikTokApplication extends Sprite implements NetworkSprite {
     public void sync(CompoundTag phoneData) {
         likedCurrentReel = phoneData.getBooleanOr("likedReel", false);
         net_currentReel = phoneData.getStringOr("current_reel", "");
+        commentsOpen = phoneData.getBooleanOr("commentsOpen", false);
+        commentsScroll = phoneData.getFloatOr("commentsScroll", 0f);
         net_expectedReel = net_currentReel.equals(net_nextReel);
         net_nextReel = phoneData.getStringOr("next_reel", "");
         net_time = phoneData.getFloatOr("time", 0f);

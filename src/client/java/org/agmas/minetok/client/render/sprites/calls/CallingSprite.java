@@ -2,21 +2,20 @@ package org.agmas.minetok.client.render.sprites.calls;
 
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 
 //? if >=26.1 {
-import net.minecraft.client.renderer.state.gui.PanoramaRenderState;
-//? }
-import net.minecraft.client.gui.components.PlayerFaceExtractor;
+/*import net.minecraft.client.renderer.state.gui.PanoramaRenderState;
+*///? }
+import net.minecraft.client.gui.components.PlayerFaceRenderer;
 import net.minecraft.nbt.CompoundTag;
-import org.agmas.minetok.client.MinetokClient;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import org.agmas.minetok.api.PhoneTapInformation;
 import org.agmas.minetok.client.api.NetworkSprite;
 import org.agmas.minetok.client.api.Sprite;
 import org.agmas.minetok.client.render.Phone;
 import org.agmas.minetok.network.ServerboundCallResponsePacket;
-import org.agmas.minetok.porting.MTIdentifier;
+import org.agmas.minetok.porting.MTID;
 
 import java.awt.*;
 import java.util.UUID;
@@ -26,8 +25,8 @@ public class CallingSprite extends Sprite implements NetworkSprite {
     public boolean receiving;
     public UUID otherPlayer;
 
-    final MTIdentifier HANG_UP = MTIdentifier.of("textures/gui/hang_up.png");
-    final MTIdentifier PICK_UP = MTIdentifier.of("textures/gui/pick_up.png");
+    final MTID HANG_UP = MTID.of("textures/gui/hang_up.png");
+    final MTID PICK_UP = MTID.of("textures/gui/pick_up.png");
 
     public  CallingSprite(boolean receiving, UUID otherPlayer) {
         this.receiving = receiving;
@@ -35,33 +34,33 @@ public class CallingSprite extends Sprite implements NetworkSprite {
     }
 
     @Override
-    public void render(GuiGraphicsExtractor graphics, PhoneTapInformation mouse, float renderDelta) {
+    public void render(GuiGraphics graphics, PhoneTapInformation mouse, float renderDelta) {
         super.render(graphics, mouse, renderDelta);
 
         graphics.guiRenderState.reset();
         //? if <26.1 {
-        /*Minecraft.getInstance().gameRenderer.getPanorama().render(graphics,0,0,true);
-         *///? } else {
-        MinetokClient.phone.topSprite.spin += 0.1f * Minecraft.getInstance().getDeltaTracker().getRealtimeDeltaTicks();
+        Minecraft.getInstance().gameRenderer.getPanorama().render(graphics,0,0,true);
+         //? } else {
+        /*MinetokClient.phone.topSprite.spin += 0.1f * Minecraft.getInstance().getTimer().getRealtimeDeltaTicks();
         MinetokClient.phone.topSprite.panoramaRenderState = new PanoramaRenderState(MinetokClient.phone.topSprite.spin);
         MinetokClient.phone.topSprite.pano.render(10.0F, MinetokClient.phone.topSprite.panoramaRenderState.spin());
-        //? }
+        *///? }
 
         PlayerInfo info = Minecraft.getInstance().getConnection().getPlayerInfo(otherPlayer);
         if (info != null) {
-            graphics.pose().pushMatrix();
+            graphics.pose().pushPose();
             graphics.pose().translate((Phone.SCREEN_WIDTH / 2f) , (Phone.SCREEN_HEIGHT / 2f) - 150);
-            PlayerFaceExtractor.
+            PlayerFaceRenderer.
                     //? if <=1.21.11
-                            //draw
+                            draw
                     //? if >1.21.11
-                    extractRenderState
+                    //extractRenderState
                 (graphics, info.getSkin(), -128,-128,256);
             graphics.pose().translate(-(Minecraft.getInstance().font.width(info.getProfile().name())*3) , 0);
             graphics.pose().translate(0,256);
             graphics.pose().scale(6,6);
-            graphics.text(Minecraft.getInstance().font, info.getProfile().name(), 0,-9,-1);
-            graphics.pose().popMatrix();
+            graphics.drawString(Minecraft.getInstance().font, info.getProfile().name(), 0,-9,-1);
+            graphics.pose().popPose();
         }
 
         int marginX = 80;

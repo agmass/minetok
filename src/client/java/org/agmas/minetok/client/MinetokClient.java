@@ -1,31 +1,36 @@
 package org.agmas.minetok.client;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.client.rendering.v1.RenderStateDataKey;
-import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents;
-import net.fabricmc.loader.impl.util.log.Log;
-import net.fabricmc.loader.impl.util.log.LogCategory;
+//? if >=1.21.11
+//import net.fabricmc.fabric.api.client.rendering.v1.RenderStateDataKey;
+import net.fabricmc.fabric.api.client.rendering.v1.
+		//? if >=1.21.11
+		//world.
+		WorldRenderEvents;
 import net.minecraft.client.player.AbstractClientPlayer;
-import net.minecraft.client.renderer.RenderPipelines;
+//? if >=1.21.11 {
+/*import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.rendertype.RenderSetup;
 import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.util.Util;
+*///? } else {
+import net.minecraft.client.renderer.RenderStateShard;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.Util;
+//? }
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.sounds.WeighedSoundEvents;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.util.Util;
 import org.agmas.minetok.api.PhoneTapInformation;
 import org.agmas.minetok.client.config.PhoneConfig;
 import org.agmas.minetok.client.init.MinetokApplications;
@@ -38,15 +43,11 @@ import org.agmas.minetok.client.util.MinetokClientRegistries;
 import org.agmas.minetok.client.util.OtherPlayerPhone;
 import org.agmas.minetok.client.vlcj.YTDLPDownloader;
 import org.agmas.minetok.init.ModAttachments;
-import org.agmas.minetok.init.ModItems;
 import org.agmas.minetok.item.PhoneItem;
 import org.agmas.minetok.network.ServerboundPhoneStatePacket;
 import org.agmas.minetok.network.ServerboundRingtoneSetPacket;
-import org.agmas.minetok.porting.MTIdentifier;
-import uk.co.caprica.vlcj.factory.MediaPlayerFactory;
+import org.agmas.minetok.porting.MTID;
 
-import java.lang.ref.Reference;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.UUID;
@@ -57,15 +58,26 @@ public class MinetokClient implements ClientModInitializer {
 	public static Phone phone;
 	public static Phone currentlyRendering_phone;
 	public static HashMap<UUID, OtherPlayerPhone> playerPhoneHashMap = new HashMap<>();
-	public static RenderStateDataKey<MTIdentifier> phoneTextureID = RenderStateDataKey.create(()->"phoneTextureID");
+	//? if >=1.21.11 {
+	/*public static RenderStateDataKey<MTID> phoneTextureID = RenderStateDataKey.create(()->"phoneTextureID");
 	public static RenderStateDataKey<PhoneTapInformation> headMouseInfoID = RenderStateDataKey.create(()->"headMouseInfoID");
-	public static MTIdentifier missingId = MTIdentifier.of("missing");
+	private static final Function<ResourceLocation, RenderType> PHONE_RENDER_TYPE = Util.memoize((texture) -> RenderType.create("phone_render_type", RenderSetup.builder(RenderPipelines.SOLID_BLOCK).useLightmap().withTexture("Sampler0", texture).affectsCrumbling().setOutline(RenderSetup.OutlineProperty.AFFECTS_OUTLINE).createRenderSetup()));
 
-	private static final Function<Identifier, RenderType> PHONE_RENDER_TYPE = Util.memoize((texture) -> RenderType.create("phone_render_type", RenderSetup.builder(RenderPipelines.SOLID_BLOCK).useLightmap().withTexture("Sampler0", texture).affectsCrumbling().setOutline(RenderSetup.OutlineProperty.AFFECTS_OUTLINE).createRenderSetup()));
-
-	public static final RenderType getPhoneRenderType(MTIdentifier identifier) {
-		return PHONE_RENDER_TYPE.apply(identifier.id);
+	public static final RenderType getPhoneRenderType(MTID resourceLocation) {
+		return PHONE_RENDER_TYPE.apply(resourceLocation.id);
 	}
+	*///? } else {
+	private static final Function<ResourceLocation, RenderType> PHONE_RENDER_TYPE = Util.memoize((texture) -> {
+        RenderType.CompositeState compositeState = RenderType.CompositeState.builder().setShaderState(RenderType.RENDERTYPE_ENTITY_SOLID_SHADER).setTextureState(new RenderStateShard.TextureStateShard(texture, false, false)).setTransparencyState(RenderStateShard.NO_TRANSPARENCY).setLightmapState(RenderStateShard.LIGHTMAP).setOverlayState(RenderStateShard.OVERLAY).createCompositeState(true);
+		return RenderType.create("phone_render_type", DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS, 1536,compositeState);
+	});
+
+	public static final RenderType getPhoneRenderType(MTResourceLocation resourceLocation) {
+		return PHONE_RENDER_TYPE.apply(resourceLocation.id);
+	}
+	//? }
+
+	public static MTID missingId = MTID.of("missing");
 
 	public static Runnable lastRenderFrame = null;
 
@@ -82,7 +94,7 @@ public class MinetokClient implements ClientModInitializer {
 
 		ClientLifecycleEvents.CLIENT_STARTED.register((m)->{
 			PhoneTextureRenderer.INSTANCE = new PhoneTextureRenderer();
-			Minecraft.getInstance().getTextureManager().register(MTIdentifier.of("phone_texture").id, PhoneTextureRenderer.INSTANCE);
+			Minecraft.getInstance().getTextureManager().register(MTID.of("phone_texture").id, PhoneTextureRenderer.INSTANCE);
 		});
 
 		ClientPlayConnectionEvents.JOIN.register((cpl,ps,m)->{
@@ -94,7 +106,7 @@ public class MinetokClient implements ClientModInitializer {
 			playerPhoneHashMap.clear();
 		});
 
-		ClientTickEvents.END_LEVEL_TICK.register((l)->{
+		ClientTickEvents.END_WORLD_TICK.register((l)->{
 			if (phone != null) {
 				phone.mouse.prevX = phone.mouse.x;
 				phone.mouse.prevY = phone.mouse.y;
@@ -112,17 +124,23 @@ public class MinetokClient implements ClientModInitializer {
 					}
 					if (!PhoneConfig.INSTANCE.muteRingtones && (!PhoneConfig.INSTANCE.muteOtherPhones || player.equals(Minecraft.getInstance().player))) {
 						if (player.getAttached(ModAttachments.RINGING_ATTACHMENT_TYPE) != null && !player.getAttached(ModAttachments.RINGING_ATTACHMENT_TYPE).isPlayingSound) {
-							Identifier ringSound = player.getAttached(ModAttachments.RINGING_ATTACHMENT_TYPE).ringtone;
+							ResourceLocation ringSound = player.getAttached(ModAttachments.RINGING_ATTACHMENT_TYPE).ringtone;
 							player.getAttached(ModAttachments.RINGING_ATTACHMENT_TYPE).isPlayingSound = true;
 							if (BuiltInRegistries.SOUND_EVENT.containsKey(ringSound)) {
-								Optional<Holder.Reference<SoundEvent>> potentialSound = BuiltInRegistries.SOUND_EVENT.get(ringSound);
+								//? if >1.21.1  {
+								/*Optional<Holder.Reference<SoundEvent>> potentialSound = BuiltInRegistries.SOUND_EVENT.get(ringSound);
 								if (potentialSound.isPresent()) {
 									SoundEvent s = potentialSound.get().value();
+								}
+								*///? } else {
+								SoundEvent s = BuiltInRegistries.SOUND_EVENT.get(ringSound);
+								//? }
+								if (s != null) {
 									if (!PhoneConfig.INSTANCE.disableRingingIndicator)
 
 										Minecraft.getInstance().gui
 										//?if >=26.2
-										.hud
+										//.hud
 												.setOverlayMessage(Component.translatable("phone.ringtone", player.getScoreboardName()), true);
 									Minecraft.getInstance().getSoundManager().play(new RingtoneSoundInstance(player, s, SoundSource.PLAYERS, player.getRandom()));
 								}
@@ -133,19 +151,23 @@ public class MinetokClient implements ClientModInitializer {
 			}
 		});
 
-        LevelRenderEvents.END_MAIN.register((wrc)->{
+		//? if >1.21.1
+        //WorldRenderEvents.END_MAIN.register((wrc)->{
+		//? if <=1.21.1
+		WorldRenderEvents.END.register((wrc)->{
 			YTDLPDownloader.logYtDLP();
 			if (Minecraft.getInstance().player != null) {
-				if (!Minecraft.getInstance().player.isUsingItem()) {
+				if (!Minecraft.getInstance().player.isUsingItem() || !(Minecraft.getInstance().player.getUseItem().getItem() instanceof PhoneItem)) {
 					phone.selectedElement = null;
-				} else {
-					if (Minecraft.getInstance().player.getActiveItem().getItem() instanceof PhoneItem) {
-						currentlyRendering_phone = phone;
-						//? if <=26.1
-						//PhoneTextureRenderer.INSTANCE.render(wrc.gameRenderer().getMainCamera(),phone);
-						//? if >26.1
-						PhoneTextureRenderer.INSTANCE.render(wrc.gameRenderer().mainCamera(),phone);
+					if (phone.topSprite.focusedSprite != null) {
+						phone.topSprite.focusedSprite.unfocusedRender();
 					}
+				} else {
+					currentlyRendering_phone = phone;
+					//? if <=26.1
+					PhoneTextureRenderer.INSTANCE.render(wrc.gameRenderer().getMainCamera(),phone);
+					//? if >26.1
+					//PhoneTextureRenderer.INSTANCE.render(wrc.gameRenderer().mainCamera(),phone);
 				}
 
 				playerPhoneHashMap.keySet().removeIf(uuid -> {
@@ -171,9 +193,9 @@ public class MinetokClient implements ClientModInitializer {
 				currentlyRendering_phone = value.phone;
 
 				//? if <=26.1
-				//value.renderer.render(wrc.gameRenderer().getMainCamera(), value.phone);
+				value.renderer.render(wrc.gameRenderer().getMainCamera(), value.phone);
 				//? if >26.1
-				value.renderer.render(wrc.gameRenderer().mainCamera(), value.phone);
+				//value.renderer.render(wrc.gameRenderer().mainCamera(), value.phone);
 			}
         });
 

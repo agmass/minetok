@@ -22,6 +22,7 @@
   },
   "mixins": [
     "CaptureMouseMixin",
+    "PhoneNoSlowdownMixin",
     "VKAccessor",
     "VKAccessorFrontend"
   ]

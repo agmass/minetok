@@ -3,7 +3,7 @@ package org.agmas.minetok.voicechat;
 import de.maxhenkel.voicechat.api.*;
 import net.fabricmc.loader.impl.util.log.Log;
 import net.fabricmc.loader.impl.util.log.LogCategory;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import org.agmas.minetok.attachments.RingingAttachment;

@@ -11,7 +11,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.Utf8String;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
@@ -31,7 +31,7 @@ public class RingingAttachment {
         }
     };
 
-    public Identifier ringtone = SoundEvents.MUSIC_DISC_FAR.key().identifier();
+    public ResourceLocation ringtone = SoundEvents.MUSIC_DISC_FAR.key().location();
     public UUID callingId = null;
     public boolean recieving = false;
     public boolean isPlayingSound = false;
@@ -39,7 +39,7 @@ public class RingingAttachment {
     public static RingingAttachment decode(ByteBuf byteBuf) {
         RingingAttachment attachment = new RingingAttachment();
         attachment.recieving = byteBuf.readBoolean();
-        attachment.ringtone = Identifier.parse(Utf8String.read(byteBuf, 32767));
+        attachment.ringtone = ResourceLocation.parse(Utf8String.read(byteBuf, 32767));
         attachment.callingId = UUID.fromString(Utf8String.read(byteBuf, 32767));
 
         return attachment;
