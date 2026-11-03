@@ -60,7 +60,11 @@ public class TikTokApplication extends Sprite implements NetworkSprite {
     public boolean warnedAboutVulkan = false;
     public ParsedMetadata metadata = null;
     public boolean commentsOpen = false;
+    public boolean commentSpritesDirty = true;
+    public ArrayList<CommentSprite> comments = new ArrayList<>();
     public float commentsTransition = 0;
+    public float startCommentsScroll = 0;
+    public float commentsScroll = 0;
 
     public void parseMetadata(File file) {
         try {
@@ -74,12 +78,25 @@ public class TikTokApplication extends Sprite implements NetworkSprite {
                     comments.add(new ParsedMetadata.Comment(
                             comment.has("text") ? comment.getAsJsonPrimitive("text").getAsString() : "Empty Comment",
                             comment.has("author") ? comment.getAsJsonPrimitive("author").getAsString() : "Unknown Author",
-                            comment.has("author_thumbnail") ? comment.getAsJsonPrimitive("author_thumbnail").getAsString() : "",
                             comment.has("like_count") ? comment.getAsJsonPrimitive("like_count").getAsInt() : 0
                     ));
                 }
             }
 
+            commentSpritesDirty = true;
+
+            if (object.has("extractor")) {
+                if (object.get("extractor").getAsString().equals("Instagram")) {
+                    metadata = new ParsedMetadata(
+                            object.has("description") ? object.getAsJsonPrimitive("description").getAsString() : "No Title",
+                            object.has("uploader") ? object.getAsJsonPrimitive("uploader").getAsString() : "No Uploader",
+                            object.has("like_count") ? object.getAsJsonPrimitive("like_count").getAsInt() : 0,
+                            object.has("channel_follower_count") ? object.getAsJsonPrimitive("channel_follower_count").getAsInt() : 0,
+                            comments
+                    );
+                    return;
+                }
+            }
             metadata = new ParsedMetadata(
                     object.has("title") ? object.getAsJsonPrimitive("title").getAsString() : "No Title",
                     object.has("uploader") ? object.getAsJsonPrimitive("uploader").getAsString() : "No Uploader",
@@ -156,7 +173,11 @@ public class TikTokApplication extends Sprite implements NetworkSprite {
         }
 
         if (mouse.tapping) {
-            scroll = ((mouse.y - mouse.tappedY)/1000f);
+            if (!commentsOpen) {
+                scroll = ((mouse.y - mouse.tappedY) / 1000f);
+            } else {
+                commentsScroll = startCommentsScroll + (mouse.y - mouse.tappedY);
+            }
         } else {
             if (scroll < -0.5f) {
                 player.handler.mediaPlayer.controls().stop();
@@ -165,6 +186,8 @@ public class TikTokApplication extends Sprite implements NetworkSprite {
                 net_currentReel = net_nextReel;
             }
             scroll = 0;
+            if (commentsScroll > 0) commentsScroll = 0;
+            startCommentsScroll = commentsScroll;
         }
 
         graphics.pose().pushMatrix();
@@ -190,6 +213,10 @@ public class TikTokApplication extends Sprite implements NetworkSprite {
         } else {
             thumbnailState = false;
         }
+        graphics.pose().pushMatrix();
+        float scale = Mth.lerp(commentsTransition, 1f, 0.4f);
+        graphics.pose().translate((Phone.SCREEN_WIDTH/2f) - (Phone.SCREEN_WIDTH*scale)/2f,0);
+        graphics.pose().scale(scale);
         if (downloader.hasPlayableReel()) {
             player.render(graphics, mouse, renderDelta);
             player.handler.mediaPlayer.audio().setVolume(Math.clamp((int)Mth.lerp(
@@ -220,7 +247,7 @@ public class TikTokApplication extends Sprite implements NetworkSprite {
             if (mouse.x+40 > Phone.SCREEN_WIDTH-96 && mouse.y+40 > Phone.SCREEN_HEIGHT-612) {
                 if (mouse.x+40 < Phone.SCREEN_WIDTH-16 && mouse.y+40 < Phone.SCREEN_HEIGHT-550) {
                     graphics.blit(Identifier.withDefaultNamespace("textures/gui/sprites/hud/heart/frozen_full.png"), 0,0,64,64,0,1,0,1);
-                    if (mouse.justReleased) {
+                    if (mouse.justReleased && !commentsOpen) {
                         likedCurrentReel = !likedCurrentReel;
                     }
                 }
@@ -231,13 +258,13 @@ public class TikTokApplication extends Sprite implements NetworkSprite {
             graphics.pose().popMatrix();
 
             graphics.pose().pushMatrix();
-            graphics.pose().translate(Phone.SCREEN_WIDTH-96,Phone.SCREEN_HEIGHT-412);
+            graphics.pose().translate(Phone.SCREEN_WIDTH-96,Phone.SCREEN_HEIGHT-508);
             graphics.blit(Identifier.withDefaultNamespace("textures/gui/sprites/hud/heart/container.png"), 0,0,64,64,0,1,0,1);
 
-            if (mouse.x+40 > Phone.SCREEN_WIDTH-96 && mouse.y+40 > Phone.SCREEN_HEIGHT-412) {
-                if (mouse.x+40 < Phone.SCREEN_WIDTH-16 && mouse.y+40 < Phone.SCREEN_HEIGHT-350) {
-                    if (mouse.justTapped) {
-                        commentsOpen = !commentsOpen;
+            if (mouse.x+40 > Phone.SCREEN_WIDTH-96 && mouse.y+40 > Phone.SCREEN_HEIGHT-508) {
+                if (mouse.x+40 < Phone.SCREEN_WIDTH-16 && mouse.y+40 < Phone.SCREEN_HEIGHT-444) {
+                    if (mouse.justReleased) {
+                        commentsOpen = true;
                     }
                 }
             }
@@ -245,11 +272,53 @@ public class TikTokApplication extends Sprite implements NetworkSprite {
             graphics.pose().scale(2,2);
             graphics.text(Minecraft.getInstance().font, metadata.likes()+"", 0,0,-1);
             graphics.pose().popMatrix();
+
+            if (mouse.justReleased && mouse.tappedY < 512 && mouse.y < 512) {
+                commentsOpen = false;
+            }
+            if (commentsOpen) {
+                commentsTransition += renderDelta;
+            } else {
+                commentsTransition -= renderDelta;
+            }
+            commentsTransition = Math.clamp(commentsTransition,0f,1f);
+        } else {
+            commentsTransition = 0;
         }
         if (thumbnailTexture != null) {
             graphics.blit(MTIdentifier.of(MinetokClient.currentlyRendering_phone.player.getStringUUID() + "-thumbnail").id, 0,Phone.SCREEN_HEIGHT, Phone.SCREEN_WIDTH, Phone.SCREEN_HEIGHT, 0,1,0,1);
         }
         graphics.pose().popMatrix();
+
+        graphics.pose().popMatrix();
+        if (commentsOpen) {
+            if (commentSpritesDirty) {
+                comments.clear();
+                commentSpritesDirty = false;
+                for (ParsedMetadata.Comment comment : metadata.comments()) {
+                    comments.add(new CommentSprite(comment,graphics));
+                }
+            }
+            graphics.enableScissor(0,480,Phone.SCREEN_WIDTH,Phone.SCREEN_HEIGHT);
+
+            graphics.pose().pushMatrix();
+            graphics.pose().translate(0,Mth.lerp(commentsTransition, Phone.SCREEN_HEIGHT, 512));
+            graphics.fill(0, 0, Phone.SCREEN_WIDTH, Phone.SCREEN_HEIGHT, new Color(52, 52, 52,255).getRGB());
+
+            graphics.pose().pushMatrix();
+            graphics.pose().translate(16,commentsScroll);
+            float y = 0;
+            for (CommentSprite comment : comments) {
+                comment.y = y+commentsScroll+512;
+                comment.render(graphics, mouse, renderDelta);
+                graphics.pose().translate(0,comment.height()+48);
+                y += comment.height()+48;
+            }
+            graphics.pose().popMatrix();
+            graphics.disableScissor();
+            graphics.fill(0, -32, Phone.SCREEN_WIDTH, 0, new Color(33, 33, 33,255).getRGB());
+            graphics.pose().popMatrix();
+        }
 
     }
 
