@@ -1,11 +1,13 @@
 package org.agmas.minetok.client;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 //? if >=1.21.11
 //import net.fabricmc.fabric.api.client.rendering.v1.RenderStateDataKey;
+import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.fabricmc.fabric.api.client.rendering.v1.
 		//? if >=1.21.11
 		//world.
@@ -20,6 +22,8 @@ import net.minecraft.util.Util;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.Util;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.VertexFormat;
 //? }
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
@@ -68,11 +72,11 @@ public class MinetokClient implements ClientModInitializer {
 	}
 	*///? } else {
 	private static final Function<ResourceLocation, RenderType> PHONE_RENDER_TYPE = Util.memoize((texture) -> {
-        RenderType.CompositeState compositeState = RenderType.CompositeState.builder().setShaderState(RenderType.RENDERTYPE_ENTITY_SOLID_SHADER).setTextureState(new RenderStateShard.TextureStateShard(texture, false, false)).setTransparencyState(RenderStateShard.NO_TRANSPARENCY).setLightmapState(RenderStateShard.LIGHTMAP).setOverlayState(RenderStateShard.OVERLAY).createCompositeState(true);
-		return RenderType.create("phone_render_type", DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS, 1536,compositeState);
+        RenderType.CompositeState compositeState = RenderType.CompositeState.builder().setShaderState(RenderType.RENDERTYPE_SOLID_SHADER).setTextureState(new RenderStateShard.TextureStateShard(texture,false,false)).setTransparencyState(RenderStateShard.NO_TRANSPARENCY).setLightmapState(RenderStateShard.LIGHTMAP).setOverlayState(RenderStateShard.OVERLAY).createCompositeState(true);
+		return RenderType.create("phone_render_type", DefaultVertexFormat.BLOCK, VertexFormat.Mode.QUADS, 1536,compositeState);
 	});
 
-	public static final RenderType getPhoneRenderType(MTResourceLocation resourceLocation) {
+	public static final RenderType getPhoneRenderType(MTID resourceLocation) {
 		return PHONE_RENDER_TYPE.apply(resourceLocation.id);
 	}
 	//? }
@@ -164,8 +168,10 @@ public class MinetokClient implements ClientModInitializer {
 					}
 				} else {
 					currentlyRendering_phone = phone;
-					//? if <=26.1
-					PhoneTextureRenderer.INSTANCE.render(wrc.gameRenderer().getMainCamera(),phone);
+					//? if <=1.21.1
+					PhoneTextureRenderer.INSTANCE.render(phone);
+					//? if >1.21.1 && <26.1
+					//PhoneTextureRenderer.INSTANCE.render(wrc.gameRenderer().getMainCamera(),phone);
 					//? if >26.1
 					//PhoneTextureRenderer.INSTANCE.render(wrc.gameRenderer().mainCamera(),phone);
 				}
@@ -192,13 +198,15 @@ public class MinetokClient implements ClientModInitializer {
 				if (value.phone.player.getUUID().equals(MinetokClient.phone.player.getUUID())) return;
 				currentlyRendering_phone = value.phone;
 
-				//? if <=26.1
-				value.renderer.render(wrc.gameRenderer().getMainCamera(), value.phone);
+				//? if <=1.21.1
+				value.renderer.render(value.phone);
+				//? if >1.21.1 && <26.1
+				//value.renderer.render(wrc.gameRenderer().getMainCamera(), value.phone);
 				//? if >26.1
 				//value.renderer.render(wrc.gameRenderer().mainCamera(), value.phone);
 			}
+			currentlyRendering_phone = null;
         });
-
 	}
 
 	public static void positionPhoneInThirdPersonHand(PoseStack poseStack) { //made this just so i can hotswap lol

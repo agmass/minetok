@@ -1,10 +1,8 @@
 package org.agmas.minetok.client.animation;
 
 import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.util.EasingType;
 import net.minecraft.util.Mth;
 import org.agmas.minetok.api.PhoneTapInformation;
-import org.agmas.minetok.client.MinetokClient;
 
 public class PhonePoser {
     public static void poseMainArm(ModelPart arm, float castTime) {

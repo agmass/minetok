@@ -7,6 +7,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.agmas.minetok.client.MinetokClient;
+import org.agmas.minetok.client.animation.MTGraphics;
 import org.agmas.minetok.client.api.Application;
 import org.agmas.minetok.api.PhoneTapInformation;
 import org.agmas.minetok.client.api.ApplicationSprite;
@@ -37,7 +38,7 @@ public class ApplicationGridIcon extends Sprite {
         }
 
         graphics.pose().pushPose();
-        graphics.pose().translate(x,y);
+        MTGraphics.translate(graphics, x,y);
 
         graphics.blit(appId.withPrefix("textures/apps/"), 0,0,128,128,0,1,0,1);
         if (selected) {
@@ -47,12 +48,12 @@ public class ApplicationGridIcon extends Sprite {
 
         graphics.pose().pushPose();
         Component text = Component.translatable("phone.app." + appId.getNamespace() + "." + appId.getPath());
-        graphics.pose().translate(x,y);
-        graphics.pose().translate(64,0);
+        MTGraphics.translate(graphics, x,y);
+        MTGraphics.translate(graphics, 64,0);
 
         // "erm, agmas, isn't this meant to be divided by 2!!!" yeah but we multiply it by 4 right after. quiet down little chudlet in my brain that i just imagined of.
-        graphics.pose().translate(-(Minecraft.getInstance().font.width(text)*2),128+6);
-        graphics.pose().scale(4);
+        MTGraphics.translate(graphics, -(Minecraft.getInstance().font.width(text)*2),128+6);
+        MTGraphics.scale(graphics, 4);
 
         graphics.drawString(Minecraft.getInstance().font, text, 0, 0, selected ? Color.WHITE.getRGB() : Color.LIGHT_GRAY.getRGB());
         graphics.pose().popPose();

@@ -19,6 +19,14 @@ import net.minecraft.client.gui.render.state.GuiRenderState;
 /^import net.minecraft.client.renderer.state.gui.GuiRenderState;
 ^///? }
 *///? }
+import com.mojang.blaze3d.pipeline.MainTarget;
+import com.mojang.blaze3d.pipeline.RenderTarget;
+import com.mojang.blaze3d.platform.GlConst;
+import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.vertex.VertexSorting;
+import net.fabricmc.loader.impl.util.log.Log;
+import net.fabricmc.loader.impl.util.log.LogCategory;
+import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiGraphics;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.platform.TextureUtil;
@@ -29,11 +37,24 @@ import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.texture.AbstractTexture;
+import net.minecraft.client.renderer.texture.Dumpable;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
+import org.joml.Matrix4f;
+import org.joml.Matrix4fStack;
 import org.joml.Vector4f;
+import org.lwjgl.opengl.GL30;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.List;
+
+import static org.lwjgl.opengl.ARBInternalformatQuery2.GL_TEXTURE_2D;
+import static org.lwjgl.opengl.GL11C.GL_READ_BUFFER;
+import static org.lwjgl.opengl.GL11C.glCopyTexSubImage2D;
+import static org.lwjgl.opengl.GL15C.glBindBuffer;
+import static org.lwjgl.opengl.GL30C.GL_READ_FRAMEBUFFER;
+import static org.lwjgl.opengl.GL30C.glGenerateMipmap;
 
 public class PhoneTextureRenderer extends AbstractTexture {
 
@@ -185,10 +206,14 @@ public class PhoneTextureRenderer extends AbstractTexture {
     *///? } else {
 
     public static boolean overriding = false;
+    public RenderTarget phoneTarget;
 
     public PhoneTextureRenderer() {
         super();
         createTexture();
+        phoneTarget = new MainTarget(Phone.SCREEN_WIDTH, Phone.SCREEN_HEIGHT);
+        phoneTarget.setClearColor(0f,0f,0f,1f);
+        phoneTarget.createBuffers(Phone.SCREEN_WIDTH, Phone.SCREEN_HEIGHT,false);
     }
 
     @Override
@@ -196,27 +221,34 @@ public class PhoneTextureRenderer extends AbstractTexture {
 
     }
 
-    public void render(Camera camera, Phone phone) {
+    public void render(Phone phone) {
         if (phone == null) return;
-        RenderSystem.backupProjectionMatrix();
-        TextureUtil.prepareImage(NativeImage.InternalGlFormat.RGBA, id, 4, Phone.SCREEN_WIDTH, Phone.SCREEN_HEIGHT);;
 
-        PoseStack poseStack = new PoseStack();
+        phoneTarget.bindWrite(true);
+        RenderSystem.clear(256, Minecraft.ON_OSX);
+        Matrix4f matrix4f = (new Matrix4f()).setOrtho(0.0F, Phone.SCREEN_WIDTH, Phone.SCREEN_HEIGHT, 0.0F, 1000.0F, 21000.0F);
+        RenderSystem.setProjectionMatrix(matrix4f, VertexSorting.ORTHOGRAPHIC_Z);
+        Matrix4fStack matrix4fStack = RenderSystem.getModelViewStack();
+        matrix4fStack.pushMatrix();
+        matrix4fStack.translation(0.0F, 0.0F, -11000.0F);
+        RenderSystem.applyModelViewMatrix();
 
-        GuiGraphics graphics = new GuiGraphics(Minecraft.getInstance(), MultiBufferSource.immediate(new ByteBufferBuilder(1536)));
-        RenderSystem.bindTexture(id);
-        overriding = true;
-
-        poseStack.pushPose();
-        poseStack.mulPose(camera.rotation());
+        GuiGraphics graphics = new GuiGraphics(Minecraft.getInstance(), Minecraft.getInstance().renderBuffers().bufferSource());
         phone.render(graphics);
         graphics.flush();
+        phoneTarget.unbindWrite();
+        RenderSystem.bindTexture(id);
 
-        overriding = false;
-        poseStack.popPose();
-        RenderSystem.restoreProjectionMatrix();
+        TextureUtil.prepareImage(NativeImage.InternalGlFormat.RGBA, id, 4, Phone.SCREEN_WIDTH, Phone.SCREEN_HEIGHT);
+        GlStateManager._glBindFramebuffer(GL_READ_FRAMEBUFFER, phoneTarget.frameBufferId);
+        glCopyTexSubImage2D(GL30.GL_TEXTURE_2D,0,0,0,0,0,Phone.SCREEN_WIDTH,Phone.SCREEN_HEIGHT);
+        Minecraft.getInstance().getMainRenderTarget().bindWrite(true);
+        matrix4fStack.popMatrix();
     }
-    public void createTexture() {}
+
+    public void createTexture() {
+        id = TextureUtil.generateTextureId();
+    }
     //? }
 
 }

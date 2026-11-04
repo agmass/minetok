@@ -1,7 +1,8 @@
 package org.agmas.minetok.client.render.sprites.settings;
 
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.renderer.RenderPipelines;
+//? if >1.21.1
+//import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -9,6 +10,8 @@ import net.minecraft.sounds.SoundEvents;
 import org.agmas.minetok.Minetok;
 import org.agmas.minetok.api.PhoneTapInformation;
 import org.agmas.minetok.client.MinetokClient;
+import org.agmas.minetok.client.animation.MTGraphics;
+import org.agmas.minetok.client.animation.NBTHelper;
 import org.agmas.minetok.client.api.NetworkSprite;
 import org.agmas.minetok.client.api.Sprite;
 import org.agmas.minetok.client.config.PhoneConfig;
@@ -43,17 +46,20 @@ public class SettingsApplicationSprite extends ExitButtonSprite implements Netwo
         exitBarCapture(mouse);
 
 
-        graphics.blit(RenderPipelines.GUI_TEXTURED, ResourceLocation.withDefaultNamespace("textures/block/white_concrete_powder.png"), -8, -8, 0, 0, Phone.SCREEN_WIDTH + 16, Phone.SCREEN_HEIGHT + 16, 128, 128);
+        graphics.blit(
+                //? if >1.21.1
+                //RenderPipelines.GUI_TEXTURED,
+                ResourceLocation.withDefaultNamespace("textures/block/white_concrete_powder.png"), -8, -8, 0, 0, Phone.SCREEN_WIDTH + 16, Phone.SCREEN_HEIGHT + 16, 128, 128);
 
         graphics.pose().pushPose();
         int cy = 160;
-        graphics.pose().translate(40,160);
+        MTGraphics.translate(graphics, 40,160);
         for (Sprite option : options) {
             option.x = 40;
             option.y = cy;
             option.render(graphics,mouse,renderDelta);
             graphics.fill(-40,60,Phone.SCREEN_WIDTH,64,new Color(100,100,100).getRGB());
-            graphics.pose().translate(0,70);
+            MTGraphics.translate(graphics, 0,70);
             cy += 70;
         }
         graphics.pose().popPose();
@@ -84,8 +90,8 @@ public class SettingsApplicationSprite extends ExitButtonSprite implements Netwo
 
     @Override
     public void sync(CompoundTag phoneData) {
-        muteRingtones.ticked = phoneData.getBooleanOr("mute_ringtones", false);
-        muteOtherPhones.ticked = phoneData.getBooleanOr("mute_other_phones", false);
-        disableRingingIndicator.ticked = phoneData.getBooleanOr("mute_other_phones", false);
+        muteRingtones.ticked = NBTHelper.getBooleanOr(phoneData, "mute_ringtones", false);
+        muteOtherPhones.ticked = NBTHelper.getBooleanOr(phoneData, "mute_other_phones", false);
+        disableRingingIndicator.ticked = NBTHelper.getBooleanOr(phoneData, "mute_other_phones", false);
     }
 }

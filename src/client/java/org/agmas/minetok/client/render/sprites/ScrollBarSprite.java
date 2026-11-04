@@ -5,6 +5,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Mth;
 import org.agmas.minetok.api.PhoneTapInformation;
 import org.agmas.minetok.client.MinetokClient;
+import org.agmas.minetok.client.animation.NBTHelper;
 import org.agmas.minetok.client.api.NetworkSprite;
 import org.agmas.minetok.client.api.Sprite;
 import org.agmas.minetok.client.render.Phone;
@@ -64,7 +65,7 @@ public class ScrollBarSprite extends Sprite implements NetworkSprite {
 
     @Override
     public void sync(CompoundTag phoneData) {
-        netScroll = phoneData.getFloatOr("scroll", 0);
+        netScroll = NBTHelper.getFloatOr(phoneData, "scroll", 0);
         timeSinceUpdate = 0;
     }
 }

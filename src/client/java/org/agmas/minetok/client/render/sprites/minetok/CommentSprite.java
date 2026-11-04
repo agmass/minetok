@@ -10,10 +10,14 @@ import net.minecraft.client.gui.components.MultiLineTextWidget;
 import net.minecraft.client.gui.components.PlayerFaceRenderer;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.renderer.texture.DynamicTexture;
+//? if >1.21.1
+//import net.minecraft.world.entity.player.PlayerSkin;
+//? if <=1.21.1
+import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.player.PlayerSkin;
 import org.agmas.minetok.api.PhoneTapInformation;
+import org.agmas.minetok.client.animation.MTGraphics;
 import org.agmas.minetok.client.api.Sprite;
 import org.agmas.minetok.client.render.Phone;
 import org.agmas.minetok.client.util.ForcedWidthTextWidget;
@@ -48,15 +52,16 @@ public class CommentSprite extends Sprite {
                 //.extractRenderState
                         (graphics,profilePicture,0,0,64);
         graphics.pose().pushPose();
-        graphics.pose().translate(76, 0);
-        graphics.pose().scale(3);
+        MTGraphics.translate(graphics, 76, 0);
+        MTGraphics.scale(graphics, 3);
         graphics.drawString(Minecraft.getInstance().font, comment.author(), 0, 0, new Color(200,200,200).getRGB());
         graphics.pose().popPose();
 
         graphics.pose().pushPose();
-        graphics.pose().translate(76, 24);
-        graphics.pose().scale(4);
-        body.visitLines(graphics.textRenderer());
+        MTGraphics.translate(graphics, 76, 24);
+        MTGraphics.scale(graphics, 4);
+        //? if >1.21.1
+        //body.visitLines(graphics.textRenderer());
         body
                 //? if <26.1
                 .render
@@ -66,7 +71,7 @@ public class CommentSprite extends Sprite {
         graphics.pose().popPose();
 
         graphics.pose().pushPose();
-        graphics.pose().translate(Phone.SCREEN_WIDTH-96,0);
+        MTGraphics.translate(graphics, Phone.SCREEN_WIDTH-96,0);
         graphics.blit(ResourceLocation.withDefaultNamespace("textures/gui/sprites/hud/heart/container.png"), 0,0,64,64,0,1,0,1);
         if (liked) {
             graphics.blit(ResourceLocation.withDefaultNamespace("textures/gui/sprites/hud/heart/full.png"), 0,0,64,64,0,1,0,1);
@@ -79,8 +84,8 @@ public class CommentSprite extends Sprite {
                 }
             }
         }
-        graphics.pose().translate(32 - (Minecraft.getInstance().font.width((comment.likes()  + (liked ? 1 : 0))+"")),68);
-        graphics.pose().scale(2,2);
+        MTGraphics.translate(graphics, 32 - (Minecraft.getInstance().font.width((comment.likes()  + (liked ? 1 : 0))+"")),68);
+        MTGraphics.scale(graphics, 2,2);
         graphics.drawString(Minecraft.getInstance().font, (comment.likes()  + (liked ? 1 : 0))+"", 0,0,-1);
         graphics.pose().popPose();
 

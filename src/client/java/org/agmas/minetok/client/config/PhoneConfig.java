@@ -18,7 +18,7 @@ public class PhoneConfig {
     public boolean muteOtherPhones = false;
     public boolean disableRingingIndicator = false;
     public boolean muteRingtones = false;
-    public ResourceLocation ringtone = SoundEvents.MUSIC_DISC_FAR.key().resourceLocation();
+    public ResourceLocation ringtone = SoundEvents.MUSIC_DISC_FAR.key().location();
 
     public static PhoneConfig parse() {
         PhoneConfig parsed = new PhoneConfig();

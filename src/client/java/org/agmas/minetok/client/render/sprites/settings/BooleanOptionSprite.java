@@ -5,6 +5,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.agmas.minetok.api.PhoneTapInformation;
+import org.agmas.minetok.client.animation.MTGraphics;
 import org.agmas.minetok.client.api.Sprite;
 import org.agmas.minetok.porting.MTID;
 
@@ -30,8 +31,8 @@ public class BooleanOptionSprite extends Sprite {
           }
         graphics.blit(MTID.of("textures/gui/checkbox" + (ticked ? "_ticked.png" : ".png")).id,0,0,48,48,0,1,0,1);
         graphics.pose().pushPose();
-        graphics.pose().translate(54,0);
-        graphics.pose().scale(6,6);
+        MTGraphics.translate(graphics, 54,0);
+        MTGraphics.scale(graphics, 6,6);
         graphics.drawString(Minecraft.getInstance().font, component, 0,0,-1);
         graphics.pose().popPose();
         graphics.pose().popPose();

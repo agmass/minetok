@@ -9,14 +9,20 @@ import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.ItemInHandRenderer;
-import net.minecraft.client.renderer.SubmitNodeCollector;
 //? if >=26.3 {
 /*import net.minecraft.client.renderer.state.level.FirstPersonHandsAndItemsRenderState;
 import net.minecraft.client.renderer.state.level.PlayerRenderState;
 *///? }
+//? if >1.21.1 {
+/*import net.minecraft.util.EasingType;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.item.ItemModelResolver;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
-import net.minecraft.util.EasingType;
+*///? } else {
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.entity.ItemRenderer;
+import net.minecraft.client.renderer.texture.OverlayTexture;
+//? }
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.player.Player;
@@ -25,7 +31,6 @@ import net.minecraft.world.item.ItemStack;
 import org.agmas.minetok.client.MinetokClient;
 import org.agmas.minetok.init.ModItems;
 import org.agmas.minetok.item.PhoneItem;
-import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -35,25 +40,34 @@ public abstract class PhoneInWorldMixin {
 
 
     //? if >1.21.1 {
-    //? if <26.3 {
+    /*//? if <26.3 {
     @Shadow
     protected abstract void renderPlayerArm(PoseStack poseStack, SubmitNodeCollector submitNodeCollector, int i, float f, float g, HumanoidArm humanoidArm);
     @Shadow
     @Final
     private ItemModelResolver itemModelResolver;
     //? } else {
-    /*@Shadow
+    /^@Shadow
     protected abstract void renderPlayerArm(PoseStack poseStack, SubmitNodeCollector submitNodeCollector, int lightCoords, float inverseArmHeight, float attackValue, HumanoidArm arm, PlayerRenderState playerState);
-    *///? }
+    ^///? }
+    *///? } else {
+    @Shadow
+    protected abstract void renderPlayerArm(PoseStack par1, MultiBufferSource par2, int par3, float par4, float par5, HumanoidArm par6);
     //? }
+
+    @Shadow
+    @Final
+    private ItemRenderer itemRenderer;
 
     //? if <26.3 {
     //? if <26.2
     @WrapMethod(method = "renderArmWithItem")
     //? if >=26.2
     //@WrapMethod(method = "submitArmWithItem")
-    //? if <1.21.1
-    public void disableWhenWatchingCams(AbstractClientPlayer abstractClientPlayer, float f, float g, InteractionHand interactionHand, float h, ItemStack itemStack, float i, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, int j, Operation<Void> original) {
+    //? if >1.21.1
+    //public void disableWhenWatchingCams(AbstractClientPlayer abstractClientPlayer, float f, float g, InteractionHand interactionHand, float h, ItemStack itemStack, float i, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, int j, Operation<Void> original) {
+    //? if <=1.21.1
+    public void disableWhenWatchingCams(AbstractClientPlayer abstractClientPlayer, float f, float g, InteractionHand interactionHand, float h, ItemStack itemStack, float i, PoseStack poseStack, MultiBufferSource submitNodeCollector, int j, Operation<Void> original) {
         if (abstractClientPlayer.isUsingItem() && abstractClientPlayer.getUseItem().getItem() instanceof PhoneItem && abstractClientPlayer.getUsedItemHand().equals(interactionHand)) {
             poseStack.pushPose();
             poseStack.translate(0.15f,0,0);
@@ -67,9 +81,20 @@ public abstract class PhoneInWorldMixin {
             renderPlayerArm(poseStack,submitNodeCollector,j,i,abstractClientPlayer.getMainArm().equals(HumanoidArm.RIGHT) ? h : 0,HumanoidArm.RIGHT);
             poseStack.popPose();
 
-            ItemStackRenderState itemStackRenderState = new ItemStackRenderState();
+            //? if >1.21.1 {
+            /*ItemStackRenderState itemStackRenderState = new ItemStackRenderState();
             itemModelResolver.updateForTopItem(itemStackRenderState, itemStack, ItemDisplayContext.NONE, abstractClientPlayer.level(), abstractClientPlayer, abstractClientPlayer.getId());
             MinetokClient.phone.renderInHand(poseStack, submitNodeCollector, itemStackRenderState,j,abstractClientPlayer.getTicksUsingItem(f));
+            *///? } else {
+
+            poseStack.pushPose();
+            poseStack.translate(-0.1f,0.0f,-13.5f);
+            poseStack.scale(20,20,20);
+            //itemRenderer.render(itemStack, ItemDisplayContext.NONE, false, poseStack, submitNodeCollector, j, OverlayTexture.NO_OVERLAY,
+            //        itemRenderer.getModel(itemStack, abstractClientPlayer.level(),abstractClientPlayer,0));
+            poseStack.popPose();
+            MinetokClient.phone.renderInHand(poseStack,submitNodeCollector,j,abstractClientPlayer.getTicksUsingItem());
+            //? }
             return;
         }
         original.call(abstractClientPlayer,f,g,interactionHand,h,itemStack,i,poseStack,submitNodeCollector,j);

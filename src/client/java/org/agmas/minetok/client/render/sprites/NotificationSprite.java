@@ -7,8 +7,10 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
-import net.minecraft.util.EasingType;
 import org.agmas.minetok.api.PhoneTapInformation;
+import org.agmas.minetok.client.animation.EasingHelper;
+import org.agmas.minetok.client.animation.MTGraphics;
+import org.agmas.minetok.client.animation.NBTHelper;
 import org.agmas.minetok.client.api.NetworkSprite;
 import org.agmas.minetok.client.api.Sprite;
 import org.agmas.minetok.client.init.MinetokOverlays;
@@ -63,7 +65,7 @@ public class NotificationSprite extends Sprite implements NetworkSprite {
             }
         }
         if (mouse.justTapped && canBeQuit) accepted = true;
-        graphics.fill(-100,-100, Phone.SCREEN_WIDTH+100, Phone.SCREEN_HEIGHT+100, new Color(0,0,0, EasingType.OUT_CIRC.apply(time)*0.5f).getRGB());
+        graphics.fill(-100,-100, Phone.SCREEN_WIDTH+100, Phone.SCREEN_HEIGHT+100, new Color(0,0,0, EasingHelper.outCirc(time)*0.5f).getRGB());
 
         int padding = 32;
         int topBarHeight = 48;
@@ -78,19 +80,20 @@ public class NotificationSprite extends Sprite implements NetworkSprite {
         int errorWidth = Minecraft.getInstance().font.width(topBarText)*4;
 
         graphics.pose().pushPose();
-        graphics.pose().translate((Phone.SCREEN_WIDTH - width)/2f, Phone.SCREEN_HEIGHT/2f - height/2f);
-        graphics.pose().translate(width/2f - errorWidth/2f,0);
-        graphics.pose().scale(4);
+        MTGraphics.translate(graphics, (Phone.SCREEN_WIDTH - width)/2f, Phone.SCREEN_HEIGHT/2f - height/2f);
+        MTGraphics.translate(graphics, width/2f - errorWidth/2f,0);
+        MTGraphics.scale(graphics, 4);
         graphics.drawString(Minecraft.getInstance().font, topBarText, 0,2,Color.LIGHT_GRAY.getRGB());
         graphics.pose().popPose();
 
         graphics.pose().pushPose();
-        graphics.pose().translate(Phone.SCREEN_WIDTH/2f - width/2f, Phone.SCREEN_HEIGHT/2f - height/2f);
-        graphics.pose().translate(padding/2f,height/2f);
-        graphics.pose().scale(4);
+        MTGraphics.translate(graphics, Phone.SCREEN_WIDTH/2f - width/2f, Phone.SCREEN_HEIGHT/2f - height/2f);
+        MTGraphics.translate(graphics, padding/2f,height/2f);
+        MTGraphics.scale(graphics, 4);
         messageWidget.setCentered(true);
         messageWidget.setMaxWidth(100);
-        messageWidget.visitLines(graphics.textRenderer());
+        //? if >1.21.1
+        //messageWidget.visitLines(graphics.textRenderer());
         messageWidget.setWidth(100);
         //? if >=26.1
         //messageWidget.extractRenderState(graphics, (int) mouse.x, (int) mouse.y,renderDelta);
@@ -101,9 +104,9 @@ public class NotificationSprite extends Sprite implements NetworkSprite {
 
         if (canBeQuit && mouse.isClient) {
             graphics.pose().pushPose();
-            graphics.pose().translate(Phone.SCREEN_WIDTH / 2f, Phone.SCREEN_HEIGHT / 2f + 200);
-            graphics.pose().translate(-(Minecraft.getInstance().font.width(tap_continue) * 3) / 2f, 0f);
-            graphics.pose().scale(3);
+            MTGraphics.translate(graphics, Phone.SCREEN_WIDTH / 2f, Phone.SCREEN_HEIGHT / 2f + 200);
+            MTGraphics.translate(graphics, -(Minecraft.getInstance().font.width(tap_continue) * 3) / 2f, 0f);
+            MTGraphics.scale(graphics, 3);
             graphics.drawString(Minecraft.getInstance().font, tap_continue, 0, 0, -1);
             graphics.pose().popPose();
         }
@@ -122,6 +125,6 @@ public class NotificationSprite extends Sprite implements NetworkSprite {
         if (phoneData.contains("component")) {
             messageWidget.setMessage(ComponentSerialization.CODEC.decode(NbtOps.INSTANCE, phoneData.get("component")).getOrThrow().getFirst());
         }
-        isError = phoneData.getBooleanOr("is_error", false);
+        isError = NBTHelper.getBooleanOr(phoneData, "is_error", false);
     }
 }

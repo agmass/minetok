@@ -16,10 +16,12 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.util.EasingType;
 import net.minecraft.util.Mth;
 import org.agmas.minetok.api.PhoneTapInformation;
 import org.agmas.minetok.client.MinetokClient;
+import org.agmas.minetok.client.animation.EasingHelper;
+import org.agmas.minetok.client.animation.MTGraphics;
+import org.agmas.minetok.client.animation.NBTHelper;
 import org.agmas.minetok.client.api.NetworkSprite;
 import org.agmas.minetok.client.api.Sprite;
 import org.agmas.minetok.client.config.PhoneConfig;
@@ -69,7 +71,7 @@ public class SoundSelectorOverlay extends Sprite implements NetworkSprite {
     public void render(GuiGraphics graphics, PhoneTapInformation mouse, float renderDelta) {
         time = Math.clamp(time+renderDelta,0f,1f);
         exitBar.exitBarCapture(mouse);
-        graphics.fill(-100,-100, Phone.SCREEN_WIDTH+100, Phone.SCREEN_HEIGHT+100, new Color(0,0,0, EasingType.OUT_CIRC.apply(time)*0.5f).getRGB());
+        graphics.fill(-100,-100, Phone.SCREEN_WIDTH+100, Phone.SCREEN_HEIGHT+100, new Color(0,0,0, EasingHelper.outCirc(time)*0.5f).getRGB());
         graphics.fill(x,y,x+WIDTH,y+HEIGHT,BG_COLOR);
         scrollBarSprite.render(graphics, mouse, renderDelta);
 
@@ -81,7 +83,7 @@ public class SoundSelectorOverlay extends Sprite implements NetworkSprite {
         soundArray = BuiltInRegistries.SOUND_EVENT.entrySet().stream().toList();
            if (!textField.getValue().isBlank()) {
                soundArray = soundArray.stream().filter((b) -> {
-                   return b.getKey().resourceLocation().getNamespace().contains(textField.getValue()) || b.getKey().resourceLocation().getPath().contains(textField.getValue());
+                   return b.getKey().location().getNamespace().contains(textField.getValue()) || b.getKey().location().getPath().contains(textField.getValue());
                }).toList();
 
            }
@@ -101,10 +103,10 @@ public class SoundSelectorOverlay extends Sprite implements NetworkSprite {
                         //? if >=26.3
                         //.getOrResolve
                                 (Minecraft.getInstance().getSoundManager());
-                Component name =weighedSoundEvents == null ? Component.literal(soundArray.get(j).getKey().resourceLocation().toString()) : weighedSoundEvents.getSubtitle() == null ? Component.literal(soundArray.get(j).getKey().resourceLocation().getPath()) : weighedSoundEvents.getSubtitle();
+                Component name =weighedSoundEvents == null ? Component.literal(soundArray.get(j).getKey().location().toString()) : weighedSoundEvents.getSubtitle() == null ? Component.literal(soundArray.get(j).getKey().location().getPath()) : weighedSoundEvents.getSubtitle();
 
                 boolean selected = false;
-                if (soundArray.get(j).getKey().resourceLocation() == chosenResourceLocation) {
+                if (soundArray.get(j).getKey().location() == chosenResourceLocation) {
                     graphics.fill(x+marginX-6,y+64+ (spacing * i),(x+marginX+52)+(Minecraft.getInstance().font.width(name)*6), y+64+ (spacing * (i+1)), new Color(160,160,255).getRGB());
                 }
                 if (mouse.x+40 > x && mouse.y+40 > y + 64 + (spacing * i)) {
@@ -112,26 +114,31 @@ public class SoundSelectorOverlay extends Sprite implements NetworkSprite {
                         graphics.fill(x+marginX-6,y+64+ (spacing * i),(x+marginX+52)+(Minecraft.getInstance().font.width(name)*6), y+64+ (spacing * (i+1)), -1);
                         selected = true;
                         if (mouse.justTapped) {
-                            chosenResourceLocation = soundArray.get(j).getKey().resourceLocation();
+                            chosenResourceLocation = soundArray.get(j).getKey().location();
                             Minecraft.getInstance().getSoundManager().stop(exampleSound);
                             exampleSound = SimpleSoundInstance.forUI(soundArray.get(j).getValue(), 1f);
                             Minecraft.getInstance().getSoundManager().play(exampleSound);
-                            PhoneConfig.INSTANCE.ringtone = soundArray.get(j).getKey().resourceLocation();
+                            PhoneConfig.INSTANCE.ringtone = soundArray.get(j).getKey().location();
                             PhoneConfig.write();
                             ClientPlayNetworking.send(new ServerboundRingtoneSetPacket(PhoneConfig.INSTANCE.ringtone.toString()));
                         }
                     }
                 }
 
-                ResourceLocation texture = selected ? ResourceLocation.withDefaultNamespace("textures/item/music_disc_cat.png") :  ResourceLocation.fromNamespaceAndPath(soundArray.get(j).getKey().resourceLocation().getNamespace(), "icon.png");
-                if (soundArray.get(j).getValue().location().getNamespace().equals("minecraft")) {
+                ResourceLocation texture = selected ? ResourceLocation.withDefaultNamespace("textures/item/music_disc_cat.png") :  ResourceLocation.fromNamespaceAndPath(soundArray.get(j).getKey().location().getNamespace(), "icon.png");
+                if (soundArray.get(j).getValue().
+                        //? if <=1.21.1
+                                getLocation().
+                        //? if >1.21.1
+                                //location().
+                        getNamespace().equals("minecraft")) {
                     texture = selected ? ResourceLocation.withDefaultNamespace("textures/item/music_disc_cat.png") :  ResourceLocation.withDefaultNamespace("textures/item/music_disc_stal.png");
                 }
 
 
                 graphics.pose().pushPose();
-                graphics.pose().translate(x + marginX + 52, y + 64 + (spacing * i));
-                graphics.pose().scale(6, 6);
+                MTGraphics.translate(graphics, x + marginX + 52, y + 64 + (spacing * i));
+                MTGraphics.scale(graphics, 6, 6);
                 graphics.drawString(Minecraft.getInstance().font,
                         name.getString().substring(0, Math.min(name.getString().length(), selected ? 32 : 16)), 0, 0, -1);
                 graphics.pose().popPose();
@@ -148,8 +155,8 @@ public class SoundSelectorOverlay extends Sprite implements NetworkSprite {
         textField.setEditable(true);
 
         graphics.pose().pushPose();
-        graphics.pose().translate(x+59,y);
-        graphics.pose().scale(5);
+        MTGraphics.translate(graphics, x+59,y);
+        MTGraphics.scale(graphics, 5);
 
         //? if >1.21.11
         //textField.extractRenderState(graphics, (int) mouse.x, (int) mouse.y,renderDelta);
@@ -173,6 +180,6 @@ public class SoundSelectorOverlay extends Sprite implements NetworkSprite {
 
     @Override
     public void sync(CompoundTag phoneData) {
-        scrollBarSprite.sync(phoneData.getCompoundOrEmpty("scroll"));
+        scrollBarSprite.sync(NBTHelper.getCompoundOrEmpty(phoneData, "scroll"));
     }
 }

@@ -3,14 +3,12 @@ package org.agmas.minetok.client.render.sprites;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.CubeMap;
-//? if >=26.1 {
-/*import net.minecraft.client.renderer.state.gui.PanoramaRenderState;
-*///? }
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.util.EasingType;
 import net.minecraft.util.Mth;
 import org.agmas.minetok.client.MinetokClient;
+import org.agmas.minetok.client.animation.EasingHelper;
+import org.agmas.minetok.client.animation.MTGraphics;
 import org.agmas.minetok.client.api.Application;
 import org.agmas.minetok.api.PhoneTapInformation;
 import org.agmas.minetok.client.api.Sprite;
@@ -23,15 +21,10 @@ import java.util.Map;
 
 public class HomeScreenSprite extends Sprite {
 
-    //? if >=26.1 {
-    /*public PanoramaRenderState panoramaRenderState = new PanoramaRenderState(0);
-    public float spin = 0;
-    *///? }
-    public CubeMap pano = new CubeMap(ResourceLocation.withDefaultNamespace("textures/gui/title/background/panorama"));
-
     public Sprite focusedSprite = null;
     public float openingAppAnimation = 0;
     public boolean closing = false;
+    public PanoramaSprite panoramaSprite = new PanoramaSprite();
 
     public ArrayList<ApplicationGridIcon> gridApps = new ArrayList<>();
 
@@ -45,7 +38,7 @@ public class HomeScreenSprite extends Sprite {
         gridApps.clear();
         for (Map.Entry<ResourceKey<Application>, Application> entry : MinetokClientRegistries.APPLICATIONS.entrySet()) {
             if (entry.getValue().allowedToBeShown()) {
-                gridApps.add(new ApplicationGridIcon(entry.getKey().resourceLocation(), entry.getValue()));
+                gridApps.add(new ApplicationGridIcon(entry.getKey().location(), entry.getValue()));
             }
         }
     }
@@ -61,18 +54,12 @@ public class HomeScreenSprite extends Sprite {
             mouse = new PhoneTapInformation(originalMouse.isClient);
         }
 
+        panoramaSprite.render(graphics,mouse,renderDelta);
+
         if (focusedSprite == null || openingAppAnimation > 0) {
             if (mouse.justTapped) {
                 refreshApps();
             }
-
-            //? if <26.1 {
-            Minecraft.getInstance().gameRenderer.getPanorama().render(graphics,0,0,true);
-            //? } else {
-            /*spin += 0.1f * Minecraft.getInstance().getTimer().getRealtimeDeltaTicks();
-            panoramaRenderState = new PanoramaRenderState(spin);
-            pano.render(10.0F, panoramaRenderState.spin());
-            *///? }
 
             PhoneTapInformation gridMouseInfo = mouse;
             if (openingAppAnimation > 0 && !closing) gridMouseInfo = new PhoneTapInformation(originalMouse.isClient);
@@ -85,11 +72,11 @@ public class HomeScreenSprite extends Sprite {
 
             graphics.pose().pushPose();
             if (closing) {
-                graphics.pose().translate(Mth.lerp(EasingType.OUT_QUAD.apply(openingAppAnimation), Phone.SCREEN_WIDTH / 2f, 0f), Mth.lerp(EasingType.OUT_QUAD.apply(openingAppAnimation),  Phone.SCREEN_HEIGHT / 2f, 0f));
-                graphics.pose().scale(Mth.lerp(EasingType.OUT_QUAD.apply(openingAppAnimation), 0f, 1f));
+                MTGraphics.translate(graphics, Mth.lerp(EasingHelper.outQuad(openingAppAnimation), Phone.SCREEN_WIDTH / 2f, 0f), Mth.lerp(EasingHelper.outQuad(openingAppAnimation),  Phone.SCREEN_HEIGHT / 2f, 0f));
+                MTGraphics.scale(graphics, Mth.lerp(EasingHelper.outQuad(openingAppAnimation), 0f, 1f));
             } else {
-                graphics.pose().translate(Mth.lerp(EasingType.OUT_QUAD.apply(openingAppAnimation), 0f, Phone.SCREEN_WIDTH / 2f), Mth.lerp(EasingType.OUT_QUAD.apply(openingAppAnimation), 0f, Phone.SCREEN_HEIGHT / 2f));
-                graphics.pose().scale(Mth.lerp(EasingType.OUT_QUAD.apply(openingAppAnimation), 1f, 0f));
+                MTGraphics.translate(graphics, Mth.lerp(EasingHelper.outQuad(openingAppAnimation), 0f, Phone.SCREEN_WIDTH / 2f), Mth.lerp(EasingHelper.outQuad(openingAppAnimation), 0f, Phone.SCREEN_HEIGHT / 2f));
+                MTGraphics.scale(graphics, Mth.lerp(EasingHelper.outQuad(openingAppAnimation), 1f, 0f));
             }
             graphics.fill(0,0,720,1280, Color.BLACK.getRGB());
             graphics.pose().pushPose();

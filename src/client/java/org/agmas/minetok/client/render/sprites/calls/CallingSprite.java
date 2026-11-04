@@ -11,9 +11,12 @@ import net.minecraft.client.gui.components.PlayerFaceRenderer;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import org.agmas.minetok.api.PhoneTapInformation;
+import org.agmas.minetok.client.animation.MTGraphics;
+import org.agmas.minetok.client.animation.NBTHelper;
 import org.agmas.minetok.client.api.NetworkSprite;
 import org.agmas.minetok.client.api.Sprite;
 import org.agmas.minetok.client.render.Phone;
+import org.agmas.minetok.client.render.sprites.PanoramaSprite;
 import org.agmas.minetok.network.ServerboundCallResponsePacket;
 import org.agmas.minetok.porting.MTID;
 
@@ -24,6 +27,7 @@ public class CallingSprite extends Sprite implements NetworkSprite {
 
     public boolean receiving;
     public UUID otherPlayer;
+    public PanoramaSprite panoramaSprite = new PanoramaSprite();
 
     final MTID HANG_UP = MTID.of("textures/gui/hang_up.png");
     final MTID PICK_UP = MTID.of("textures/gui/pick_up.png");
@@ -37,29 +41,24 @@ public class CallingSprite extends Sprite implements NetworkSprite {
     public void render(GuiGraphics graphics, PhoneTapInformation mouse, float renderDelta) {
         super.render(graphics, mouse, renderDelta);
 
-        graphics.guiRenderState.reset();
-        //? if <26.1 {
-        Minecraft.getInstance().gameRenderer.getPanorama().render(graphics,0,0,true);
-         //? } else {
-        /*MinetokClient.phone.topSprite.spin += 0.1f * Minecraft.getInstance().getTimer().getRealtimeDeltaTicks();
-        MinetokClient.phone.topSprite.panoramaRenderState = new PanoramaRenderState(MinetokClient.phone.topSprite.spin);
-        MinetokClient.phone.topSprite.pano.render(10.0F, MinetokClient.phone.topSprite.panoramaRenderState.spin());
-        *///? }
+        //? if >1.21.1
+        //graphics.guiRenderState.reset();
+        panoramaSprite.render(graphics,mouse,renderDelta);
 
         PlayerInfo info = Minecraft.getInstance().getConnection().getPlayerInfo(otherPlayer);
         if (info != null) {
             graphics.pose().pushPose();
-            graphics.pose().translate((Phone.SCREEN_WIDTH / 2f) , (Phone.SCREEN_HEIGHT / 2f) - 150);
+            MTGraphics.translate(graphics, (Phone.SCREEN_WIDTH / 2f) , (Phone.SCREEN_HEIGHT / 2f) - 150);
             PlayerFaceRenderer.
                     //? if <=1.21.11
                             draw
                     //? if >1.21.11
                     //extractRenderState
                 (graphics, info.getSkin(), -128,-128,256);
-            graphics.pose().translate(-(Minecraft.getInstance().font.width(info.getProfile().name())*3) , 0);
-            graphics.pose().translate(0,256);
-            graphics.pose().scale(6,6);
-            graphics.drawString(Minecraft.getInstance().font, info.getProfile().name(), 0,-9,-1);
+            MTGraphics.translate(graphics, -(Minecraft.getInstance().font.width(info.getProfile().getName())*3) , 0);
+            MTGraphics.translate(graphics, 0,256);
+            MTGraphics.scale(graphics, 6,6);
+            graphics.drawString(Minecraft.getInstance().font, info.getProfile().getName(), 0,-9,-1);
             graphics.pose().popPose();
         }
 
@@ -109,6 +108,6 @@ public class CallingSprite extends Sprite implements NetworkSprite {
 
     @Override
     public void sync(CompoundTag phoneData) {
-        receiving = phoneData.getBooleanOr("receiving", true);
+        receiving = NBTHelper.getBooleanOr(phoneData, "receiving", true);
     }
 }

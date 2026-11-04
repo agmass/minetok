@@ -68,6 +68,8 @@ stonecutter {
 		replace 'getTimer', 'getDeltaTracker'
 		replace 'popPose', 'popMatrix'
 		replace 'pushPose', 'pushMatrix'
+		replace 'getProfile().getName()', 'getProfile().name()'
+		replace 'getProfile().getId()', 'getProfile().id()'
 	}
 	replacements.string(stonecutter.current.parsed >= '26.1') {
 		replace 'PlayerFaceRenderer', 'PlayerFaceExtractor'

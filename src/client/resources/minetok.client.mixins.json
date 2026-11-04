@@ -4,6 +4,7 @@
   "compatibilityLevel": "JAVA_21",
   "client": [
     "CaptureKeyboardMixin",
+    "ChangePhoneModelMixin",
     "ColorTextureMixin",
     "DontStopBelievinMixin",
     "GuiRendererMixin",
@@ -22,6 +23,8 @@
   },
   "mixins": [
     "CaptureMouseMixin",
+    "ChangePhoneModelLoaderMixin",
+    "IncorrectPanoramaMixin",
     "PhoneNoSlowdownMixin",
     "VKAccessor",
     "VKAccessorFrontend"
