@@ -1,9 +1,9 @@
 package org.agmas.minetok.client.render.sprites;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.renderer.CubeMap;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.Mth;
 import org.agmas.minetok.client.MinetokClient;
@@ -38,13 +38,13 @@ public class HomeScreenSprite extends Sprite {
         gridApps.clear();
         for (Map.Entry<ResourceKey<Application>, Application> entry : MinetokClientRegistries.APPLICATIONS.entrySet()) {
             if (entry.getValue().allowedToBeShown()) {
-                gridApps.add(new ApplicationGridIcon(entry.getKey().location(), entry.getValue()));
+                gridApps.add(new ApplicationGridIcon(entry.getKey().identifier(), entry.getValue()));
             }
         }
     }
 
     @Override
-    public void render(GuiGraphics graphics, PhoneTapInformation originalMouse, float renderDelta) {
+    public void render(GuiGraphicsExtractor graphics, PhoneTapInformation originalMouse, float renderDelta) {
         super.render(graphics, originalMouse, renderDelta);
         PhoneTapInformation mouse = originalMouse;
         if (mouse.justTapped) {
@@ -54,9 +54,8 @@ public class HomeScreenSprite extends Sprite {
             mouse = new PhoneTapInformation(originalMouse.isClient);
         }
 
-        panoramaSprite.render(graphics,mouse,renderDelta);
-
         if (focusedSprite == null || openingAppAnimation > 0) {
+            panoramaSprite.render(graphics,mouse,renderDelta);
             if (mouse.justTapped) {
                 refreshApps();
             }
@@ -67,10 +66,11 @@ public class HomeScreenSprite extends Sprite {
             renderApplicationGrid(graphics,gridMouseInfo,renderDelta);
         }
 
+        MTGraphics.oldUp(graphics);
         if (openingAppAnimation > 0 && focusedSprite != null) {
             openingAppAnimation -= renderDelta*0.5f;
 
-            graphics.pose().pushPose();
+            graphics.pose().pushMatrix();
             if (closing) {
                 MTGraphics.translate(graphics, Mth.lerp(EasingHelper.outQuad(openingAppAnimation), Phone.SCREEN_WIDTH / 2f, 0f), Mth.lerp(EasingHelper.outQuad(openingAppAnimation),  Phone.SCREEN_HEIGHT / 2f, 0f));
                 MTGraphics.scale(graphics, Mth.lerp(EasingHelper.outQuad(openingAppAnimation), 0f, 1f));
@@ -79,11 +79,11 @@ public class HomeScreenSprite extends Sprite {
                 MTGraphics.scale(graphics, Mth.lerp(EasingHelper.outQuad(openingAppAnimation), 1f, 0f));
             }
             graphics.fill(0,0,720,1280, Color.BLACK.getRGB());
-            graphics.pose().pushPose();
+            graphics.pose().pushMatrix();
             focusedSprite.render(graphics,mouse,renderDelta);
-            graphics.pose().popPose();
+            graphics.pose().popMatrix();
 
-            graphics.pose().popPose();
+            graphics.pose().popMatrix();
             if (closing && openingAppAnimation <= 0) {
                 focusedSprite = null;
                 closing = false;
@@ -94,6 +94,7 @@ public class HomeScreenSprite extends Sprite {
 
         ArrayList<Sprite> unmodifiedOverlays = (ArrayList<Sprite>) overlays.clone();
         for (Sprite overlay : unmodifiedOverlays) {
+            MTGraphics.oldUp(graphics);
             overlay.render(graphics,originalMouse,renderDelta);
         }
     }
@@ -101,7 +102,7 @@ public class HomeScreenSprite extends Sprite {
     float prePressedCurrentPage = 0;
     float currentPage = 0;
 
-    public void renderApplicationGrid(GuiGraphics graphicsExtractor, PhoneTapInformation mouse, float renderDelta) {
+    public void renderApplicationGrid(GuiGraphicsExtractor graphicsExtractor, PhoneTapInformation mouse, float renderDelta) {
         if (mouse.tapping) {
             currentPage = prePressedCurrentPage - ((mouse.x - mouse.tappedX)/600f);
         } else {

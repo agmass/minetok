@@ -2,17 +2,17 @@ package org.agmas.minetok.client.mixin;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 //? if >1.21.1 {
-/*import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.layers.ItemInHandLayer;
 import net.minecraft.client.renderer.entity.state.ArmedEntityRenderState;
 import net.minecraft.client.renderer.entity.state.AvatarRenderState;
 import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
-*///? } else {
-import com.mojang.blaze3d.vertex.VertexConsumer;
+//? } else {
+/*import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.layers.ItemInHandLayer;
-//? }
+*///? }
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -31,7 +31,7 @@ public class PhoneInOtherPlayerHandRendererMixin {
 
 
 	//? if >1.21.1 {
-	/*@Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/item/ItemStackRenderState;submit(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;III)V"), method = "submitArmWithItem")
+	@Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/item/ItemStackRenderState;submit(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;III)V"), method = "submitArmWithItem")
 	private void left(ArmedEntityRenderState armedEntityRenderState, ItemStackRenderState item, ItemStack itemStack, HumanoidArm arm, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, int lightCoords, CallbackInfo ci) {
 		if (armedEntityRenderState instanceof AvatarRenderState state) {
 			if (itemStack.is(ModItems.PHONE) && state.getDataOrDefault(MinetokClient.phoneTextureID, MinetokClient.missingId) != MinetokClient.missingId) {
@@ -48,8 +48,8 @@ public class PhoneInOtherPlayerHandRendererMixin {
 			}
 		}
 	}
-	*///? } else {
-	@Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/ItemInHandRenderer;renderItem(Lnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/item/ItemDisplayContext;ZLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V"), method = "renderArmWithItem")
+	//? } else {
+	/*@Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/ItemInHandRenderer;renderItem(Lnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/item/ItemDisplayContext;ZLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V"), method = "renderArmWithItem")
 	private void left(LivingEntity livingEntity, ItemStack itemStack, ItemDisplayContext itemDisplayContext, HumanoidArm humanoidArm, PoseStack poseStack, MultiBufferSource multiBufferSource, int i, CallbackInfo ci) {
 		if (livingEntity instanceof Player state) {
 			if (itemStack.is(ModItems.PHONE) && Phone.getTextureForPlayer(state) != MinetokClient.missingId) {
@@ -65,5 +65,5 @@ public class PhoneInOtherPlayerHandRendererMixin {
 			}
 		}
 	}
-	//? }
+	*///? }
 }

@@ -1,41 +1,41 @@
 package org.agmas.minetok.client.datagen;
 
 //? if >=26.1 {
-/*import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
-*///? } else {
-import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
- //? }
+import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
+//? } else {
+/*import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
+ *///? }
 
 //? if >=1.21.4 {
-/*import net.minecraft.client.data.models.BlockModelGenerators;
+import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.ItemModelGenerators;
 import net.minecraft.client.data.models.model.*;
 import net.fabricmc.fabric.api.client.datagen.v1.provider.FabricModelProvider;
 import net.minecraft.client.renderer.item.properties.select.DisplayContext;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemDisplayContext;
 
 import java.util.Arrays;
-*///? } else {
-import net.minecraft.data.models.BlockModelGenerators;
+//? } else {
+/*import net.minecraft.data.models.BlockModelGenerators;
 import net.minecraft.data.models.ItemModelGenerators;
 import net.minecraft.data.models.model.*;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricModelProvider;
-//? }
+*///? }
 import org.agmas.minetok.init.ModItems;
 import net.minecraft.world.item.Item;
 
 public class ItemModelDatagen extends FabricModelProvider {
 
     //? if >=26.1 {
-    /*public ItemModelDatagen(FabricPackOutput output) {
+    public ItemModelDatagen(FabricPackOutput output) {
         super(output);
     }
-    *///? } else {
-    public ItemModelDatagen(FabricDataOutput output) {
+    //? } else {
+    /*public ItemModelDatagen(FabricDataOutput output) {
         super(output);
     }
-    //? }
+    *///? }
 
     @Override
     public void generateBlockStateModels(BlockModelGenerators blockModelGenerators) {
@@ -50,8 +50,8 @@ public class ItemModelDatagen extends FabricModelProvider {
 
     public void createPhone(ItemModelGenerators itemModelGenerator, Item item, ModelTemplate template) {
         //? if >1.21.1 {
-        /*ResourceLocation world_id = itemModelGenerator.createFlatItemModel(item, template);
-        ResourceLocation gui_id = template.create(
+        Identifier world_id = itemModelGenerator.createFlatItemModel(item, template);
+        Identifier gui_id = template.create(
                 world_id.withPath(world_id.getPath()+"_transparent"),
                 TextureMapping.layer0(TextureMapping.getItemTexture(item, "_transparent")),
                 itemModelGenerator.modelOutput
@@ -67,9 +67,9 @@ public class ItemModelDatagen extends FabricModelProvider {
                         )
                 )
         );
-        *///? } else {
-        itemModelGenerator.generateFlatItem(item,template);
-        //? }
+        //? } else {
+        /*itemModelGenerator.generateFlatItem(item,template);
+        *///? }
     }
 
     @Override

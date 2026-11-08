@@ -3,7 +3,7 @@ package org.agmas.minetok.client.mixin;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelPart;
 //? if >1.21.1
-//import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
+import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
@@ -36,8 +36,9 @@ public class ThirdPersonPhonePoseMixin {
 	public ModelPart head;
 
 
+	//~ !identify
 	//? if >1.21.1 {
-	/*@Inject(at = @At("TAIL"), method = "poseRightArm")
+	@Inject(at = @At("TAIL"), method = "poseRightArm")
 	private void right(HumanoidRenderState state, CallbackInfo info) {
 		if (state.isUsingItem) {
 			if (state.getUseItemStackForArm(HumanoidArm.RIGHT).is(ModItems.PHONE)) {
@@ -62,11 +63,12 @@ public class ThirdPersonPhonePoseMixin {
 			}
 		}
 	}
-	*///? } else {
+	//? } else {
+	/*//~ identify
 	@Inject(at = @At("TAIL"), method = "poseRightArm")
 	private void right(LivingEntity state, CallbackInfo ci) {
 		if (state.isUsingItem()) {
-			if (state.getUseItem().is(ModItems.PHONE)) {
+			if (state.getActiveItem().is(ModItems.PHONE)) {
 				PhonePoser.poseMainArm(rightArm, 0);
 			}
 		}
@@ -74,7 +76,7 @@ public class ThirdPersonPhonePoseMixin {
 	@Inject(at = @At("TAIL"), method = "poseLeftArm")
 	private void left(LivingEntity state, CallbackInfo ci) {
 		if (state.isUsingItem()) {
-			if (state.getUseItem().is(ModItems.PHONE)) {
+			if (state.getActiveItem().is(ModItems.PHONE)) {
 				PhonePoser.poseMainArm(leftArm, 0);
 			}
 		}
@@ -84,11 +86,11 @@ public class ThirdPersonPhonePoseMixin {
 	private void head(LivingEntity state, float f, float g, float h, float i, float j, CallbackInfo ci) {
 		if (state instanceof Player p) {
 			if (state.isUsingItem()) {
-				if (state.getUseItem().is(ModItems.PHONE)) {
-					PhonePoser.poseHeadDown(head, Phone.getForPlayer(p).mouse, f, state.getUseItem().is(ModItems.PHONE));
+				if (state.getActiveItem().is(ModItems.PHONE)) {
+					PhonePoser.poseHeadDown(head, Phone.getForPlayer(p).mouse, f, state.getActiveItem().is(ModItems.PHONE));
 				}
 			}
 		}
 	}
-	//? }
+	*///? }
 }

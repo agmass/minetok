@@ -11,7 +11,7 @@ import org.agmas.minetok.porting.MTID;
 public class OtherPlayerPhone {
     public Phone phone;
     public PhoneTextureRenderer renderer;
-    public MTID textureResourceLocation;
+    public MTID textureIdentifier;
 
     public OtherPlayerPhone(Player player) {
         phone = new Phone(player);
@@ -19,14 +19,14 @@ public class OtherPlayerPhone {
             phone.sync(player.getAttachedOrElse(ModAttachments.PHONE_STATE, new CompoundTag()));
         }
         renderer = new PhoneTextureRenderer();
-        textureResourceLocation = MTID.of("other_phone_texture_" + player.getStringUUID());
+        textureIdentifier = MTID.of("other_phone_texture_" + player.getStringUUID());
     }
 
     public void uploadPlayerTexture() {
-        Minecraft.getInstance().getTextureManager().register(textureResourceLocation.id, renderer);
+        Minecraft.getInstance().getTextureManager().register(textureIdentifier.id, renderer);
     }
 
     public void removePlayerTexture() {
-        Minecraft.getInstance().getTextureManager().release(textureResourceLocation.id);
+        Minecraft.getInstance().getTextureManager().release(textureIdentifier.id);
     }
 }

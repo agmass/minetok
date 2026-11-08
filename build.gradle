@@ -66,8 +66,8 @@ stonecutter {
 		replace 'location', 'identifier'
 		replace 'getUseItem', 'getActiveItem'
 		replace 'getTimer', 'getDeltaTracker'
-		replace 'popPose', 'popMatrix'
-		replace 'pushPose', 'pushMatrix'
+		replace 'pose().popPose', 'pose().popMatrix'
+		replace 'pose().pushPose', 'pose().pushMatrix'
 		replace 'getProfile().getName()', 'getProfile().name()'
 		replace 'getProfile().getId()', 'getProfile().id()'
 	}

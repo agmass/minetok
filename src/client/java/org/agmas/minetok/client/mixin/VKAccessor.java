@@ -5,7 +5,7 @@ import org.spongepowered.asm.mixin.Mixin;
 
 //? if >=26.2 {
 
-/*//? if <26.3
+//? if <26.3
 import com.mojang.blaze3d
 //? if >=26.3
 //import com.mojang.renderpearl.backend
@@ -23,8 +23,8 @@ public interface VKAccessor {
     @Invoker("memoryBarrier")
     void minetok$memoryBarrier(MemoryStack stack);
 }
-*///? } else {
-@Mixin(Minecraft.class)
+//? } else {
+/*@Mixin(Minecraft.class)
 public interface VKAccessor {
 }
-//? }
+*///? }

@@ -5,9 +5,9 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 
 //? if >1.21.1 {
-/*import com.mojang.blaze3d.textures.GpuTexture;
+import com.mojang.blaze3d.textures.GpuTexture;
 import com.mojang.blaze3d.textures.GpuTextureView;
-*///? }
+//? }
 import org.agmas.minetok.client.render.PhoneTextureRenderer;
 import org.spongepowered.asm.mixin.Mixin;
 
@@ -15,7 +15,7 @@ import org.spongepowered.asm.mixin.Mixin;
 public class ColorTextureMixin {
 
     //? if >1.21.1 {
-    /*@WrapMethod(method = "getColorTexture")
+    @WrapMethod(method = "getColorTexture")
     public GpuTexture override(Operation<GpuTexture> original) {
         if (PhoneTextureRenderer.overrideColorBuffer != null) {
             return PhoneTextureRenderer.overrideColorBuffer;
@@ -46,5 +46,5 @@ public class ColorTextureMixin {
         }
         return original.call();
     }
-    *///? }
+    //? }
 }

@@ -1,11 +1,11 @@
 package org.agmas.minetok.client.render.sprites.settings;
 
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 //? if >1.21.1
-//import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvents;
 import org.agmas.minetok.Minetok;
 import org.agmas.minetok.api.PhoneTapInformation;
@@ -42,16 +42,12 @@ public class SettingsApplicationSprite extends ExitButtonSprite implements Netwo
     }
 
     @Override
-    public void render(GuiGraphics graphics, PhoneTapInformation mouse, float renderDelta) {
+    public void render(GuiGraphicsExtractor graphics, PhoneTapInformation mouse, float renderDelta) {
         exitBarCapture(mouse);
 
+        MTGraphics.blit(graphics, Identifier.withDefaultNamespace("textures/block/white_concrete_powder.png"),0,0, Phone.SCREEN_WIDTH+16, Phone.SCREEN_HEIGHT+16,0f,0f,1f,1f);
 
-        graphics.blit(
-                //? if >1.21.1
-                //RenderPipelines.GUI_TEXTURED,
-                ResourceLocation.withDefaultNamespace("textures/block/white_concrete_powder.png"), -8, -8, 0, 0, Phone.SCREEN_WIDTH + 16, Phone.SCREEN_HEIGHT + 16, 128, 128);
-
-        graphics.pose().pushPose();
+        graphics.pose().pushMatrix();
         int cy = 160;
         MTGraphics.translate(graphics, 40,160);
         for (Sprite option : options) {
@@ -62,14 +58,14 @@ public class SettingsApplicationSprite extends ExitButtonSprite implements Netwo
             MTGraphics.translate(graphics, 0,70);
             cy += 70;
         }
-        graphics.pose().popPose();
+        graphics.pose().popMatrix();
 
 
         if (mouse.isClient) {
             PhoneConfig.INSTANCE.muteRingtones = muteRingtones.ticked;
             PhoneConfig.INSTANCE.muteOtherPhones = muteOtherPhones.ticked;
             PhoneConfig.INSTANCE.disableRingingIndicator = disableRingingIndicator.ticked;
-            PhoneConfig.INSTANCE.ringtone = ringtone.soundSelectorOverlay.chosenResourceLocation;
+            PhoneConfig.INSTANCE.ringtone = ringtone.soundSelectorOverlay.chosenIdentifier;
             if (dirty) {
                 dirty = false;
                 PhoneConfig.write();

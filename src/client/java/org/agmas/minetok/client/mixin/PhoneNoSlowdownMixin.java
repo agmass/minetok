@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.At;
 public class PhoneNoSlowdownMixin {
     //? if <=1.21.1 {
 
-    @WrapOperation(
+    /*@WrapOperation(
             method = {"aiStep"},
             at = {@At(
                     value = "INVOKE",
@@ -20,10 +20,10 @@ public class PhoneNoSlowdownMixin {
     )
     public boolean noPhoneSlowdown(LocalPlayer instance, Operation<Boolean> original) {
         boolean f = original.call(instance);
-        if (f && ((LocalPlayer)(Object)this).getUseItem().is(ModItems.PHONE)) {
+        if (f && ((LocalPlayer)(Object)this).getActiveItem().is(ModItems.PHONE)) {
             return false;
         }
         return f;
     }
-    //? }
+    *///? }
 }

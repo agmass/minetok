@@ -1,44 +1,36 @@
 package org.agmas.minetok.client.render;
 
 //? if >1.21.1 {
-/*//? if <26.3 {
+//? if <26.3 {
 
 //? if >=26.2
-//import com.mojang.blaze3d.GpuFormat;
+import com.mojang.blaze3d.GpuFormat;
 import com.mojang.blaze3d.systems.GpuDevice;
 //? } else {
-/^import com.mojang.renderpearl.api.GpuFormat;
+/*import com.mojang.renderpearl.api.GpuFormat;
 import com.mojang.renderpearl.api.device.GpuDevice;
-^///? }
+*///? }
 import net.minecraft.client.gui.render.GuiRenderer;
 import com.mojang.blaze3d.textures.*;
 import net.minecraft.client.renderer.feature.*;
 //? if <26.1 {
-import net.minecraft.client.gui.render.state.GuiRenderState;
+/*import net.minecraft.client.gui.render.state.GuiRenderState;
+*///? } else {
+import net.minecraft.client.renderer.state.gui.GuiRenderState;
+//? }
 //? } else {
-/^import net.minecraft.client.renderer.state.gui.GuiRenderState;
-^///? }
-*///? }
+/*import com.mojang.blaze3d.platform.GlConst;
+import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.pipeline.MainTarget;
 import com.mojang.blaze3d.pipeline.RenderTarget;
-import com.mojang.blaze3d.platform.GlConst;
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.vertex.VertexSorting;
 import net.fabricmc.loader.impl.util.log.Log;
 import net.fabricmc.loader.impl.util.log.LogCategory;
 import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.GuiGraphics;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.platform.TextureUtil;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.ByteBufferBuilder;
-import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.Camera;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.*;
-import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.client.renderer.texture.Dumpable;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ResourceManager;
 import org.joml.Matrix4f;
 import org.joml.Matrix4fStack;
@@ -47,22 +39,33 @@ import org.lwjgl.opengl.GL30;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.List;
-
 import static org.lwjgl.opengl.ARBInternalformatQuery2.GL_TEXTURE_2D;
 import static org.lwjgl.opengl.GL11C.GL_READ_BUFFER;
 import static org.lwjgl.opengl.GL11C.glCopyTexSubImage2D;
 import static org.lwjgl.opengl.GL15C.glBindBuffer;
 import static org.lwjgl.opengl.GL30C.GL_READ_FRAMEBUFFER;
 import static org.lwjgl.opengl.GL30C.glGenerateMipmap;
+*///? }
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.ByteBufferBuilder;
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.Camera;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.*;
+import net.minecraft.client.renderer.texture.AbstractTexture;
+import org.joml.Vector4f;
+
+import java.util.List;
+
 
 public class PhoneTextureRenderer extends AbstractTexture {
 
     public static PhoneTextureRenderer INSTANCE;
 
     //? if >1.21.1 {
-    /*//? if <26.2
-    public static final MultiBufferSource.BufferSource bufferSource = MultiBufferSource.immediate(new ByteBufferBuilder(1536));
+    //? if <26.2
+    //public static final MultiBufferSource.BufferSource bufferSource = MultiBufferSource.immediate(new ByteBufferBuilder(1536));
     public GpuTexture depthTexture;
     public GuiRenderer renderer;
     public GpuTextureView depthTextureView;
@@ -74,9 +77,9 @@ public class PhoneTextureRenderer extends AbstractTexture {
     public static GpuTextureView overrideDepthViewBuffer;
 
     public FeatureRenderDispatcher featureRenderDispatcher;
-    private static final CachedOrthoProjectionMatrixBuffer projectionMatrixBuffer = new CachedOrthoProjectionMatrixBuffer("PhoneMatrix"
+    private static final ProjectionMatrixBuffer projectionMatrixBuffer = new ProjectionMatrixBuffer("PhoneMatrix"
             //? if <26.1
-            , 0f, 1000.0f, true
+            //, 0f, 1000.0f, true
     );
 
     SubmitNodeStorage submitNodeCollector = new SubmitNodeStorage();
@@ -86,21 +89,21 @@ public class PhoneTextureRenderer extends AbstractTexture {
         createTexture();
 
         //? if <26.2 {
-        featureRenderDispatcher = new FeatureRenderDispatcher(submitNodeCollector,
+        /*featureRenderDispatcher = new FeatureRenderDispatcher(submitNodeCollector,
                 //? <26.1
-                Minecraft.getInstance().getBlockRenderer(),
+                //Minecraft.getInstance().getBlockRenderer(),
                 //? >=26.1
-                //Minecraft.getInstance().getModelManager(),
+                Minecraft.getInstance().getModelManager(),
                 bufferSource, Minecraft.getInstance().getAtlasManager(), Minecraft.getInstance().renderBuffers().outlineBufferSource(), Minecraft.getInstance().renderBuffers().crumblingBufferSource(), Minecraft.getInstance().font
                 //? >=26.1
-                //, Minecraft.getInstance().gameRenderer.getGameRenderState()
+                , Minecraft.getInstance().gameRenderer.getGameRenderState()
         );
-        //? } else {
-        /^featureRenderDispatcher = new FeatureRenderDispatcher(Minecraft.getInstance().gameRenderer.renderBuffers(), Minecraft.getInstance().getModelManager(), Minecraft.getInstance().getAtlasManager(), Minecraft.getInstance().font, Minecraft.getInstance().gameRenderer.gameRenderState());
-        ^///? }
+        *///? } else {
+        featureRenderDispatcher = new FeatureRenderDispatcher(Minecraft.getInstance().gameRenderer.renderBuffers(), Minecraft.getInstance().getModelManager(), Minecraft.getInstance().getAtlasManager(), Minecraft.getInstance().font, Minecraft.getInstance().gameRenderer.gameRenderState());
+        //? }
         renderer = new GuiRenderer(renderState
                 //? if <26.2
-                , bufferSource, submitNodeCollector
+                //, bufferSource, submitNodeCollector
                 , featureRenderDispatcher, List.of());
     }
 
@@ -109,9 +112,9 @@ public class PhoneTextureRenderer extends AbstractTexture {
         RenderSystem.backupProjectionMatrix();
         RenderSystem.getDevice().createCommandEncoder().clearColorAndDepthTextures(texture,
                 //? if <26.2
-                0,
+                //0,
                 //? if >=26.2
-                //new Vector4f(0,0,0,255),
+                new Vector4f(0,0,0,255),
                 depthTexture, 1.0);
 
         //? if <26.3 {
@@ -126,24 +129,24 @@ public class PhoneTextureRenderer extends AbstractTexture {
 
         PoseStack poseStack = new PoseStack();
 
-        GuiGraphics graphics = new GuiGraphics(Minecraft.getInstance(), renderState, 0,0);
+        GuiGraphicsExtractor graphics = new GuiGraphicsExtractor(Minecraft.getInstance(), renderState, 0,0);
 
         poseStack.pushPose();
         poseStack.mulPose(camera.rotation());
         phone.render(graphics);
         //? if >=26.1 {
-        /^Projection projection = new Projection();
+        Projection projection = new Projection();
         projection.setupOrtho(0,1000f,720,1280,true);
-        ^///? }
+        //? }
         renderer.render(
                 //? if <26.2 {
-                this.projectionMatrixBuffer.getBuffer(
+                /*this.projectionMatrixBuffer.getBuffer(
                 //? if <26.1
-                720,1280
+                //720,1280
                 //? if >=26.1
-                //projection
+                projection
                 )
-                //? }
+                *///? }
         );
         poseStack.popPose();
 
@@ -163,17 +166,17 @@ public class PhoneTextureRenderer extends AbstractTexture {
 
         texture = gpuDevice.createTexture("phoneTexture", 13,
                 //? <26.2
-                TextureFormat.RGBA8
+                //TextureFormat.RGBA8
                 //? >=26.2
-                //GpuFormat.RGBA8_UNORM
+                GpuFormat.RGBA8_UNORM
                 , 720, 1280, 1, 1);
         textureView = gpuDevice.createTextureView(texture);
 
         depthTexture = gpuDevice.createTexture(() -> "phoneDepthTexture", 9,
                 //? if <26.2
-                TextureFormat.DEPTH32
+                //TextureFormat.DEPTH32
                 //? if >=26.2
-                //GpuFormat.D32_FLOAT
+                GpuFormat.D32_FLOAT
                 , 720, 1280, 1, 1);
         depthTextureView = gpuDevice.createTextureView(depthTexture);
 
@@ -181,9 +184,9 @@ public class PhoneTextureRenderer extends AbstractTexture {
 
         gpuDevice.createCommandEncoder().clearColorAndDepthTextures(texture,
                 //? if <26.2
-                0,
+                //0,
                 //? if >=26.2
-                //new Vector4f(0,0,0,255),
+                new Vector4f(0,0,0,255),
                 depthTexture, 1.0);
     }
 
@@ -203,9 +206,9 @@ public class PhoneTextureRenderer extends AbstractTexture {
         depthTexture.close();
         depthTextureView.close();
     }
-    *///? } else {
+    //? } else {
 
-    public static boolean overriding = false;
+    /*public static boolean overriding = false;
     public RenderTarget phoneTarget;
 
     public PhoneTextureRenderer() {
@@ -224,6 +227,7 @@ public class PhoneTextureRenderer extends AbstractTexture {
     public void render(Phone phone) {
         if (phone == null) return;
 
+        phoneTarget.clear(true);
         phoneTarget.bindWrite(true);
         RenderSystem.clear(256, Minecraft.ON_OSX);
         Matrix4f matrix4f = (new Matrix4f()).setOrtho(0.0F, Phone.SCREEN_WIDTH, Phone.SCREEN_HEIGHT, 0.0F, 1000.0F, 21000.0F);
@@ -233,7 +237,7 @@ public class PhoneTextureRenderer extends AbstractTexture {
         matrix4fStack.translation(0.0F, 0.0F, -11000.0F);
         RenderSystem.applyModelViewMatrix();
 
-        GuiGraphics graphics = new GuiGraphics(Minecraft.getInstance(), Minecraft.getInstance().renderBuffers().bufferSource());
+        GuiGraphicsExtractor graphics = new GuiGraphicsExtractor(Minecraft.getInstance(), Minecraft.getInstance().renderBuffers().bufferSource());
         phone.render(graphics);
         graphics.flush();
         phoneTarget.unbindWrite();
@@ -249,6 +253,6 @@ public class PhoneTextureRenderer extends AbstractTexture {
     public void createTexture() {
         id = TextureUtil.generateTextureId();
     }
-    //? }
+    *///? }
 
 }

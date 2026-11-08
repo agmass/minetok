@@ -3,17 +3,21 @@ package org.agmas.minetok.client.render;
 //? if >=26.3
  //import net.minecraft.world.item.component.SwingAnimation;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.events.GuiEventListener;
-//? if >1.21.1
-//import net.minecraft.client.renderer.item.ItemStackRenderState;
-import net.minecraft.client.renderer.MultiBufferSource;
+//? if >1.21.1 {
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.item.ItemStackRenderState;
+//? } else {
+/*import net.minecraft.client.renderer.MultiBufferSource;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+*///? }
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import org.agmas.minetok.Minetok;
@@ -48,7 +52,7 @@ public class Phone {
     public Player player;
     @Nullable CallingSprite callingSprite = null;
 
-    private static final ResourceLocation CROSSHAIR_SPRITE = ResourceLocation.withDefaultNamespace("hud/crosshair");
+    private static final Identifier CROSSHAIR_SPRITE = Identifier.withDefaultNamespace("hud/crosshair");
 
     public Phone(Player player) {
         this.player = player;
@@ -62,7 +66,7 @@ public class Phone {
         topSprite.overlays.add(overlay);
     }
 
-    public void render(GuiGraphics graphics) {
+    public void render(GuiGraphicsExtractor graphics) {
         if (this == MinetokClient.phone)
             handleMouseInput();
 
@@ -78,11 +82,11 @@ public class Phone {
         }
 
 
-        topSprite.render(graphics,mouse, Minecraft.getInstance().getTimer().getRealtimeDeltaTicks());
+        topSprite.render(graphics,mouse, Minecraft.getInstance().getDeltaTracker().getRealtimeDeltaTicks());
 
         graphics.blitSprite(
                 //? if >1.21.1
-                //RenderPipelines.CROSSHAIR,
+                RenderPipelines.CROSSHAIR,
                 CROSSHAIR_SPRITE, (int)mouse.x, (int)mouse.y, 80, 80);
         
         if (mouse.justTapped)
@@ -140,16 +144,16 @@ public class Phone {
     }
 
     //? if >1.21.1 {
-    /*public void renderInHand(PoseStack poseStack, SubmitNodeCollector submitNodeCollector, ItemStackRenderState renderState, int light, float timeUsingPhone) {
+    public void renderInHand(PoseStack poseStack, SubmitNodeCollector submitNodeCollector, ItemStackRenderState renderState, int light, float timeUsingPhone) {
 
         poseStack.pushPose();
         poseStack.translate(-0.1f,0.0f,-13.5f);
         poseStack.scale(20,20,20);
         renderState.submit(poseStack,submitNodeCollector,light,OverlayTexture.NO_OVERLAY,0);
         poseStack.popPose();
-    *///? } else {
-    public void renderInHand(PoseStack poseStack, MultiBufferSource submitNodeCollector, int light, float timeUsingPhone) {
-    //? }
+    //? } else {
+    /*public void renderInHand(PoseStack poseStack, MultiBufferSource submitNodeCollector, int light, float timeUsingPhone) {
+    *///? }
 
         poseStack.pushPose();
         poseStack.translate(-3.95f,-6.5f,-12.88f);
@@ -161,7 +165,7 @@ public class Phone {
 
     int fullbright = 15728880;
     //? if >1.21.1 {
-    /*public void createPlane(SubmitNodeCollector submitNodeCollector, PoseStack stack) {
+    public void createPlane(SubmitNodeCollector submitNodeCollector, PoseStack stack) {
         submitNodeCollector.submitCustomGeometry(stack, MinetokClient.getPhoneRenderType(MTID.of("phone_texture")), ((pose, vertexConsumer) -> {
             vertexConsumer.addVertex(pose, 0,0,0).setUv(0,0).setLight(fullbright).setNormal(1,1,1).setUv2(0,0).setColor(-1);
             vertexConsumer.addVertex(pose, 9,0,0).setUv(1,0).setLight(fullbright).setNormal(1,1,1).setUv2(0,0).setColor(-1);
@@ -169,15 +173,15 @@ public class Phone {
             vertexConsumer.addVertex(pose, 0,16,0).setUv(0,1).setLight(fullbright).setNormal(1,1,1).setUv2(0,0).setColor(-1);
         }));
     }
-    *///? } else {
-    public void createPlane(MultiBufferSource submitNodeCollector, PoseStack stack) {
+    //? } else {
+    /*public void createPlane(MultiBufferSource submitNodeCollector, PoseStack stack) {
         VertexConsumer consumer = submitNodeCollector.getBuffer(MinetokClient.getPhoneRenderType(MTID.of("phone_texture")));
         consumer.addVertex(stack.last(), 0,0,0).setUv(0,0).setLight(fullbright).setNormal(1,1,1).setUv2(0,0).setColor(-1);
         consumer.addVertex(stack.last(), 9,0,0).setUv(1,0).setLight(fullbright).setNormal(1,1,1).setUv2(0,0).setColor(-1);
         consumer.addVertex(stack.last(), 9,16,0).setUv(1,1).setLight(fullbright).setNormal(1,1,1).setUv2(0,0).setColor(-1);
         consumer.addVertex(stack.last(), 0,16,0).setUv(0,1).setLight(fullbright).setNormal(1,1,1).setUv2(0,0).setColor(-1);
     }
-    //? }
+    *///? }
 
     public CompoundTag createOnlyMouseTag() {
         CompoundTag mouseTag = new CompoundTag();
@@ -245,13 +249,13 @@ public class Phone {
         if (!netPhone.isEmpty()) {
             if (netPhone.contains("application_id")) {
                 //? if >1.21.1 {
-                /*Optional<Holder.Reference<Application>> netAppOp = MinetokClientRegistries.APPLICATIONS.get(ResourceLocation.parse(netPhone.getString("application_id").get()));
+                Optional<Holder.Reference<Application>> netAppOp = MinetokClientRegistries.APPLICATIONS.get(Identifier.parse(netPhone.getString("application_id").get()));
                 if (netAppOp.isPresent()) {
                     Application netApp = netAppOp.get().value();
-                *///? } else {
-                if (MinetokClientRegistries.APPLICATIONS.containsKey(ResourceLocation.parse(netPhone.getString("application_id")))) {
-                    Application netApp = MinetokClientRegistries.APPLICATIONS.get(ResourceLocation.parse(netPhone.getString("application_id")));
-                //? }
+                //? } else {
+                /*if (MinetokClientRegistries.APPLICATIONS.containsKey(Identifier.parse(netPhone.getString("application_id")))) {
+                    Application netApp = MinetokClientRegistries.APPLICATIONS.get(Identifier.parse(netPhone.getString("application_id")));
+                *///? }
                     if (topSprite.focusedSprite == null || !topSprite.focusedSprite.application.equals(netApp)) {
                         try {
                             topSprite.focusedSprite = netApp.initializerSprite.getConstructor().newInstance();
@@ -275,13 +279,13 @@ public class Phone {
 
             if (netPhone.contains("overlay_id")) {
                 //? if >1.21.1 {
-                /*Optional<Holder.Reference<Application>> netOverlayOp = MinetokClientRegistries.OVERLAYS.get(ResourceLocation.parse(netPhone.getString("overlay_id").get()));
+                Optional<Holder.Reference<Application>> netOverlayOp = MinetokClientRegistries.OVERLAYS.get(Identifier.parse(netPhone.getString("overlay_id").get()));
                 if (netOverlayOp.isPresent()) {
                     Application netOverlay = netOverlayOp.get().value();
-                *///? } else {
-                    if (MinetokClientRegistries.OVERLAYS.containsKey(ResourceLocation.parse(netPhone.getString("overlay_id")))) {
-                        Application netOverlay = MinetokClientRegistries.OVERLAYS.get(ResourceLocation.parse(netPhone.getString("overlay_id")));
-                //? }
+                //? } else {
+                    /*if (MinetokClientRegistries.OVERLAYS.containsKey(Identifier.parse(netPhone.getString("overlay_id")))) {
+                        Application netOverlay = MinetokClientRegistries.OVERLAYS.get(Identifier.parse(netPhone.getString("overlay_id")));
+                *///? }
                     if (topSprite.overlays.isEmpty() || topSprite.overlays.getLast().overlay != netOverlay) {
                         topSprite.overlays.clear();
                         try { topSprite.overlays.add(netOverlay.initializerSprite.getConstructor().newInstance()); } catch (Exception ignored) {}
@@ -318,7 +322,7 @@ public class Phone {
 
     public static MTID getTextureForPlayer(Player p) {
         if (p != Minecraft.getInstance().player) {
-            return MinetokClient.playerPhoneHashMap.containsKey(p.getUUID()) ? MinetokClient.playerPhoneHashMap.get(p.getUUID()).textureResourceLocation : MinetokClient.missingId;
+            return MinetokClient.playerPhoneHashMap.containsKey(p.getUUID()) ? MinetokClient.playerPhoneHashMap.get(p.getUUID()).textureIdentifier : MinetokClient.missingId;
         } else {
             return MTID.of("phone_texture");
         }

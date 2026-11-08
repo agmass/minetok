@@ -6,9 +6,9 @@ import org.agmas.minetok.porting.MTID;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 //? if <1.21.11 {
-import com.llamalad7.mixinextras.sugar.Local;
+/*import com.llamalad7.mixinextras.sugar.Local;
 import net.minecraft.client.renderer.ItemModelShaper;
-import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.client.resources.model.ModelIdentifier;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.world.item.ItemDisplayContext;
@@ -29,7 +29,7 @@ public abstract class ChangePhoneModelMixin {
     @ModifyVariable(method = "render", at = @At("HEAD"), argsOnly = true)
     public BakedModel a(BakedModel bakedModel, @Local(argsOnly = true) ItemStack stack, @Local(argsOnly = true)ItemDisplayContext displayContext) {
         if (displayContext.equals(ItemDisplayContext.NONE) && stack.is(ModItems.PHONE)) {
-            return getItemModelShaper().getModelManager().getModel(ModelResourceLocation.inventory(MTID.of("phone_empty").id));
+            return getItemModelShaper().getModelManager().getModel(ModelIdentifier.inventory(MTID.of("phone_empty").id));
         }
         return bakedModel;
     }
@@ -37,13 +37,13 @@ public abstract class ChangePhoneModelMixin {
     @ModifyVariable(method = "getModel", at = @At("STORE"), ordinal = 1)
     public BakedModel b(BakedModel bakedModel, @Local(argsOnly = true)ItemStack stack) {
         if (stack.getItem() == ModItems.PHONE) {
-            return this.itemModelShaper.getModelManager().getModel(ModelResourceLocation.inventory(MTID.of("phone").id));
+            return this.itemModelShaper.getModelManager().getModel(ModelIdentifier.inventory(MTID.of("phone").id));
         }
         return bakedModel;
     }
 }
-//? } else {
-/*@Mixin(Minecraft.class)
+*///? } else {
+@Mixin(Minecraft.class)
 public class ChangePhoneModelMixin {
 }
-*///? }
+//? }

@@ -1,10 +1,10 @@
 package org.agmas.minetok.porting;
 
 //? if >=26.1 {
-/*import net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents;
- *///? } else {
-import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
-//? }
+import net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents;
+ //? } else {
+/*import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
+*///? }
 //? if >1.20.4 {
 //? }
 import net.minecraft.core.Registry;
@@ -30,15 +30,15 @@ public class MTRegistrar {
 
         Block block = blockFactory.apply(properties
                 //? if >=1.21.4 {
-                /*.setId(keyOfBlock(name))
-                 *///? }
+                .setId(keyOfBlock(name))
+                 //? }
         );
 
         if (shouldRegisterItem) {
             registerItem(name, (b)->{return new BlockItem(block, b);}, new Item.Properties()
                     //? if >=1.21.4 {
-                    /*.setId(keyOfItem(name)).useBlockDescriptionPrefix()
-                     *///? }
+                    .setId(keyOfItem(name)).useBlockDescriptionPrefix()
+                     //? }
             , tab);
         }
 
@@ -60,17 +60,17 @@ public class MTRegistrar {
 
         T item = itemFactory.apply(settings
                 //? if >=1.21.4 {
-                /*.setId(itemKey)
-                 *///? }
+                .setId(itemKey)
+                 //? }
         );
 
         Registry.register(BuiltInRegistries.ITEM, itemKey, item);
 
         //? if >=26.1 {
-        /*CreativeModeTabEvents.modifyOutputEvent(tab)
-        *///? } else {
-        ItemGroupEvents.modifyEntriesEvent(tab)
-        //? }
+        CreativeModeTabEvents.modifyOutputEvent(tab)
+        //? } else {
+        /*ItemGroupEvents.modifyEntriesEvent(tab)
+        *///? }
         .register((creativeTab) -> {
             creativeTab.accept(item);
         });
@@ -80,13 +80,13 @@ public class MTRegistrar {
 
 
     //? if >=1.21.4 {
-    /*private static ResourceKey<Block> keyOfBlock(String name) {
+    private static ResourceKey<Block> keyOfBlock(String name) {
         return ResourceKey.create(Registries.BLOCK, MTID.of(name).id);
     }
 
     private static ResourceKey<Item> keyOfItem(String name) {
         return ResourceKey.create(Registries.ITEM, MTID.of(name).id);
     }
-    *///? }
+    //? }
 
 }

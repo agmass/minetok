@@ -5,7 +5,7 @@ package org.agmas.minetok.client.mixin;
 import org.spongepowered.asm.mixin.Mixin;
 import net.minecraft.client.Minecraft;
 //? if >1.21.1 {
-/*import net.minecraft.client.renderer.entity.player.AvatarRenderer;
+import net.minecraft.client.renderer.entity.player.AvatarRenderer;
 import net.minecraft.client.renderer.entity.state.AvatarRenderState;
 import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
 import net.minecraft.world.entity.Avatar;
@@ -28,8 +28,8 @@ public abstract class MTExtractRenderStateMixin {
 		}
 	}
 }
-*///? } else {
-@Mixin(value = Minecraft.class)
+//? } else {
+/*@Mixin(value = Minecraft.class)
 public abstract class MTExtractRenderStateMixin {
 }
-//? }
+*///? }

@@ -2,12 +2,12 @@ package org.agmas.minetok.client.render.sprites.calls;
 
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 
 //? if >=26.1 {
-/*import net.minecraft.client.renderer.state.gui.PanoramaRenderState;
-*///? }
-import net.minecraft.client.gui.components.PlayerFaceRenderer;
+import net.minecraft.client.renderer.state.gui.PanoramaRenderState;
+//? }
+import net.minecraft.client.gui.components.PlayerFaceExtractor;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import org.agmas.minetok.api.PhoneTapInformation;
@@ -38,28 +38,28 @@ public class CallingSprite extends Sprite implements NetworkSprite {
     }
 
     @Override
-    public void render(GuiGraphics graphics, PhoneTapInformation mouse, float renderDelta) {
+    public void render(GuiGraphicsExtractor graphics, PhoneTapInformation mouse, float renderDelta) {
         super.render(graphics, mouse, renderDelta);
 
         //? if >1.21.1
-        //graphics.guiRenderState.reset();
+        graphics.guiRenderState.reset();
         panoramaSprite.render(graphics,mouse,renderDelta);
 
         PlayerInfo info = Minecraft.getInstance().getConnection().getPlayerInfo(otherPlayer);
         if (info != null) {
-            graphics.pose().pushPose();
+            graphics.pose().pushMatrix();
             MTGraphics.translate(graphics, (Phone.SCREEN_WIDTH / 2f) , (Phone.SCREEN_HEIGHT / 2f) - 150);
-            PlayerFaceRenderer.
+            PlayerFaceExtractor.
                     //? if <=1.21.11
-                            draw
+                            //draw
                     //? if >1.21.11
-                    //extractRenderState
+                    extractRenderState
                 (graphics, info.getSkin(), -128,-128,256);
-            MTGraphics.translate(graphics, -(Minecraft.getInstance().font.width(info.getProfile().getName())*3) , 0);
+            MTGraphics.translate(graphics, -(Minecraft.getInstance().font.width(info.getProfile().name())*3) , 0);
             MTGraphics.translate(graphics, 0,256);
             MTGraphics.scale(graphics, 6,6);
-            graphics.drawString(Minecraft.getInstance().font, info.getProfile().getName(), 0,-9,-1);
-            graphics.pose().popPose();
+            graphics.text(Minecraft.getInstance().font, info.getProfile().name(), 0,-9,-1);
+            graphics.pose().popMatrix();
         }
 
         int marginX = 80;
@@ -67,7 +67,7 @@ public class CallingSprite extends Sprite implements NetworkSprite {
         int size = 200;
 
         if (receiving) {
-            graphics.blit(HANG_UP.id, marginX, Phone.SCREEN_HEIGHT - marginY, (marginX + size), Phone.SCREEN_HEIGHT - (marginY - size), 0, 1, 0, 1);
+            MTGraphics.blit(graphics, HANG_UP.id, marginX, Phone.SCREEN_HEIGHT - marginY, (marginX + size), Phone.SCREEN_HEIGHT - (marginY - size), 0, 1, 0, 1);
             if (mouse.x > marginX && mouse.x < (marginX + size)) {
                 if (mouse.y > Phone.SCREEN_HEIGHT - marginY && mouse.y < Phone.SCREEN_HEIGHT - (marginY - size)) {
                     graphics.fill(marginX, Phone.SCREEN_HEIGHT - marginY, marginX + size, Phone.SCREEN_HEIGHT - (marginY - size), new Color(100, 100, 100, 100).getRGB());
@@ -77,7 +77,7 @@ public class CallingSprite extends Sprite implements NetworkSprite {
                 }
             }
 
-            graphics.blit(PICK_UP.id, Phone.SCREEN_WIDTH - (marginX + size), Phone.SCREEN_HEIGHT - marginY, Phone.SCREEN_WIDTH - marginX, Phone.SCREEN_HEIGHT - (marginY - size), 0, 1, 0, 1);
+            MTGraphics.blit(graphics, PICK_UP.id, Phone.SCREEN_WIDTH - (marginX + size), Phone.SCREEN_HEIGHT - marginY, Phone.SCREEN_WIDTH - marginX, Phone.SCREEN_HEIGHT - (marginY - size), 0, 1, 0, 1);
             if (mouse.x > Phone.SCREEN_WIDTH - (marginX + size) && mouse.x < Phone.SCREEN_WIDTH - marginX) {
                 if (mouse.y > Phone.SCREEN_HEIGHT - marginY && mouse.y < Phone.SCREEN_HEIGHT - (marginY - size)) {
                     graphics.fill(Phone.SCREEN_WIDTH - (marginX + size), Phone.SCREEN_HEIGHT - marginY, Phone.SCREEN_WIDTH - marginX, Phone.SCREEN_HEIGHT - (marginY - size), new Color(100, 100, 100, 100).getRGB());
@@ -87,7 +87,7 @@ public class CallingSprite extends Sprite implements NetworkSprite {
                 }
             }
         } else {
-            graphics.blit(HANG_UP.id, (Phone.SCREEN_WIDTH/2) - (size/2), Phone.SCREEN_HEIGHT - marginY, (Phone.SCREEN_WIDTH/2) + (size/2), Phone.SCREEN_HEIGHT - (marginY - size), 0, 1, 0, 1);
+            MTGraphics.blit(graphics, HANG_UP.id, (Phone.SCREEN_WIDTH/2) - (size/2), Phone.SCREEN_HEIGHT - marginY, (Phone.SCREEN_WIDTH/2) + (size/2), Phone.SCREEN_HEIGHT - (marginY - size), 0, 1, 0, 1);
             if (mouse.x > (Phone.SCREEN_WIDTH/2f) - (size/2f) && mouse.x < (Phone.SCREEN_WIDTH/2f) + (size/2f)) {
                 if (mouse.y > Phone.SCREEN_HEIGHT - marginY && mouse.y < Phone.SCREEN_HEIGHT - (marginY - size)) {
                     graphics.fill((Phone.SCREEN_WIDTH/2) - (size/2), Phone.SCREEN_HEIGHT - marginY, (Phone.SCREEN_WIDTH/2) + (size/2), Phone.SCREEN_HEIGHT - (marginY - size), new Color(100, 100, 100, 100).getRGB());

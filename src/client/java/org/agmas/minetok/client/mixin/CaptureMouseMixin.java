@@ -16,7 +16,7 @@ public class CaptureMouseMixin {
     @WrapMethod(method = "turn")
     public void disableWhenWatchingCams(double dx, double dy, Operation<Void> original) {
         if (((Entity)(Object)this) instanceof LocalPlayer lp) {
-            if (lp.isUsingItem() && lp.getUseItem().getItem() instanceof PhoneItem) {
+            if (lp.isUsingItem() && lp.getActiveItem().getItem() instanceof PhoneItem) {
                 MinetokClient.phone.mouse.x += dx;
                 MinetokClient.phone.mouse.y += dy;
                 return;

@@ -1,10 +1,11 @@
 package org.agmas.minetok.client.config;
 
+import com.google.gson.FormattingStyle;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.stream.JsonWriter;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvents;
 import org.agmas.minetok.Minetok;
 
@@ -18,7 +19,7 @@ public class PhoneConfig {
     public boolean muteOtherPhones = false;
     public boolean disableRingingIndicator = false;
     public boolean muteRingtones = false;
-    public ResourceLocation ringtone = SoundEvents.MUSIC_DISC_FAR.key().location();
+    public Identifier ringtone = SoundEvents.MUSIC_DISC_FAR.key().identifier();
 
     public static PhoneConfig parse() {
         PhoneConfig parsed = new PhoneConfig();
@@ -29,7 +30,7 @@ public class PhoneConfig {
                 parsed.muteRingtones = element.getAsJsonObject().getAsJsonPrimitive("mute_ringtones").getAsBoolean();
                 parsed.disableRingingIndicator = element.getAsJsonObject().getAsJsonPrimitive("disable_ringing_indicator").getAsBoolean();
                 parsed.muteOtherPhones = element.getAsJsonObject().getAsJsonPrimitive("mute_other_phones").getAsBoolean();
-                parsed.ringtone = ResourceLocation.parse(element.getAsJsonObject().getAsJsonPrimitive("ringtone").getAsString());
+                parsed.ringtone = Identifier.parse(element.getAsJsonObject().getAsJsonPrimitive("ringtone").getAsString());
             } catch (Exception ignored) {}
         }
         return parsed;
@@ -42,6 +43,7 @@ public class PhoneConfig {
             configFile.createNewFile();
             FileWriter writer = new FileWriter("config/minetok.json");
             JsonWriter jsonWriter = new JsonWriter(writer);
+            jsonWriter.setFormattingStyle(FormattingStyle.PRETTY);
 
             jsonWriter.beginObject();
             jsonWriter.name("mute_ringtones").value(INSTANCE.muteRingtones);

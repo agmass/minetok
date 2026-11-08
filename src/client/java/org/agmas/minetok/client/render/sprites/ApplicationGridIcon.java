@@ -3,9 +3,9 @@ package org.agmas.minetok.client.render.sprites;
 import net.fabricmc.loader.impl.util.log.Log;
 import net.fabricmc.loader.impl.util.log.LogCategory;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.agmas.minetok.client.MinetokClient;
 import org.agmas.minetok.client.animation.MTGraphics;
 import org.agmas.minetok.client.api.Application;
@@ -19,14 +19,14 @@ import java.lang.reflect.InvocationTargetException;
 public class ApplicationGridIcon extends Sprite {
 
     public static int APP_GRID_ICON_HEIGHT = 128+32+6;
-    ResourceLocation appId;
+    Identifier appId;
 
-    public ApplicationGridIcon(ResourceLocation appId, Application application) {
+    public ApplicationGridIcon(Identifier appId, Application application) {
         this.appId = appId;
         this.application = application;
     }
 
-    public void render(GuiGraphics graphics, PhoneTapInformation mouse, float renderDelta, HomeScreenSprite parent) {
+    public void render(GuiGraphicsExtractor graphics, PhoneTapInformation mouse, float renderDelta, HomeScreenSprite parent) {
         super.render(graphics, mouse, renderDelta);
 
         boolean selected = false;
@@ -37,16 +37,16 @@ public class ApplicationGridIcon extends Sprite {
             }
         }
 
-        graphics.pose().pushPose();
+        graphics.pose().pushMatrix();
         MTGraphics.translate(graphics, x,y);
 
-        graphics.blit(appId.withPrefix("textures/apps/"), 0,0,128,128,0,1,0,1);
+        MTGraphics.blit(graphics, appId.withPrefix("textures/apps/").withSuffix(".png"), 0,0,128,128,0,1,0,1);
         if (selected) {
             graphics.fill(0,0,128,128,new Color(100,100,100,50).getRGB());
         }
-        graphics.pose().popPose();
+        graphics.pose().popMatrix();
 
-        graphics.pose().pushPose();
+        graphics.pose().pushMatrix();
         Component text = Component.translatable("phone.app." + appId.getNamespace() + "." + appId.getPath());
         MTGraphics.translate(graphics, x,y);
         MTGraphics.translate(graphics, 64,0);
@@ -55,8 +55,8 @@ public class ApplicationGridIcon extends Sprite {
         MTGraphics.translate(graphics, -(Minecraft.getInstance().font.width(text)*2),128+6);
         MTGraphics.scale(graphics, 4);
 
-        graphics.drawString(Minecraft.getInstance().font, text, 0, 0, selected ? Color.WHITE.getRGB() : Color.LIGHT_GRAY.getRGB());
-        graphics.pose().popPose();
+        graphics.text(Minecraft.getInstance().font, text, 0, 0, selected ? Color.WHITE.getRGB() : Color.LIGHT_GRAY.getRGB());
+        graphics.pose().popMatrix();
 
         if (selected && mouse.justReleased && application != null) {
             if (Math.abs(mouse.tappedX-mouse.x) < 9) {
