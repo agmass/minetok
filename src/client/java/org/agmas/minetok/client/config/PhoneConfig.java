@@ -1,5 +1,6 @@
 package org.agmas.minetok.client.config;
 
+//? if >1.21.1
 import com.google.gson.FormattingStyle;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -43,6 +44,7 @@ public class PhoneConfig {
             configFile.createNewFile();
             FileWriter writer = new FileWriter("config/minetok.json");
             JsonWriter jsonWriter = new JsonWriter(writer);
+            //? if >1.21.1
             jsonWriter.setFormattingStyle(FormattingStyle.PRETTY);
 
             jsonWriter.beginObject();

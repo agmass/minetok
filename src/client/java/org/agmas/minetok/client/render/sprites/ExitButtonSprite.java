@@ -1,6 +1,6 @@
 package org.agmas.minetok.client.render.sprites;
 
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 import org.agmas.minetok.client.MinetokClient;
 import org.agmas.minetok.api.PhoneTapInformation;
 import org.agmas.minetok.client.animation.MTGraphics;
@@ -13,7 +13,7 @@ import java.awt.*;
 public class ExitButtonSprite extends Sprite {
 
     @Override
-    public void render(GuiGraphicsExtractor graphics, PhoneTapInformation mouse, float renderDelta) {
+    public void render(GuiGraphics graphics, PhoneTapInformation mouse, float renderDelta) {
         super.render(graphics, mouse, renderDelta);
         renderTopBar(graphics,mouse,renderDelta);
     }
@@ -35,7 +35,7 @@ public class ExitButtonSprite extends Sprite {
             }
         }
     }
-    public void renderTopBar(GuiGraphicsExtractor graphics, PhoneTapInformation mouse, float renderDelta) {
+    public void renderTopBar(GuiGraphics graphics, PhoneTapInformation mouse, float renderDelta) {
         graphics.fill(x,y, x+width, y+(padded ? 138 : 54), new Color(100,100,100,50).getRGB());
         MTGraphics.blit(graphics, MTID.of("textures/gui/close.png").id, x+16, y+(padded ? 84 : 2), x+(16+48), y+(padded ? 132 : 50), 0, 1, 0, 1);
         if (pressedExit) {

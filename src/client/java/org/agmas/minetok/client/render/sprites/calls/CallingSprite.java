@@ -2,12 +2,12 @@ package org.agmas.minetok.client.render.sprites.calls;
 
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 
 //? if >=26.1 {
-import net.minecraft.client.renderer.state.gui.PanoramaRenderState;
-//? }
-import net.minecraft.client.gui.components.PlayerFaceExtractor;
+/*import net.minecraft.client.renderer.state.gui.PanoramaRenderState;
+*///? }
+import net.minecraft.client.gui.components.PlayerFaceRenderer;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import org.agmas.minetok.api.PhoneTapInformation;
@@ -38,7 +38,7 @@ public class CallingSprite extends Sprite implements NetworkSprite {
     }
 
     @Override
-    public void render(GuiGraphicsExtractor graphics, PhoneTapInformation mouse, float renderDelta) {
+    public void render(GuiGraphics graphics, PhoneTapInformation mouse, float renderDelta) {
         super.render(graphics, mouse, renderDelta);
 
         //? if >1.21.1
@@ -49,16 +49,16 @@ public class CallingSprite extends Sprite implements NetworkSprite {
         if (info != null) {
             graphics.pose().pushMatrix();
             MTGraphics.translate(graphics, (Phone.SCREEN_WIDTH / 2f) , (Phone.SCREEN_HEIGHT / 2f) - 150);
-            PlayerFaceExtractor.
+            PlayerFaceRenderer.
                     //? if <=1.21.11
-                            //draw
+                            draw
                     //? if >1.21.11
-                    extractRenderState
+                    //extractRenderState
                 (graphics, info.getSkin(), -128,-128,256);
             MTGraphics.translate(graphics, -(Minecraft.getInstance().font.width(info.getProfile().name())*3) , 0);
             MTGraphics.translate(graphics, 0,256);
             MTGraphics.scale(graphics, 6,6);
-            graphics.text(Minecraft.getInstance().font, info.getProfile().name(), 0,-9,-1);
+            graphics.drawString(Minecraft.getInstance().font, info.getProfile().name(), 0,-9,-1);
             graphics.pose().popMatrix();
         }
 

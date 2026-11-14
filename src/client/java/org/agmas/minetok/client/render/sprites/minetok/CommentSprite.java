@@ -5,9 +5,9 @@ import com.mojang.blaze3d.platform.NativeImage;
 import net.fabricmc.loader.impl.util.log.Log;
 import net.fabricmc.loader.impl.util.log.LogCategory;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.MultiLineTextWidget;
-import net.minecraft.client.gui.components.PlayerFaceExtractor;
+import net.minecraft.client.gui.components.PlayerFaceRenderer;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 //? if >1.21.1
@@ -35,7 +35,7 @@ public class CommentSprite extends Sprite {
     public boolean liked = false;
     public float y = 0;
 
-    public CommentSprite(ParsedMetadata.Comment comment, GuiGraphicsExtractor graphics) {
+    public CommentSprite(ParsedMetadata.Comment comment, GuiGraphics graphics) {
         this.comment = comment;
         profilePicture = new PlayerInfo(new GameProfile(UUID.randomUUID(), comment.author()), false).getSkin();
         body = new ForcedWidthTextWidget(Component.literal(comment.body()), Minecraft.getInstance().font,
@@ -44,17 +44,17 @@ public class CommentSprite extends Sprite {
     }
 
     @Override
-    public void render(GuiGraphicsExtractor graphics, PhoneTapInformation mouse, float renderDelta) {
-        PlayerFaceExtractor
+    public void render(GuiGraphics graphics, PhoneTapInformation mouse, float renderDelta) {
+        PlayerFaceRenderer
                 //? if <26.1
-                //.draw
+                .draw
                 //? if >=26.1
-                .extractRenderState
+                //.extractRenderState
                         (graphics,profilePicture,0,0,64);
         graphics.pose().pushMatrix();
         MTGraphics.translate(graphics, 76, 0);
         MTGraphics.scale(graphics, 3);
-        graphics.text(Minecraft.getInstance().font, comment.author(), 0, 0, new Color(200,200,200).getRGB());
+        graphics.drawString(Minecraft.getInstance().font, comment.author(), 0, 0, new Color(200,200,200).getRGB());
         graphics.pose().popMatrix();
 
         graphics.pose().pushMatrix();
@@ -64,9 +64,9 @@ public class CommentSprite extends Sprite {
         body.visitLines(graphics.textRenderer());
         body
                 //? if <26.1
-                //.render
+                .render
                 //? if >=26.1
-                .extractRenderState
+                //.extractRenderState
                         (graphics,0,0,renderDelta);
         graphics.pose().popMatrix();
 
@@ -86,7 +86,7 @@ public class CommentSprite extends Sprite {
         }
         MTGraphics.translate(graphics, 32 - (Minecraft.getInstance().font.width((comment.likes()  + (liked ? 1 : 0))+"")),68);
         MTGraphics.scale(graphics, 2,2);
-        graphics.text(Minecraft.getInstance().font, (comment.likes()  + (liked ? 1 : 0))+"", 0,0,-1);
+        graphics.drawString(Minecraft.getInstance().font, (comment.likes()  + (liked ? 1 : 0))+"", 0,0,-1);
         graphics.pose().popMatrix();
 
         super.render(graphics, mouse, renderDelta);

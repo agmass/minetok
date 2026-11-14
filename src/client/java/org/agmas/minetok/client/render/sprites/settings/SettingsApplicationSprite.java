@@ -1,6 +1,6 @@
 package org.agmas.minetok.client.render.sprites.settings;
 
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 //? if >1.21.1
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.nbt.CompoundTag;
@@ -42,7 +42,7 @@ public class SettingsApplicationSprite extends ExitButtonSprite implements Netwo
     }
 
     @Override
-    public void render(GuiGraphicsExtractor graphics, PhoneTapInformation mouse, float renderDelta) {
+    public void render(GuiGraphics graphics, PhoneTapInformation mouse, float renderDelta) {
         exitBarCapture(mouse);
 
         MTGraphics.blit(graphics, Identifier.withDefaultNamespace("textures/block/white_concrete_powder.png"),0,0, Phone.SCREEN_WIDTH+16, Phone.SCREEN_HEIGHT+16,0f,0f,1f,1f);

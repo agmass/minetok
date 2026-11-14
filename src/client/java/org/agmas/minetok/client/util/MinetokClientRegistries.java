@@ -10,20 +10,20 @@ public class MinetokClientRegistries {
     private static final ResourceKey<Registry<Application>> APPLICATIONS_KEY = createRegistryKey("applications");
     public static final Registry<Application> APPLICATIONS =
         //? if <26.1 {
-        /*FabricRegistryBuilder.createSimple(APPLICATIONS_KEY)
-        *///? } else {
-        FabricRegistryBuilder.create(APPLICATIONS_KEY)
-         //? }
+        FabricRegistryBuilder.createSimple(APPLICATIONS_KEY)
+        //? } else {
+        /*FabricRegistryBuilder.create(APPLICATIONS_KEY)
+         *///? }
         .buildAndRegister();
 
 
     private static final ResourceKey<Registry<Application>> OVERLAYS_KEY = createRegistryKey("overlays");
     public static final Registry<Application> OVERLAYS =
             //? if <26.1 {
-            /*FabricRegistryBuilder.createSimple(OVERLAYS_KEY)
-             *///? } else {
-            FabricRegistryBuilder.create(OVERLAYS_KEY)
-                    //? }
+            FabricRegistryBuilder.createSimple(OVERLAYS_KEY)
+             //? } else {
+            /*FabricRegistryBuilder.create(OVERLAYS_KEY)
+                    *///? }
                     .buildAndRegister();
 
     public static void init()

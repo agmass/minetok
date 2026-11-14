@@ -3,7 +3,7 @@ package org.agmas.minetok.client.render.sprites.calls;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.*;
 import net.minecraft.client.multiplayer.PlayerInfo;
 //? if >1.21.1
@@ -33,7 +33,7 @@ public class CallsApplicationSprite extends ExitButtonSprite implements NetworkS
     ScrollBarSprite scrollBarSprite = new ScrollBarSprite(Phone.SCREEN_WIDTH-64, 200);
 
     @Override
-    public void render(GuiGraphicsExtractor graphics, PhoneTapInformation mouse, float renderDelta) {
+    public void render(GuiGraphics graphics, PhoneTapInformation mouse, float renderDelta) {
         exitBarCapture(mouse);
 
         MTGraphics.blit(graphics, Identifier.withDefaultNamespace("textures/block/white_concrete.png"),0,0, Phone.SCREEN_WIDTH+16, Phone.SCREEN_HEIGHT+16,0f,0f,6f,6f);
@@ -66,16 +66,16 @@ public class CallsApplicationSprite extends ExitButtonSprite implements NetworkS
                         }
                     }
                 }
-                PlayerFaceExtractor.
+                PlayerFaceRenderer.
                         //? if <=1.21.11
-                         //draw
+                         draw
                         //? if >1.21.11
-                        extractRenderState
+                        //extractRenderState
                                 (graphics,listedOnlinePlayer.getSkin(),marginX,marginY + (spacing*i),48);
                 graphics.pose().pushMatrix();
                 MTGraphics.translate(graphics, marginX + 58,marginY+ 8 + (spacing*i));
                 MTGraphics.scale(graphics, 4);
-                graphics.text(Minecraft.getInstance().font, listedOnlinePlayer.getProfile().name(), 0,0, selected ? -1 : Color.LIGHT_GRAY.getRGB());
+                graphics.drawString(Minecraft.getInstance().font, listedOnlinePlayer.getProfile().name(), 0,0, selected ? -1 : Color.LIGHT_GRAY.getRGB());
                 graphics.pose().popMatrix();
                 i++;
             }
@@ -92,9 +92,9 @@ public class CallsApplicationSprite extends ExitButtonSprite implements NetworkS
             MTGraphics.scale(graphics, 5);
 
             //? if >1.21.11
-            textField.extractRenderState(graphics, (int) mouse.x, (int) mouse.y,renderDelta);
+            //textField.extractRenderState(graphics, (int) mouse.x, (int) mouse.y,renderDelta);
             //? if <=1.21.11
-             //textField.render(graphics, (int) mouse.x, (int) mouse.y,renderDelta);
+             textField.render(graphics, (int) mouse.x, (int) mouse.y,renderDelta);
             if (mouse.x+40 > 80 && mouse.y+40 > 70 && mouse.x+40 < 680 && mouse.y+40 < 140) {
                 if (mouse.justTapped) {
                     MinetokClient.phone.selectedElement = textField;
@@ -105,17 +105,17 @@ public class CallsApplicationSprite extends ExitButtonSprite implements NetworkS
         }
     }
 
-    public void renderNoService(GuiGraphicsExtractor graphics, PhoneTapInformation mouse, float renderDelta) {
+    public void renderNoService(GuiGraphics graphics, PhoneTapInformation mouse, float renderDelta) {
         graphics.pose().pushMatrix();
         MTGraphics.translate(graphics, Phone.SCREEN_WIDTH/2f, (Phone.SCREEN_HEIGHT/2f)-90);
         MTGraphics.scale(graphics, 10);
-        graphics.text(Minecraft.getInstance().font, Component.translatable("phone.error.no_service"), -Minecraft.getInstance().font.width(Component.translatable("phone.error.no_service"))/2,-4,Color.RED.getRGB());
+        graphics.drawString(Minecraft.getInstance().font, Component.translatable("phone.error.no_service"), -Minecraft.getInstance().font.width(Component.translatable("phone.error.no_service"))/2,-4,Color.RED.getRGB());
         graphics.pose().popMatrix();
 
         graphics.pose().pushMatrix();
         MTGraphics.translate(graphics, Phone.SCREEN_WIDTH/2f, (Phone.SCREEN_HEIGHT/2f)-90);
         MTGraphics.scale(graphics, 3);
-        graphics.text(Minecraft.getInstance().font, Component.translatable("phone.error.missing_mod", "Simple Voicechat"), -Minecraft.getInstance().font.width(Component.translatable("phone.error.missing_mod", "Simple Voicechat"))/2,20,Color.LIGHT_GRAY.getRGB());
+        graphics.drawString(Minecraft.getInstance().font, Component.translatable("phone.error.missing_mod", "Simple Voicechat"), -Minecraft.getInstance().font.width(Component.translatable("phone.error.missing_mod", "Simple Voicechat"))/2,20,Color.LIGHT_GRAY.getRGB());
         graphics.pose().popMatrix();
     }
 

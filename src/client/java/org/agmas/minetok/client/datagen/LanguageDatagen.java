@@ -3,20 +3,20 @@ package org.agmas.minetok.client.datagen;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricLanguageProvider;
 import net.minecraft.core.HolderLookup;
 //? if >=26.1 {
-import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
-//? } else {
-/*import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
-*///? }
+/*import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
+*///? } else {
+import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
+//? }
 
 import java.util.concurrent.CompletableFuture;
 
 public class LanguageDatagen extends FabricLanguageProvider {
 
     //? if >=26.1 {
-    public LanguageDatagen(FabricPackOutput dataOutput, CompletableFuture<HolderLookup.Provider> registryLookup) {
-        //? } else {
-        /*public LanguageDatagen(FabricDataOutput dataOutput, CompletableFuture<HolderLookup.Provider> registryLookup) {
-         *///? }
+    /*public LanguageDatagen(FabricPackOutput dataOutput, CompletableFuture<HolderLookup.Provider> registryLookup) {
+        *///? } else {
+        public LanguageDatagen(FabricDataOutput dataOutput, CompletableFuture<HolderLookup.Provider> registryLookup) {
+         //? }
         super(dataOutput, registryLookup);
     }
 
@@ -48,6 +48,8 @@ public class LanguageDatagen extends FabricLanguageProvider {
         translationBuilder.add("phone.error.server_missing_mod", "Server Missing Mod: %s");
         translationBuilder.add("phone.media_not_found", "%s not found");
         translationBuilder.add("phone.minetok.followers", " (%s followers)");
+        translationBuilder.add("phone.messages.privacy", "Messages on this app are *NOT PRIVATE*!! Server Administrators can view and edit your messages in plain text. Do not share personal information.");
+        translationBuilder.add("phone.messages.new_chat", "Click the + button to create a new chat.");
 
         translationBuilder.add("phone.ringtone", "%s's phone is ringing");
         translationBuilder.add("phone.error.receiver_offline", "Receiver not online");

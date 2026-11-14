@@ -14,8 +14,8 @@ import net.fabricmc.loader.impl.util.log.LogCategory;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 //? if >=26.2
-import net.minecraft.client.PreferredGraphicsApi;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+//import net.minecraft.client.PreferredGraphicsApi;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -113,14 +113,14 @@ public class TikTokApplication extends Sprite implements NetworkSprite {
     }
 
     @Override
-    public void render(GuiGraphicsExtractor graphics, PhoneTapInformation mouse, float renderDelta) {
+    public void render(GuiGraphics graphics, PhoneTapInformation mouse, float renderDelta) {
         super.render(graphics, mouse, renderDelta);
         //? if >=26.2 {
-        if (mouse.isClient && Minecraft.getInstance().options.preferredGraphicsBackend().get().equals(PreferredGraphicsApi.VULKAN) && !warnedAboutVulkan) {
+        /*if (mouse.isClient && Minecraft.getInstance().options.preferredGraphicsBackend().get().equals(PreferredGraphicsApi.VULKAN) && !warnedAboutVulkan) {
             warnedAboutVulkan = true;
             MinetokClient.currentlyRendering_phone.addNetOverlay(MinetokOverlays.NOTIFICATION, new NotificationSprite(Component.translatable("phone.vulkan_warning"), false, MinetokClient.phone));
         }
-        //? }
+        *///? }
         YTDLPDownloader downloader = MinetokClient.currentlyRendering_phone.downloader;
         if (mouse.isClient) {
             if (!downloader.hasNextReel() && !YTDLPDownloader.isDownloadingVideo()) {
@@ -177,17 +177,14 @@ public class TikTokApplication extends Sprite implements NetworkSprite {
             loading = false;
         }
 
-        if (mouse.justReleased && Math.abs(mouse.tappedX-mouse.x) < 12) {
-            player.handler.mediaPlayer.controls().pause();
-            MinetokClient.phone.networkDirty = true;
-        }
-
+        boolean eatInputYumYumYum = mouse.justReleased;
 
         if (mouse.tapping) {
             if (!commentsOpen) {
                 scroll = ((mouse.y - mouse.tappedY) / 1000f);
             } else {
                 commentsScroll = startCommentsScroll + (mouse.y - mouse.tappedY);
+                eatInputYumYumYum = false;
             }
         } else {
             if (scroll < -0.5f) {
@@ -206,7 +203,7 @@ public class TikTokApplication extends Sprite implements NetworkSprite {
 
         graphics.pose().pushMatrix();
         MTGraphics.scale(graphics, 3,3);
-        graphics.text(Minecraft.getInstance().font, "its loading ok let it think", 4, 32, Color.WHITE.getRGB());
+        graphics.drawString(Minecraft.getInstance().font, "its loading ok let it think", 4, 32, Color.WHITE.getRGB());
         graphics.pose().popMatrix();
 
         if (downloader.hasNextReel() && downloader.nextThumbnail().exists()) {
@@ -243,13 +240,13 @@ public class TikTokApplication extends Sprite implements NetworkSprite {
             graphics.pose().pushMatrix();
             MTGraphics.translate(graphics, 32,Phone.SCREEN_HEIGHT-260);
             MTGraphics.scale(graphics, 3,3);
-            graphics.text(Minecraft.getInstance().font, metadata.title(), 0, 0, -1);
+            graphics.drawString(Minecraft.getInstance().font, metadata.title(), 0, 0, -1);
             graphics.pose().popMatrix();
 
             graphics.pose().pushMatrix();
             MTGraphics.translate(graphics, 32,Phone.SCREEN_HEIGHT-208);
             MTGraphics.scale(graphics, 2,2);
-            graphics.text(Minecraft.getInstance().font, Component.literal(metadata.author()).append(Component.translatable("phone.minetok.followers", metadata.followers()).withStyle(ChatFormatting.DARK_GRAY)), 0, 0, -1);
+            graphics.drawString(Minecraft.getInstance().font, Component.literal(metadata.author()).append(Component.translatable("phone.minetok.followers", metadata.followers()).withStyle(ChatFormatting.DARK_GRAY)), 0, 0, -1);
             graphics.pose().popMatrix();
 
             graphics.pose().pushMatrix();
@@ -263,12 +260,13 @@ public class TikTokApplication extends Sprite implements NetworkSprite {
                     MTGraphics.blit(graphics, Identifier.withDefaultNamespace("textures/gui/sprites/hud/heart/frozen_full.png"), 0,0,64,64,0,1,0,1);
                     if (mouse.justReleased && !commentsOpen) {
                         likedCurrentReel = !likedCurrentReel;
+                        eatInputYumYumYum = false;
                     }
                 }
             }
             MTGraphics.translate(graphics, 32 - (Minecraft.getInstance().font.width((metadata.likes() + (likedCurrentReel ? 1 : 0))+"")),68);
             MTGraphics.scale(graphics, 2,2);
-            graphics.text(Minecraft.getInstance().font, (metadata.likes() + (likedCurrentReel ? 1 : 0))+"", 0,0,-1);
+            graphics.drawString(Minecraft.getInstance().font, (metadata.likes() + (likedCurrentReel ? 1 : 0))+"", 0,0,-1);
             graphics.pose().popMatrix();
 
             graphics.pose().pushMatrix();
@@ -279,12 +277,13 @@ public class TikTokApplication extends Sprite implements NetworkSprite {
                 if (mouse.x+40 < Phone.SCREEN_WIDTH-16 && mouse.y+40 < Phone.SCREEN_HEIGHT-444) {
                     if (mouse.justReleased) {
                         commentsOpen = true;
+                        eatInputYumYumYum = false;
                     }
                 }
             }
             MTGraphics.translate(graphics, 32 - (Minecraft.getInstance().font.width(metadata.comments().size()+"")),68);
             MTGraphics.scale(graphics, 2,2);
-            graphics.text(Minecraft.getInstance().font, metadata.comments().size()+"", 0,0,-1);
+            graphics.drawString(Minecraft.getInstance().font, metadata.comments().size()+"", 0,0,-1);
             graphics.pose().popMatrix();
 
             if (mouse.justReleased && mouse.tappedY < 512 && mouse.y < 512) {
@@ -334,6 +333,10 @@ public class TikTokApplication extends Sprite implements NetworkSprite {
             graphics.pose().popMatrix();
         }
 
+        if (eatInputYumYumYum && Math.abs(mouse.tappedX-mouse.x) < 12) {
+            player.handler.mediaPlayer.controls().pause();
+            MinetokClient.phone.networkDirty = true;
+        }
     }
 
     DynamicTexture thumbnailTexture;

@@ -6,7 +6,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.ItemInHandRenderer;
 //? if >=26.3 {
@@ -64,9 +64,9 @@ public abstract class PhoneInWorldMixin {
 
     //? if <26.3 {
     //? if <26.2
-    //@WrapMethod(method = "renderArmWithItem")
+    @WrapMethod(method = "renderArmWithItem")
     //? if >=26.2
-    @WrapMethod(method = "submitArmWithItem")
+    //@WrapMethod(method = "submitArmWithItem")
     //? if >1.21.1
     public void disableWhenWatchingCams(AbstractClientPlayer abstractClientPlayer, float f, float g, InteractionHand interactionHand, float h, ItemStack itemStack, float i, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, int j, Operation<Void> original) {
     //? if <=1.21.1
@@ -93,8 +93,8 @@ public abstract class PhoneInWorldMixin {
             /*poseStack.pushPose();
             poseStack.translate(-0.1f,0.0f,-13.5f);
             poseStack.scale(20,20,20);
-            //itemRenderer.render(itemStack, ItemDisplayContext.NONE, false, poseStack, submitNodeCollector, j, OverlayTexture.NO_OVERLAY,
-            //        itemRenderer.getModel(itemStack, abstractClientPlayer.level(),abstractClientPlayer,0));
+            itemRenderer.render(itemStack, ItemDisplayContext.NONE, false, poseStack, submitNodeCollector, j, OverlayTexture.NO_OVERLAY,
+                    itemRenderer.getModel(itemStack, abstractClientPlayer.level(),abstractClientPlayer,0));
             poseStack.popPose();
             MinetokClient.phone.renderInHand(poseStack,submitNodeCollector,j,abstractClientPlayer.getTicksUsingItem());
             *///? }

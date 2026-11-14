@@ -4,7 +4,7 @@ package org.agmas.minetok.client.render;
  //import net.minecraft.world.item.component.SwingAnimation;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 //? if >1.21.1 {
 import net.minecraft.client.renderer.RenderPipelines;
@@ -66,7 +66,7 @@ public class Phone {
         topSprite.overlays.add(overlay);
     }
 
-    public void render(GuiGraphicsExtractor graphics) {
+    public void render(GuiGraphics graphics) {
         if (this == MinetokClient.phone)
             handleMouseInput();
 

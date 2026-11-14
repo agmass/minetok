@@ -2,9 +2,9 @@ package org.agmas.minetok.client.vlcj;
 
 //? if <26.3 {
 //? if >=26.2 {
-import com.mojang.blaze3d.GpuFormat;
+/*import com.mojang.blaze3d.GpuFormat;
 import com.mojang.blaze3d.vulkan.VulkanGpuTexture;
-//? }
+*///? }
 //? if >1.21.1 {
 import com.mojang.blaze3d.opengl.GlStateManager;
 import com.mojang.blaze3d.opengl.GlTexture;
@@ -12,7 +12,7 @@ import com.mojang.blaze3d.textures.FilterMode;
 import com.mojang.blaze3d.textures.GpuTexture;
 import com.mojang.blaze3d.textures.GpuTextureView;
 //? if <26.2
-//import com.mojang.blaze3d.textures.TextureFormat;
+import com.mojang.blaze3d.textures.TextureFormat;
 //? } else {
 /*import com.mojang.blaze3d.platform.GlStateManager;
 *///? }
@@ -80,9 +80,9 @@ public class VLCJHandler extends AbstractTexture {
             }
             texture = RenderSystem.getDevice().createTexture("videoTexture", 13,
                     //? <26.2
-                    //TextureFormat.RGBA8
+                    TextureFormat.RGBA8
                     //? >=26.2
-                    GpuFormat.RGBA8_UNORM
+                    //GpuFormat.RGBA8_UNORM
                     , sourceWidth, sourceHeight, 1, 1);
             textureView = RenderSystem.getDevice().createTextureView(texture);
             Minecraft.getInstance().getTextureManager().register(textureId, this);
@@ -93,7 +93,7 @@ public class VLCJHandler extends AbstractTexture {
         MinetokClient.lastRenderFrame = this::ensureSize;
         if (textureDirty && !textureLocked && bufferedImage != null && !Minecraft.getInstance().isPaused()) {
             //? if >=26.2 {
-            if (texture instanceof VulkanGpuTexture vk) {
+            /*if (texture instanceof VulkanGpuTexture vk) {
                 textureDirty = false;
                 MinetokClient.lastRenderFrame = () -> {
                     if (textureLocked) return;
@@ -115,7 +115,7 @@ public class VLCJHandler extends AbstractTexture {
                     thisMightBeSlowButHeyItWorks.close();
                 };
             }
-            //? }
+            *///? }
             if (texture instanceof GlTexture gl) {
                 textureDirty = false;
                 MinetokClient.lastRenderFrame = () -> {
@@ -170,9 +170,9 @@ public class VLCJHandler extends AbstractTexture {
         //? if >1.21.1 {
         texture = RenderSystem.getDevice().createTexture("videoTexture", 13,
                 //? <26.2
-                //TextureFormat.RGBA8
+                TextureFormat.RGBA8
                 //? >=26.2
-                GpuFormat.RGBA8_UNORM
+                //GpuFormat.RGBA8_UNORM
                 , 720, 1280, 1, 1);
         textureView = RenderSystem.getDevice().createTextureView(texture);
         //? } else {
@@ -207,7 +207,7 @@ public class VLCJHandler extends AbstractTexture {
                 new RenderCallback() {
                     @Override
                     public void display(MediaPlayer mediaPlayer, ByteBuffer[] nativeBuffers, BufferFormat bufferFormat, int displayWidth, int displayHeight) {
-                        if (!textureDirty && !textureLocked) {
+                        if (!textureDirty && !textureLocked && !Minecraft.getInstance().isPaused()) {
                             textureDirty = true;
                             textureLocked = true;
                             int[] rgbArray = new int[sourceWidth * sourceHeight];

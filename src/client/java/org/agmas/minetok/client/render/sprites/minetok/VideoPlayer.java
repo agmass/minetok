@@ -1,6 +1,6 @@
 package org.agmas.minetok.client.render.sprites.minetok;
 
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import org.agmas.minetok.api.PhoneTapInformation;
@@ -28,7 +28,7 @@ public class VideoPlayer extends Sprite {
     }
 
     @Override
-    public void render(GuiGraphicsExtractor graphics, PhoneTapInformation mouse, float renderDelta) {
+    public void render(GuiGraphics graphics, PhoneTapInformation mouse, float renderDelta) {
         if (MinetokClient.phone.topSprite.overlays.isEmpty() && mouse.isClient && crashRightAfterOverlayClosed && !MinetokClient.phone.topSprite.closing) {
             MinetokClient.phone.topSprite.closing = true;
             MinetokClient.phone.topSprite.openingAppAnimation = 1;
