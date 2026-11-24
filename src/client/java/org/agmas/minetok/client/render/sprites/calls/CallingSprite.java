@@ -69,7 +69,7 @@ public class CallingSprite extends Sprite implements NetworkSprite {
         if (receiving) {
             MTGraphics.blit(graphics, HANG_UP.id, marginX, Phone.SCREEN_HEIGHT - marginY, (marginX + size), Phone.SCREEN_HEIGHT - (marginY - size), 0, 1, 0, 1);
 
-            if (MTGraphics.hoveringButton(mouse,marginX,marginY,size,size)) {
+            if (MTGraphics.hoveringButton(mouse,marginX,Phone.SCREEN_HEIGHT - marginY,size,size)) {
                 graphics.fill(marginX, Phone.SCREEN_HEIGHT - marginY, marginX + size, Phone.SCREEN_HEIGHT - (marginY - size), new Color(100, 100, 100, 100).getRGB());
                 if (mouse.justTapped) {
                     ClientPlayNetworking.send(new ServerboundCallResponsePacket(false));

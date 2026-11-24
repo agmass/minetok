@@ -41,15 +41,6 @@ public class Minetok implements ModInitializer {
 			messagesHandler = new MessagesHandler(minecraftServer.getWorldPath(LevelResource.ROOT));
 		}));
 
-		ServerLivingEntityEvents.AFTER_DEATH.register(((livingEntity, damageSource) -> {
-			if (livingEntity instanceof Player p) {
-				UUID helloIamAUUID = UUID.randomUUID();
-				messagesHandler.writeMessage(p, helloIamAUUID, new NetMessage(false, Instant.now().toEpochMilli(), Component.literal("im a skibidi")));
-				messagesHandler.writeMessage(p, helloIamAUUID, new NetMessage(true, Instant.now().toEpochMilli(), Component.literal("Stop talking to me")));
-				messagesHandler.writeMessage(p, helloIamAUUID, new NetMessage(false, Instant.now().toEpochMilli(), Component.literal("wowowowawawwawa")));
-				messagesHandler.writeMessage(p, helloIamAUUID, new NetMessage(false, Instant.now().toEpochMilli(), Component.literal("im a veeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeery long messaaaaaaaaaaaaaaaaaage")));
-			}
-		}));
 
 		ModItems.init();
 		ModPackets.init();

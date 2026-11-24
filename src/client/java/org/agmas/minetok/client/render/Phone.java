@@ -25,11 +25,13 @@ import org.agmas.minetok.client.MinetokClient;
 import org.agmas.minetok.api.PhoneTapInformation;
 import org.agmas.minetok.client.animation.NBTHelper;
 import org.agmas.minetok.client.api.Application;
+import org.agmas.minetok.client.api.MTGraphics;
 import org.agmas.minetok.client.api.NetworkSprite;
 import org.agmas.minetok.client.api.Sprite;
 import org.agmas.minetok.client.init.MinetokOverlays;
 import org.agmas.minetok.client.render.sprites.HomeScreenSprite;
 import org.agmas.minetok.client.render.sprites.calls.CallingSprite;
+import org.agmas.minetok.client.render.sprites.settings.DebugModeSprite;
 import org.agmas.minetok.client.util.MinetokClientRegistries;
 import org.agmas.minetok.client.vlcj.YTDLPDownloader;
 import org.agmas.minetok.init.ModAttachments;
@@ -81,14 +83,24 @@ public class Phone {
             setDirty();
         }
 
+        boolean debug = DebugModeSprite.ticked;
+        if (debug) {
+            graphics.pose().pushMatrix();
+            MTGraphics.translate(graphics, (-mouse.x) + (Phone.SCREEN_WIDTH/2f), (-mouse.y) + (Phone.SCREEN_HEIGHT/2f));
+        }
 
         topSprite.render(graphics,mouse, Minecraft.getInstance().getDeltaTracker().getRealtimeDeltaTicks());
+
 
         graphics.blitSprite(
                 //? if >1.21.1
                 RenderPipelines.CROSSHAIR,
                 CROSSHAIR_SPRITE, (int)mouse.x, (int)mouse.y, 80, 80);
-        
+
+        if (debug) {
+            graphics.pose().popMatrix();
+        }
+
         if (mouse.justTapped)
             setDirty();
     }
@@ -129,17 +141,19 @@ public class Phone {
             mouse.justTapped = false;
         }
 
-        if (mouse.x < 0) {
-            mouse.x = 0;
-        }
-        if (mouse.y < 0) {
-            mouse.y = 0;
-        }
-        if (mouse.x > 680) {
-            mouse.x = 680;
-        }
-        if (mouse.y > 1200) {
-            mouse.y = 1200;
+        if (!DebugModeSprite.ticked) {
+            if (mouse.x < 0) {
+                mouse.x = 0;
+            }
+            if (mouse.y < 0) {
+                mouse.y = 0;
+            }
+            if (mouse.x > 680) {
+                mouse.x = 680;
+            }
+            if (mouse.y > 1200) {
+                mouse.y = 1200;
+            }
         }
     }
 
@@ -237,6 +251,7 @@ public class Phone {
     }
 
     public void sync(CompoundTag tag) {
+        MinetokClient.currentlyRendering_phone =this;
         CompoundTag netMouse = NBTHelper.getCompoundOrEmpty(tag, "mouse");
         if (!netMouse.isEmpty()) {
             mouse.prevX = mouse.x;
@@ -302,6 +317,8 @@ public class Phone {
 
             }
         }
+        MinetokClient.currentlyRendering_phone = null;
+
     }
 
     public void destroy() {

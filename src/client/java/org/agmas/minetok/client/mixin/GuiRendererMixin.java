@@ -10,7 +10,10 @@ import org.agmas.minetok.client.render.PhoneTextureRenderer;
 import org.spongepowered.asm.mixin.Mixin;
 
 //? if >1.21.1 {
+//? if <26.3
 import com.mojang.blaze3d.systems.RenderPass;
+//? if >=26.3
+//import com.mojang.renderpearl.api.commands.RenderPass;
 import net.minecraft.client.gui.render.GuiRenderer;
 //? if >=26.1
 //import net.minecraft.client.renderer.Projection;

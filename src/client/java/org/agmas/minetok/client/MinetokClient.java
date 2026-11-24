@@ -12,6 +12,8 @@ import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderEvents;
 //? <=1.21.1
 //import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.fabricmc.loader.impl.util.log.Log;
+import net.fabricmc.loader.impl.util.log.LogCategory;
 import net.minecraft.client.player.AbstractClientPlayer;
 //? if >=1.21.11 {
 import net.minecraft.client.renderer.RenderPipelines;
@@ -57,6 +59,7 @@ import org.agmas.minetok.network.NetMessage;
 import org.agmas.minetok.network.ServerboundPhoneStatePacket;
 import org.agmas.minetok.network.ServerboundRingtoneSetPacket;
 import org.agmas.minetok.porting.MTID;
+import uk.co.caprica.vlcj.factory.MediaPlayerFactory;
 
 import java.util.HashMap;
 import java.util.List;
@@ -74,6 +77,7 @@ public class MinetokClient implements ClientModInitializer {
 	public static RenderStateDataKey<PhoneTapInformation> headMouseInfoID = RenderStateDataKey.create(()->"headMouseInfoID");
 	private static final Function<Identifier, RenderType> PHONE_RENDER_TYPE = Util.memoize((texture) -> RenderType.create("phone_render_type", RenderSetup.builder(RenderPipelines.SOLID_BLOCK).useLightmap().withTexture("Sampler0", texture).affectsCrumbling().setOutline(RenderSetup.OutlineProperty.AFFECTS_OUTLINE).createRenderSetup()));
 
+	public static boolean vlcEnabled = false;
 
 	public static final RenderType getPhoneRenderType(MTID resourceLocation) {
 		return PHONE_RENDER_TYPE.apply(resourceLocation.id);
@@ -95,6 +99,14 @@ public class MinetokClient implements ClientModInitializer {
 
 	@Override
 	public void onInitializeClient() {
+
+		try {
+			new MediaPlayerFactory();
+			vlcEnabled = true;
+		} catch (Exception e) {
+			Minetok.LOGGER.error("You do not have the right version of VLC installed (or have VLC installed at all)");
+			vlcEnabled = false;
+		}
 
 		YTDLPDownloader.clearYTDLPFolder();
 
@@ -205,7 +217,7 @@ public class MinetokClient implements ClientModInitializer {
 
 
 			for (OtherPlayerPhone value : playerPhoneHashMap.values()) {
-				if (value.phone.player.getUUID().equals(MinetokClient.phone.player.getUUID())) return;
+				if (value.phone.player.getUUID().equals(MinetokClient.phone.player.getUUID())) continue;
 				currentlyRendering_phone = value.phone;
 
 				//? if <=1.21.1

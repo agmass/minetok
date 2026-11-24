@@ -1,11 +1,16 @@
 package org.agmas.minetok.client.api;
 
-import com.mojang.blaze3d.pipeline.RenderPipeline;
+//? if <=1.21.1
+//import com.mojang.blaze3d.pipeline.RenderPipeline;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.*;
 import net.minecraft.client.gui.GuiGraphics;
 //? if >1.21.1
 import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.resources.Identifier;
 import org.agmas.minetok.api.PhoneTapInformation;
+import org.joml.Matrix4f;
 
 /*
     Helper class cuz versions have weird GuiGraphics changes.
@@ -47,7 +52,7 @@ public class MTGraphics {
         graphics.blit(RenderPipelines.GUI_TEXTURED,texture,x,y,u,v,width,height,textureWidth,textureHeight);
         //? }
         //? if <=1.21.1 {
-        /*graphics.blit(identifier,spriteWidth,spriteHeight,textureX,textureY,x,y,width,height);
+        /*graphics.blit(texture,x,y,u,v,width,height,textureWidth,textureHeight);
         *///? }
     }
 

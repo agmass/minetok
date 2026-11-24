@@ -35,18 +35,7 @@ public class HomeScreenSprite extends Sprite {
     public void refreshApps() {
         gridApps.clear();
 
-        // minecraft doesn't sort registries so we do it ourselves! this is to keep from networked phones look like their opening the wrong app on differing clients
-        List<Map.Entry<ResourceKey<Application>, Application>> sortedList = new ArrayList<>();
-
-        for (Map.Entry<ResourceKey<Application>, Application> resourceKeyApplicationEntry : MinetokClientRegistries.APPLICATIONS.entrySet()) {
-            int i = 0;
-            while (sortedList.size() > i && sortedList.get(i).getKey().hashCode() > resourceKeyApplicationEntry.getKey().hashCode()) {
-                i++;
-            }
-            sortedList.add(resourceKeyApplicationEntry);
-        }
-
-        for (Map.Entry<ResourceKey<Application>, Application> entry : sortedList) {
+        for (Map.Entry<ResourceKey<Application>, Application> entry : MinetokClientRegistries.APPLICATIONS.entrySet()) {
             if (entry.getValue().allowedToBeShown()) {
                 gridApps.add(new ApplicationGridIcon(entry.getKey().identifier(), entry.getValue()));
             }
@@ -153,4 +142,10 @@ public class HomeScreenSprite extends Sprite {
         maxPage = page;
     }
 
+    @Override
+    public void charTypedWhileFocused(long l) {
+        super.charTypedWhileFocused(l);
+        if (focusedSprite != null)
+            focusedSprite.charTypedWhileFocused(l);
+    }
 }

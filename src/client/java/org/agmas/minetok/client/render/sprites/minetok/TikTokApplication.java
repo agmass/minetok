@@ -21,12 +21,14 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import org.agmas.minetok.api.PhoneTapInformation;
 import org.agmas.minetok.client.MinetokClient;
+import org.agmas.minetok.client.animation.EasingHelper;
 import org.agmas.minetok.client.api.MTGraphics;
 import org.agmas.minetok.client.animation.NBTHelper;
 import org.agmas.minetok.client.api.NetworkSprite;
 import org.agmas.minetok.client.api.Sprite;
 import org.agmas.minetok.client.init.MinetokOverlays;
 import org.agmas.minetok.client.render.Phone;
+import org.agmas.minetok.client.render.sprites.ExitButtonSprite;
 import org.agmas.minetok.client.render.sprites.NotificationSprite;
 import org.agmas.minetok.client.vlcj.YTDLPDownloader;
 import org.agmas.minetok.porting.MTID;
@@ -40,7 +42,7 @@ import java.io.FileReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
-public class TikTokApplication extends Sprite implements NetworkSprite {
+public class TikTokApplication extends ExitButtonSprite implements NetworkSprite {
 
     VideoPlayer player;
     public boolean loading = false;
@@ -49,6 +51,7 @@ public class TikTokApplication extends Sprite implements NetworkSprite {
         try {
             player = new VideoPlayer(MinetokClient.currentlyRendering_phone);
         } catch (Exception e) {
+            e.printStackTrace();
             MinetokClient.currentlyRendering_phone.addNetOverlay(MinetokOverlays.NOTIFICATION, new NotificationSprite(Component.translatable("phone.no_vlc", e.getMessage()), true, MinetokClient.phone));
             throw e;
         }
@@ -112,7 +115,17 @@ public class TikTokApplication extends Sprite implements NetworkSprite {
 
     @Override
     public void render(GuiGraphics graphics, PhoneTapInformation mouse, float renderDelta) {
-        super.render(graphics, mouse, renderDelta);
+        exitBarCapture(mouse);
+        if (!MinetokClient.vlcEnabled) {
+            MTGraphics.blitSprite(graphics, Identifier.withDefaultNamespace("textures/block/magma_block.png"), -8,-8,0,0, Phone.SCREEN_WIDTH+16, Phone.SCREEN_HEIGHT+16,128,128);
+            graphics.pose().pushMatrix();
+            MTGraphics.translate(graphics,Phone.SCREEN_WIDTH/2f,Phone.SCREEN_HEIGHT/2f);
+            MTGraphics.scale(graphics,3);
+            graphics.drawString(Minecraft.getInstance().font, Component.translatable("phone.error.no_vlc"),-Minecraft.getInstance().font.width(Component.translatable("phone.error.no_vlc"))/2,0,Color.RED.getRGB());
+            graphics.pose().popMatrix();
+            super.render(graphics, mouse, renderDelta);
+            return;
+        }
         //? if >=26.2 {
         /*if (mouse.isClient && Minecraft.getInstance().options.preferredGraphicsBackend().get().equals(PreferredGraphicsApi.VULKAN) && !warnedAboutVulkan) {
             warnedAboutVulkan = true;
@@ -154,7 +167,10 @@ public class TikTokApplication extends Sprite implements NetworkSprite {
                 metadata = null;
                 net_lastNextReel = net_nextReel;
             }
-
+            player.handler.mediaPlayer.controls().setPause(net_paused);
+            if (Math.abs(net_time-player.handler.mediaPlayer.status().position()) > 1500) {
+                player.handler.mediaPlayer.controls().setPosition(net_time);
+            }
         }
 
 
@@ -335,7 +351,23 @@ public class TikTokApplication extends Sprite implements NetworkSprite {
             player.handler.mediaPlayer.controls().pause();
             MinetokClient.phone.networkDirty = true;
         }
+
+        if (mouse.prevX == mouse.x && mouse.prevY == mouse.y) {
+            timeSinceMovedMouse += (renderDelta)/100;
+        } else {
+            timeSinceMovedMouse = 0;
+        }
+        timeSinceMovedMouse = Mth.clamp(timeSinceMovedMouse,0,1);
+
+        graphics.pose().pushMatrix();
+        if (timeSinceMovedMouse > 0.3) {
+            MTGraphics.translate(graphics, 0, Mth.lerp(EasingHelper.outQuad((float) (timeSinceMovedMouse-0.3)), 0, -300));
+        }
+        super.render(graphics, mouse, renderDelta);
+        graphics.pose().popMatrix();
     }
+
+    public float timeSinceMovedMouse = 0;
 
     DynamicTexture thumbnailTexture;
     NativeImage image = null;
@@ -360,6 +392,7 @@ public class TikTokApplication extends Sprite implements NetworkSprite {
     public String net_lastNextReel = "";
     public float net_time = 0f;
     public boolean net_expectedReel = false;
+    public boolean net_paused = true;
 
     @Override
     public CompoundTag createTag() {
@@ -383,5 +416,6 @@ public class TikTokApplication extends Sprite implements NetworkSprite {
         net_expectedReel = net_currentReel.equals(net_nextReel);
         net_nextReel = NBTHelper.getStringOr(phoneData, "next_reel", "");
         net_time = NBTHelper.getFloatOr(phoneData, "time", 0f);
+        net_paused = NBTHelper.getBooleanOr(phoneData,"paused",true);
     }
 }

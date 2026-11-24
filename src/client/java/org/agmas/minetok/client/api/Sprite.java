@@ -16,4 +16,6 @@ public class Sprite {
     public void destroy() {}
 
     public void unfocusedRender() {}
+
+    public void charTypedWhileFocused(long l) {}
 }

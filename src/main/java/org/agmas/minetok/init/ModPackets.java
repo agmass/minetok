@@ -16,6 +16,7 @@ import org.agmas.minetok.messages.MessagesHandler;
 import org.agmas.minetok.network.*;
 import org.agmas.minetok.voicechat.MinetokVoicechatPlugin;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -40,6 +41,9 @@ public class ModPackets {
                 .register(ServerboundCallResponsePacket.TYPE, ServerboundCallResponsePacket.CODEC);
 
         PayloadTypeRegistry.playC2S()
+                .register(ServerboundSendMessagePacket.TYPE, ServerboundSendMessagePacket.CODEC);
+
+        PayloadTypeRegistry.playC2S()
                 .register(ServerboundRingtoneSetPacket.TYPE, ServerboundRingtoneSetPacket.CODEC);
 
         ServerPlayNetworking.registerGlobalReceiver(ServerboundPhoneStatePacket.TYPE, (payload, context)->{
@@ -59,11 +63,11 @@ public class ModPackets {
         });
 
         ServerPlayNetworking.registerGlobalReceiver(ServerboundRequestMessagesPacket.TYPE, (payload, context)->{
-            if (payload.UUID().equals(context.player().getStringUUID())) {
+            if (payload.page() == -1) {
                 for (UUID contact : Minetok.messagesHandler.getContacts(context.player().getUUID())) {
                     List<NetMessage> messages = Minetok.messagesHandler.readMessages(context.player(), contact, 0);
                     if (!messages.isEmpty())
-                        context.responseSender().sendPacket(new ClientboundRecieveMessageListPacket(contact.toString(), messages.subList(0,1)));
+                        context.responseSender().sendPacket(new ClientboundRecieveMessageListPacket(contact.toString(), messages.subList(0,1),false));
                 }
             } else {
                 List<NetMessage> messages = Minetok.messagesHandler.readMessages(context.player(), UUID.fromString(payload.UUID()), payload.page());
@@ -76,7 +80,18 @@ public class ModPackets {
                     messages = transformedMessages;
                 }
 
-                context.responseSender().sendPacket(new ClientboundRecieveMessageListPacket(payload.UUID(), messages));
+                context.responseSender().sendPacket(new ClientboundRecieveMessageListPacket(payload.UUID(), messages,false));
+            }
+        });
+
+        ServerPlayNetworking.registerGlobalReceiver(ServerboundSendMessagePacket.TYPE, (payload, context)->{
+            NetMessage msg = new NetMessage(false, Instant.now().toEpochMilli(), Component.literal(payload.s()));
+            Minetok.messagesHandler.writeMessage(context.player(), UUID.fromString(payload.uuid()), msg);
+            ServerPlayNetworking.send(context.player(), new ClientboundRecieveMessageListPacket(payload.uuid(), List.of(msg), true));
+
+            ServerPlayer player = context.server().getPlayerList().getPlayer(UUID.fromString(payload.uuid()));
+            if (player != null) {
+                ServerPlayNetworking.send(player, new ClientboundRecieveMessageListPacket(context.player().getStringUUID(), List.of(new NetMessage(true, msg.timestamp(), msg.message())), true));
             }
         });
 

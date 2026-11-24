@@ -26,7 +26,10 @@ public class CaptureKeyboardMixin {
     public void overrideKeyboard(long l, int i, KeyEvent keyEvent, CallbackInfo ci) {
     //? if <=1.21.1
     //public void overrideKeyboard(long l, int i, int j, int k, int m, CallbackInfo ci) {
-        if (MinetokClient.phone != null && MinetokClient.phone.selectedElement != null && (i == 1 || i == 2)) {
+        if (MinetokClient.phone != null && MinetokClient.phone.selectedElement != null
+                //? if >1.21.1
+                && (i == 1 || i == 2)
+        ) {
             MinetokClient.phone.selectedElement.keyPressed(
                     //? if >1.21.1
                     keyEvent
@@ -34,6 +37,10 @@ public class CaptureKeyboardMixin {
                     //j,k,m
             );
             MinetokClient.phone.setDirty();
+            //? if >1.21.1
+            MinetokClient.phone.topSprite.charTypedWhileFocused(keyEvent.input());
+            //? if <=1.21.1
+            //MinetokClient.phone.topSprite.charTypedWhileFocused(i);
             ci.cancel();
         }
     }

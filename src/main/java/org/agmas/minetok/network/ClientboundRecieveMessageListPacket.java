@@ -8,11 +8,12 @@ import org.agmas.minetok.porting.MTID;
 
 import java.util.List;
 
-public record ClientboundRecieveMessageListPacket(String uuid, List<NetMessage> messages) implements CustomPacketPayload {
+public record ClientboundRecieveMessageListPacket(String uuid, List<NetMessage> messages, boolean append) implements CustomPacketPayload {
     public static final Type<ClientboundRecieveMessageListPacket> TYPE = new Type<>(MTID.of("message_list").id);
     public static final StreamCodec<RegistryFriendlyByteBuf, ClientboundRecieveMessageListPacket> CODEC = StreamCodec.composite(
             ByteBufCodecs.STRING_UTF8, ClientboundRecieveMessageListPacket::uuid,
             ByteBufCodecs.<RegistryFriendlyByteBuf, NetMessage>list().apply(NetMessage.STREAM_CODEC), ClientboundRecieveMessageListPacket::messages,
+            ByteBufCodecs.BOOL, ClientboundRecieveMessageListPacket::append,
             ClientboundRecieveMessageListPacket::new);
 
     @Override

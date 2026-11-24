@@ -105,7 +105,8 @@ public abstract class PhoneInWorldMixin {
      //? } else if >=26.3 {
     /*@WrapMethod(method = "submitArmWithItem")
     public void disableWhenWatchingCams(PlayerRenderState playerState, FirstPersonHandsAndItemsRenderState state, float partialTicks, float xRot, InteractionHand hand, float attack, ItemStack itemStack, float inverseArmHeight, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, int lightCoords, Operation<Void> original) {
-        if (playerState.avatarRenderState.isUsingItem && playerState.avatarRenderState.getActiveItemStackForArm(playerState.avatarRenderState.useItemHand.asArm(playerState.avatarRenderState.mainArm)).getItem() instanceof PhoneItem && hand.equals(playerState.avatarRenderState.useItemHand)) {
+        //~ !identify
+        if (playerState.avatarRenderState.isUsingItem && playerState.avatarRenderState.getUseItemStackForArm(playerState.avatarRenderState.useItemHand.asArm(playerState.avatarRenderState.mainArm)).getItem() instanceof PhoneItem && hand.equals(playerState.avatarRenderState.useItemHand)) {
             poseStack.pushPose();
             poseStack.translate(0.15f,0,0);
             renderPlayerArm(poseStack,submitNodeCollector,lightCoords,inverseArmHeight,0,HumanoidArm.LEFT,playerState);

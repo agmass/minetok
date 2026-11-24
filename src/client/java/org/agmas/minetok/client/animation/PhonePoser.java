@@ -3,6 +3,7 @@ package org.agmas.minetok.client.animation;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.util.Mth;
 import org.agmas.minetok.api.PhoneTapInformation;
+import org.agmas.minetok.client.MinetokClient;
 
 public class PhonePoser {
     public static void poseMainArm(ModelPart arm, float castTime) {
@@ -14,7 +15,12 @@ public class PhonePoser {
     }
 
     public static void poseHeadDown(ModelPart arm, PhoneTapInformation mouse, float tickDelta, boolean right) {
-        arm.xRot = Mth.lerp(Mth.lerp(tickDelta, mouse.prevY, mouse.y)/1280f, -0.1f, 0.5f);
-        arm.yRot = Mth.lerp(Mth.lerp(tickDelta, mouse.prevX, mouse.x)/720f, (right ? 1 : -1) * -0.3f, (right ? 1 : -1) * 0.3f);
+        if (mouse == MinetokClient.phone.mouse) {
+            arm.xRot = Mth.lerp(mouse.y / 1280f, -0.1f, 0.5f);
+            arm.yRot = Mth.lerp(mouse.x / 720f, (right ? 1 : -1) * -0.3f, (right ? 1 : -1) * 0.3f);
+        } else {
+            arm.xRot = Mth.lerp(Mth.lerp(tickDelta, mouse.prevY, mouse.y) / 1280f, -0.1f, 0.5f);
+            arm.yRot = Mth.lerp(Mth.lerp(tickDelta, mouse.prevX, mouse.x) / 720f, (right ? 1 : -1) * -0.3f, (right ? 1 : -1) * 0.3f);
+        }
     }
 }

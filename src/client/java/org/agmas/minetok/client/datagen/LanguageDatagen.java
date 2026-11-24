@@ -7,6 +7,7 @@ import net.minecraft.core.HolderLookup;
 *///? } else {
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 //? }
+import org.agmas.minetok.init.ModItems;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -23,9 +24,12 @@ public class LanguageDatagen extends FabricLanguageProvider {
     @Override
     public void generateTranslations(HolderLookup.Provider provider, TranslationBuilder translationBuilder) {
 
+        translationBuilder.add(ModItems.PHONE, "Phone");
+
         translationBuilder.add("phone.app.minetok.calls", "Calls");
         translationBuilder.add("phone.app.minetok.settings", "Settings");
         translationBuilder.add("phone.app.minetok.minetok", "Minetok");
+        translationBuilder.add("phone.app.minetok.messages", "Messages");
 
         translationBuilder.add("config.minetok.muteOtherPhones", "Mute Other Phones");
         translationBuilder.add("config.minetok.muteRingtones", "Mute All Ringtones");
@@ -38,7 +42,8 @@ public class LanguageDatagen extends FabricLanguageProvider {
         translationBuilder.add("phone.tap_continue", "Tap Anywhere to Continue");
 
         translationBuilder.add("phone.error.missing_mod", "Please Install %s");
-        translationBuilder.add("phone.error.no_vlc", "Minetok failed to load. You probbably don't have VLC Media Player installed. Go install that please\n\n%s");
+        translationBuilder.add("phone.error.cant_message_self", "You can't message yourself!");
+        translationBuilder.add("phone.error.no_vlc", "VLC Media Player 3.0 required. Refer to the Minetok's mod description.");
         translationBuilder.add("phone.error.no_ytdlp", "Minetok requires yt-dlp. You can go install it (or update when needed) in the Settings app.");
         translationBuilder.add("phone.vulkan_warning", "Using Vulkan for Video Rendering is still experimental. Artifacts may occur.");
         translationBuilder.add("phone.error.no_service", "No Service");

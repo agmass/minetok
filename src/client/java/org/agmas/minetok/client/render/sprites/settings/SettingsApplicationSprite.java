@@ -1,7 +1,6 @@
 package org.agmas.minetok.client.render.sprites.settings;
 
 import net.minecraft.client.gui.GuiGraphics;
-//? if >1.21.1
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -25,6 +24,7 @@ public class SettingsApplicationSprite extends ExitButtonSprite implements Netwo
     BooleanOptionSprite disableRingingIndicator = new BooleanOptionSprite(Component.translatable("config.minetok.disableRingingIndicator"), PhoneConfig.INSTANCE.disableRingingIndicator);
     SoundOverlayOptionSprite ringtone = new SoundOverlayOptionSprite(Component.translatable("config.minetok.ringtone"), PhoneConfig.INSTANCE.ringtone);
     YTDLPOptionSprite ytdlp = new YTDLPOptionSprite(Component.translatable("config.minetok.install_ytdlp"));
+    DebugModeSprite debug = new DebugModeSprite(Component.translatable("config.minetok.debug_mode"));
 
     ArrayList<Sprite> options  = new ArrayList<>();
 
@@ -34,6 +34,7 @@ public class SettingsApplicationSprite extends ExitButtonSprite implements Netwo
         options.add(disableRingingIndicator);
         options.add(ringtone);
         options.add(ytdlp);
+        options.add(debug);
     }
 
     @Override

@@ -8,7 +8,6 @@ import com.mojang.blaze3d.vulkan.VulkanGpuTexture;
 //? if >1.21.1 {
 import com.mojang.blaze3d.opengl.GlStateManager;
 import com.mojang.blaze3d.opengl.GlTexture;
-import com.mojang.blaze3d.textures.FilterMode;
 import com.mojang.blaze3d.textures.GpuTexture;
 import com.mojang.blaze3d.textures.GpuTextureView;
 //? if <26.2
@@ -17,8 +16,8 @@ import com.mojang.blaze3d.textures.TextureFormat;
 /*import com.mojang.blaze3d.platform.GlStateManager;
 *///? }
 //? } else {
-/*
-import com.mojang.renderpearl.api.GpuFormat;
+
+/*import com.mojang.renderpearl.api.GpuFormat;
 import com.mojang.renderpearl.api.commands.CommandEncoder;
 import com.mojang.renderpearl.backend.opengl.GlStateManager;
 import com.mojang.renderpearl.backend.vulkan.VulkanGpuTexture;
@@ -30,6 +29,9 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.resources.Identifier;
+
+//? if >1.21.1
+import com.mojang.blaze3d.textures.FilterMode;
 import net.minecraft.server.packs.resources.ResourceManager;
 import org.agmas.minetok.client.MinetokClient;
 import org.agmas.minetok.client.render.Phone;
@@ -90,6 +92,7 @@ public class VLCJHandler extends AbstractTexture {
     }
 
     public boolean updateTexture() {
+        if (!MinetokClient.vlcEnabled) return false;
         MinetokClient.lastRenderFrame = this::ensureSize;
         if (textureDirty && !textureLocked && bufferedImage != null && !Minecraft.getInstance().isPaused()) {
             //? if >=26.2 {
@@ -139,7 +142,7 @@ public class VLCJHandler extends AbstractTexture {
     }
     //? } else {
     /*public boolean updateTexture() {
-
+        if (!MinetokClient.vlcEnabled) return false;
         if (textureDirty && !textureLocked && bufferedImage != null && !Minecraft.getInstance().isPaused()) {
             textureDirty = false;
             MinetokClient.lastRenderFrame = () -> {
@@ -182,7 +185,9 @@ public class VLCJHandler extends AbstractTexture {
         Minecraft.getInstance().getTextureManager().register(textureId, this);
         bufferedImage = new BufferedImage(720,1280, Image.SCALE_FAST);
 
-        mediaPlayer = new MediaPlayerFactory().mediaPlayers().newEmbeddedMediaPlayer();
+        if (!MinetokClient.vlcEnabled) return;
+        MediaPlayerFactory factory = new MediaPlayerFactory();
+        mediaPlayer = factory.mediaPlayers().newEmbeddedMediaPlayer();
         mediaPlayer.videoSurface().set(new CallbackVideoSurface(
                 new BufferFormatCallback() {
                     @Override

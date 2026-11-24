@@ -12,11 +12,12 @@ import org.agmas.minetok.client.render.sprites.NotificationSprite;
 import org.agmas.minetok.client.vlcj.VLCJHandler;
 import org.agmas.minetok.client.vlcj.YTDLPDownloader;
 import org.agmas.minetok.porting.MTID;
+import uk.co.caprica.vlcj.binding.lib.LibVlc;
+import uk.co.caprica.vlcj.support.version.LibVlcVersion;
 
 public class VideoPlayer extends Sprite {
 
     public VLCJHandler handler;
-    float timeout = 0;
     boolean crashRightAfterOverlayClosed = false;
     public boolean canTimeOut = false;
 
@@ -36,18 +37,12 @@ public class VideoPlayer extends Sprite {
         }
         super.render(graphics, mouse, renderDelta);
         if (!handler.updateTexture()) {
-            timeout += renderDelta;
-            if (timeout >= 5) {
-                if (mouse.isClient) {
-                    if (!YTDLPDownloader.checkYtDLP()) {
-                        MinetokClient.currentlyRendering_phone.addNetOverlay(MinetokOverlays.NOTIFICATION, new NotificationSprite(Component.translatable("phone.error.no_ytdlp"), true, MinetokClient.phone));
-                        crashRightAfterOverlayClosed = true;
-                        timeout = -999999999;
-                    }
+            if (mouse.isClient) {
+                if (!YTDLPDownloader.checkYtDLP()) {
+                    MinetokClient.currentlyRendering_phone.addNetOverlay(MinetokOverlays.NOTIFICATION, new NotificationSprite(Component.translatable("phone.error.no_ytdlp"), true, MinetokClient.phone));
+                    crashRightAfterOverlayClosed = true;
                 }
             }
-        } else {
-            timeout = 0;
         }
         MTGraphics.blit(graphics, handler.textureId, 0,0,Phone.SCREEN_WIDTH,Phone.SCREEN_HEIGHT,0,1,0,1);
     }
